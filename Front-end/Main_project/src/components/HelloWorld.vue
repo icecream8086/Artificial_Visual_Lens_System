@@ -6,6 +6,7 @@
       check out the
       <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
     </p>
+    <el-button @click="switchThemes()">暗黑模式</el-button>
     <h3>Installed CLI Plugins</h3>
     <ul>
       <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
@@ -31,10 +32,17 @@
 </template>
 
 <script>
+import {useDark, useToggle} from '@vueuse/core'
+ 
+const isDark = useDark()
+ 
 export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
+  name: 'App',
+  methods: {
+    switchThemes() {
+      const toggleDark = useToggle(isDark)
+      console.log(toggleDark())
+    }
   }
 }
 </script>
