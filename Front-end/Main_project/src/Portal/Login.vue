@@ -1,5 +1,6 @@
 <template>
-  <div class="container">
+    <div class="container">
+
     <h2>Login</h2>
     <div class="form-group">
       <label for="username">Username</label>
@@ -18,12 +19,28 @@
         v-model="password"
         placeholder="Enter your password"
       />
-    </div>
+      <div class="demo-collapse">
+    <el-collapse v-model="activeNames" @change="handleChange">
+      <el-collapse-item title="other settings">
+        <div>
+          Consistent with real life: in line with the process and logic of real
+          life, and comply with languages and habits that the users are used to;
+        </div>
+        <div>
+          Consistent within interface: all elements should be consistent, such
+          as: design style, icons and texts, position of elements, etc.
+        </div>
+      </el-collapse-item>
+
+    </el-collapse>
+  </div>
     <div class="form-group">
       <el-button @click="login">Login</el-button>
       <!-- <el-button @click="switchThemes()">暗黑模式</el-button> -->
     </div>
   </div>
+ </div>
+ 
 </template>
 
 <script>
@@ -64,30 +81,51 @@ export default {
       this.switchThemes();
       console.log("Dark mode is enabled.");
     } else {
-      console.log("Light mode is enabled.");
+      console.log("checkDarkMode() ok");
     }
+    //添加一个类 刷新时修改当前body的class
+    document.body.className = "login-page";
   },
 };
 </script>
 
 <style>
-body {
-  /* background-image: url("../assets/background/Logins_HDR.png");
+:root {
+  --bg-color-light: #ccc;
+  --bg-color-dark: #333;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-color: var(--bg-color-light);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: var(--bg-color-dark);
+  }
+}
+
+.login-page {
+  background-image: url("../assets/background/Logins_HDR.png");
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   margin: 0;
-  padding: 0; */
+  padding: 0;
 }
 
+
 .container {
-  background-color: inherit;
   max-width: 40%;
   margin: 150px 0 0 3%;
   padding: 45px;
   border: 1px solid #ccc;
   border-radius: 1%;
+  opacity: 0.9;
+  background-color: var(--bg-color);
 }
 
 el-input[type="text"],
