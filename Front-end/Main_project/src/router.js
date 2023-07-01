@@ -1,18 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import HelloWorld from '@/components/HelloWorld.vue';
+import Login from '@/Portal/Login.vue';
 import About from '@/components/About.vue';
 
 const routes = [
   {
     path: '/',
-    redirect: '/home'
+    redirect: '/Login'
   },
   {
-    path: '/home',
-    component: HelloWorld,
-    name: 'home',
-    meta: { title: 'Home' }
+    path: '/Login',
+    component: Login,
+    name: 'Login',
+    meta: { title: 'Login' }
   },
   {
     path: '/about',
