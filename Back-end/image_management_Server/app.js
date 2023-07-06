@@ -41,6 +41,13 @@ app.use(function(err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
+  // allow any address to access the API
+  res.header('Access-Control-Allow-Origin', '*');
+  // allow any header to access the API
+  res.header('Access-Control-Allow-Headers', '*');
+  // allow any method to access the API
+  res.header('Access-Control-Allow-Methods', '*');
+
   // render the error page
   res.status(err.status || 500);
   res.render('error');
