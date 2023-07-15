@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/Portal/Login.vue';
 import SignUP from '@/Portal/SignUP.vue';
 import About from '@/components/About.vue';
+import dashboard from '@/Portal/dashboard.vue';
 
 
 const routes = [
@@ -27,6 +28,12 @@ const routes = [
     component: SignUP,
     name: 'SignUP',
     meta: { title: 'SignUP' }
+  },
+  {
+    path: '/dashboard',
+    component: dashboard,
+    name: 'dashboard',
+    meta: { title: 'dashboard' }
   }
 ];
 

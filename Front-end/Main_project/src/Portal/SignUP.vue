@@ -59,6 +59,7 @@
 import axios from "axios";
 import { reactive, ref } from "vue";
 import md5 from "md5";
+import router from "@/router";
 
 const SignUp = {
   name: "SignUp",
@@ -95,6 +96,7 @@ const SignUp = {
         .post('/api'+"/api/auth/signup", formData)
         .then((response) => {
           console.log(response.data);
+          router.push("/login");
         })
         .catch((error) => {
           console.error(error);
