@@ -8,6 +8,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 
 var usersRouter = require('./routes/users');
+var authRouter = require('./routes/api/auth');
 
 var app = express();
 
@@ -27,6 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
  */
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/api/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -38,6 +40,13 @@ app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // allow any address to access the API
+  res.header('Access-Control-Allow-Origin', '*');
+  // allow any header to access the API
+  res.header('Access-Control-Allow-Headers', '*');
+  // allow any method to access the API
+  res.header('Access-Control-Allow-Methods', '*');
 
   // render the error page
   res.status(err.status || 500);
