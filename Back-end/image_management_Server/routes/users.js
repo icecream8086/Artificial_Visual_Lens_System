@@ -24,7 +24,10 @@ router.get('/select_test', function(req, res, next) {
   // 执行数据库查询
   db.query('SELECT * FROM test', function(err, results, fields) {
     if (err) throw err;
+    console.log(results);
     res.json(results);
+    console.log('The solution is: ', results.length, results[0].id);
+
   });
 });
 

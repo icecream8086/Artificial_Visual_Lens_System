@@ -46,50 +46,58 @@ router.post('/signup', async (req, res, next) => {
 });
 
 // @ts-ignore
-const jwt = require('jsonwebtoken');
 
 router.post('/login', async (req, res, next) => {
+  let results;
   try {
     const { usernameOrEmail, password } = req.body;
     console.log('Username or email:', usernameOrEmail);
     if (!usernameOrEmail) {
       return res.status(400).json({ message: 'Username or email is required.' });
     }
-    const user = await db.query({
+    const result = await query({
       sql: `
         SELECT 
-            users.UID AS UID, 
-            users.password AS password, 
-            auth_info.allow_password_auth AS allow_password_auth, 
-            banned_users.is_banned AS is_banned 
+        users.UID,users.username, users.email, users.password, auth_info.allow_password_auth, banned_users.is_banned
         FROM 
-            users 
-            LEFT JOIN banned_users ON users.UID = banned_users.UID 
-            LEFT JOIN auth_info ON users.UID = auth_info.UID 
-        WHERE 
-            users.username = ? OR users.email = ?
+          users
+        LEFT JOIN
+          auth_info ON users.UID = auth_info.UID
+        LEFT JOIN 
+          banned_users ON users.UID = banned_users.UID
+        WHERE
+          (users.username = ? OR users.email = ?) AND users.password = ?;
       `,
-      values: [usernameOrEmail, usernameOrEmail],
+      values: [usernameOrEmail, usernameOrEmail, password],
     });
-    
-    if (user.length === 0) {
-      return res.status(401).json({ message: 'Invalid username or email.' });
+    results = JSON.parse(JSON.stringify(result));
+
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Username or email not found or password is incorrect.' });
+    } else if (results[0].is_banned === 1) {
+      return res.status(401).json({ message: 'User is banned.' });
+    } else if (results[0].allow_password_auth === 0) {
+      return res.status(401).json({ message: 'User is not allowed to login.' });
+    } else {
+      const token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+      return res.json({ token });
     }
-    const { UID, allow_password_auth, is_banned } = user[0] || {};
-    if (!allow_password_auth) {
-      return res.status(401).json({ message: 'Password authentication not allowed for this user.' });
-    }
-    if (is_banned) {
-      return res.status(401).json({ message: 'This user is banned.' });
-    }
-    if (password !== user[0].password) {
-      return res.status(401).json({ message: 'Invalid password.' });
-    }
-    const token = jwt.sign({ UID }, 'secret_key', { expiresIn: '1h' });
-    return res.json({ token });
   } catch (err) {
     console.error('Error during login:', err);
     next(err);
+  }
+
+  function query(sql, values) {
+    return new Promise((resolve, reject) => {
+      db.query(sql, values, (err, results) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(JSON.parse(JSON.stringify(results)));
+        }
+      });
+    });
   }
 });
 
