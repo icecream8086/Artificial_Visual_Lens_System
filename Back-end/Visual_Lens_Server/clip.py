@@ -6,17 +6,17 @@ from transformers import CLIPModel ,CLIPProcessor
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-model_path = "clip-vit-large-patch14"
+model_path = "clip-vit-base-patch32"
 model = CLIPModel.from_pretrained(model_path).to(device)
 processor = CLIPProcessor.from_pretrained(model_path)
 
 # url = "http://images.cocodataset.org/val2017/000000039769.jpg"
 # image = Image.open(requests.get(url, stream=True).raw)
 
-image = image = Image.open("e.jpg")
+image = image = Image.open("a.jpg")
 image_tensor = TF.to_tensor(image).to(device)
 
-texts=["leaf", "bear","cat"]
+texts=["bear","cat","weapon","air craft"]
 inputs = processor(text=texts, images=image_tensor, return_tensors="pt", padding=True)
 inputs.to(device)
 
