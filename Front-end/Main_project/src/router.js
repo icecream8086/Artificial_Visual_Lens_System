@@ -3,8 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/Portal/Login.vue';
 import SignUP from '@/Portal/SignUP.vue';
 import About from '@/components/About.vue';
-
-
+import dashboard from '@/Portal/dashboard.vue';
+import whoami from '@/Portal/whoami.vue';
+import test from '@/test.vue';
 const routes = [
   {
     path: '/',
@@ -27,6 +28,24 @@ const routes = [
     component: SignUP,
     name: 'SignUP',
     meta: { title: 'SignUP' }
+  },
+  {
+    path: '/dashboard',
+    component: dashboard,
+    name: 'dashboard',
+    meta: { title: 'dashboard' }
+  }
+  ,{
+    path: '/whoami',
+    component: whoami,
+    name: 'whoami',
+    meta: { title: 'whoami' }
+  },
+  {
+    path: '/test',
+    component: test,
+    name: 'test',
+    meta: { title: 'test' }
   }
 ];
 

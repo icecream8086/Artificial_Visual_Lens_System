@@ -1,14 +1,14 @@
 <template>
-  <div class="container">
+  <div class="login-page-container">
     <div class="center-content">
       <h2>Create New Account</h2>
       <form @submit.prevent="submitForm">
         <div>
-          <label for="fullName">Full Name:</label>
+          <label for="full_name">Full Name:</label>
           <el-input
-            v-model="formData.fullName"
+            v-model="formData.full_name"
             type="text"
-            id="fullName"
+            id="full_name"
           ></el-input>
         </div>
         <div>
@@ -19,6 +19,17 @@
             id="username"
             required
           ></el-input>
+        </div>
+        <div>
+          <label for="email">Email:</label>
+          <el-input
+            v-model="formData.email"
+            type="email"
+            id="email"
+            required
+            :class="{'is-invalid': !isEmailValid}"
+          ></el-input>
+          <div v-if="!isEmailValid" class="invalid-feedback">Please enter a valid email address.</div>
         </div>
         <div>
           <label for="password">Password:</label>
@@ -38,48 +49,76 @@
             required
           ></el-input>
         </div>
-        <el-button type="submit">Create Account</el-button>
+        <el-button type="primary" @click="submitForm">Create Account</el-button>
       </form>
     </div>
   </div>
 </template>
 
 <script>
-import { reactive } from "vue";
+import axios from "axios";
+import { reactive, ref } from "vue";
+import md5 from "md5";
+import router from "@/router";
 
-export default {
+const SignUp = {
   name: "SignUp",
   mounted() {
     document.body.className = "login-page";
   },
   setup() {
     const formData = reactive({
-      fullName: "",
+      full_name: "",
       username: "",
       password: "",
+      email: "",
     });
 
-    let confirmPassword = "";
+    const confirmPassword = ref("");
+
+    const isEmailValid = ref(true);
 
     const submitForm = () => {
-      if (formData.password !== confirmPassword) {
+      if (formData.password !== confirmPassword.value) {
         alert("Passwords do not match.");
         return;
       }
 
-      // 在此处添加提交表单的逻辑，例如发送创建账户请求到服务器
+      if (!isEmailValid.value) {
+        return;
+      }
 
-      // 打印表单数据
+      formData.password = md5(formData.password);
+
+      console.log("formData already submitted: ");
       console.log(formData);
+      axios
+        .post('/api'+"/api/auth/signup", formData)
+        .then((response) => {
+          console.log(response.data);
+          router.push("/login");
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    };
+
+    const validateEmail = () => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      isEmailValid.value = emailRegex.test(formData.email);
     };
 
     return {
       formData,
       confirmPassword,
+      isEmailValid,
       submitForm,
+      validateEmail,
     };
   },
 };
+
+export default SignUp;
 </script>
 
 <style scoped>
@@ -95,6 +134,7 @@ form {
 label {
   margin-bottom: 0.5rem;
 }
+
 .login-page {
   background-image: url("../assets/background/Logins_HDR.png");
   background-size: cover;
@@ -105,7 +145,7 @@ label {
   padding: 0;
 }
 
-.container {
+.login-page-container {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
@@ -120,5 +160,15 @@ label {
   align-items: center;
   flex-direction: column;
   height: 100%;
+}
+
+.is-invalid {
+  border-color: red;
+}
+
+.invalid-feedback {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
 }
 </style>
