@@ -13,7 +13,7 @@
           
           <div class="flex-grow" />
           <el-menu-item index="1" @click="navigateTo_Whoami"
-            > {{whoami}}</el-menu-item
+            >  {{whoami}}</el-menu-item
           >
           <div class="flex-grow" />
           <el-menu-item index="2" @click="navigateTo_Whoami"
@@ -113,7 +113,13 @@ import router from "@/router";
 
 export default {
   name: "DashboardPage",
-  
+  data() {
+    return {
+      whoami: "whoami",
+      circleUrl:
+        "https://img1.imgtp.com/2023/06/10/dSC7l8wI.jpg",
+    };
+  },
   methods: {
     navigateTo() {
       console.log("navigate to");

@@ -21,14 +21,16 @@
       />
       <div class="demo-collapse">
     <el-collapse v-model="activeNames" @change="handleChange">
-      <el-collapse-item title="other settings">
+      <el-collapse-item title="Server Address ">
         <div>
-          Consistent with real life: in line with the process and logic of real
-          life, and comply with languages and habits that the users are used to;
+          <p>message</p>
         </div>
         <div>
-          Consistent within interface: all elements should be consistent, such
-          as: design style, icons and texts, position of elements, etc.
+          <el-input
+        type="text"
+        id="username"
+        placeholder="Enter server address"
+      />
         </div>
       </el-collapse-item>
 
