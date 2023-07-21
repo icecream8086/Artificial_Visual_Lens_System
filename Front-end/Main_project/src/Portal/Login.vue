@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="login-page-container">
 
     <h2>Login</h2>
     <div class="form-group">
@@ -118,7 +118,7 @@ export default {
 }
 
 
-.container {
+.login-page-container {
   max-width: 40%;
   margin: 150px 0 0 3%;
   padding: 45px;
