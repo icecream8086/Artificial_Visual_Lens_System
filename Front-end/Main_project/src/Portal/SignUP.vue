@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="login-page-container">
     <div class="center-content">
       <h2>Create New Account</h2>
       <form @submit.prevent="submitForm">
@@ -145,7 +145,7 @@ label {
   padding: 0;
 }
 
-.container {
+.login-page-container {
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
