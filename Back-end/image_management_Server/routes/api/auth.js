@@ -1,7 +1,10 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const md5 = require('md5');
-var db = require('../../lib/datasource/mysql_connection');  // 引用数据库连接
+const jwt = require('jsonwebtoken');
+const db = require('../../lib/datasource/mysql_connection');  // 引用数据库连接
+// const redis=require('../../lib/datasource/redis_connection');
+const redis=require('../../lib/datasource/redis_connection_promise');
 
 /* user auth */
 
@@ -45,8 +48,6 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
-// @ts-ignore
-
 router.post('/login', async (req, res, next) => {
   let results;
   try {
@@ -80,15 +81,31 @@ router.post('/login', async (req, res, next) => {
     } else if (results[0].allow_password_auth === 0) {
       return res.status(401).json({ message: 'User is not allowed to login.' });
     } else {
-      const token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
-      return res.json({ token });
+      let token;
+      //redis get uid if not null
+      redis.get("uid_"+results[0].UID).then((result)=>{
+        if(result==null){ 
+          token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+
+          redis.set("uid_"+results[0].UID,res.json({ UID: results[0].UID, token }));
+          redis.expire("uid_"+results[0].UID,3600);
+          return res.json({ UID: results[0].UID, token });
+
+        }else{
+          return res.json({ UID: results[0].UID, token });
+
+        }
+      }).catch((err)=>{
+        console.log(err);
+      });
+
     }
   } catch (err) {
     console.error('Error during login:', err);
     next(err);
   }
 
-  function query(sql, values) {
+  function query({ sql, values }) {
     return new Promise((resolve, reject) => {
       db.query(sql, values, (err, results) => {
         if (err) {
@@ -100,6 +117,5 @@ router.post('/login', async (req, res, next) => {
     });
   }
 });
-
 
 module.exports = router;
