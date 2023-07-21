@@ -1,8 +1,10 @@
+// @ts-nocheck
 var express = require('express');
 var router = express.Router();
 const md5 = require('md5');
+const jwt = require('jsonwebtoken');
 var db = require('../../lib/datasource/mysql_connection');  // 引用数据库连接
-
+var redis = require('../../lib/datasource/redis_connection');  // 引用redis连接
 /* user auth */
 
 //post /api/auth/signup
@@ -80,7 +82,11 @@ router.post('/login', async (req, res, next) => {
     } else if (results[0].allow_password_auth === 0) {
       return res.status(401).json({ message: 'User is not allowed to login.' });
     } else {
+      //check data if not exist ?
       const token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+      //uplodad token to redis
+      redis.set(results[0].UID, token);
+      
       return res.json({ token });
     }
   } catch (err) {
@@ -100,6 +106,7 @@ router.post('/login', async (req, res, next) => {
     });
   }
 });
+
 
 
 module.exports = router;
