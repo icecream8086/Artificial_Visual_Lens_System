@@ -26,3 +26,11 @@ print(logits_per_image.argmax(-1).item()) # we can then take the max of these la
 print(probs[0][probs.argmax(-1).item()].item() )# we can then take the max of these label probabilities
 
 print(text[probs.argmax(-1).item()]) # we can then take the max of these label probabilities
+
+# pip install -i https://repo.nju.edu.cn/repository/pypi/simple torch
+# URL https://doc.nju.edu.cn/books/35f4a/page/pypi-python-package-index
+
+# pip install -i https://mirrors.aliyun.com/pypi/simple/ torch
+
+# path 
+# /usr/local
