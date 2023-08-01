@@ -1,6 +1,6 @@
 echo "Starting Unit Test ..."
 # module file name: 
-cd sysinfo
+cd sha1
 pwd
 
 # module name: 
