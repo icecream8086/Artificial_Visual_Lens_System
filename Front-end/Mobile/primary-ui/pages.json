@@ -1,0 +1,161 @@
+{
+
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+
+			"path": "pages/index/index",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/common/woami",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/common/setting",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/common/scan",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/common/result_manage",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/user/about",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/user/permissions",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/device/about",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/woami/login_portal",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/woami/whoami",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+            "path" : "pages/camera/camera",
+            "style" :                                                                                    
+            {
+				"navigationStyle":"custom",
+				"backgroundColor":"#000000"
+            }
+        },
+		{
+            "path" : "pages/camera/portrait/portrait",
+            "style" :                                                                                    
+            {
+				"navigationStyle":"custom",
+				"backgroundColor":"#000000"
+            }
+        }
+	    ,{
+            "path" : "pages/camera/idcard/idcard",
+            "style" :                                                                                    
+            {
+                "navigationStyle":"custom",
+                "backgroundColor":"#000000"
+            }
+            
+        }
+		,{
+            "path" : "pages/camera/idphoto/idphoto",
+            "style" :                                                                                    
+            {
+                "navigationStyle":"custom",
+                "backgroundColor":"#000000"
+            }
+            
+        }
+        ,{
+            "path" : "pages/camera/watermark/watermark",
+            "style" :                                                                                    
+            {
+               "navigationStyle":"custom",
+               "backgroundColor":"#000000"
+            }
+            
+        }
+		
+	],
+	"tabBar": {		
+		"color": "#c0c4cc",
+		"selectedColor": "#65bbe8",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"iconPath": "static/index.png",
+				"selectedIconPath":"static/index_clicked.png",
+				"navigationBarTitleText": "播放",
+				"text": "首页"
+			},
+			{
+				
+				"pagePath": "pages/common/result_manage",
+				"iconPath": "static/result_manage.png",
+				"selectedIconPath":"static/result_manage_clicked.png",
+				"text": "归档"
+			},
+			{
+				"iconPath": "static/scan.png",
+				"selectedIconPath":"static/scan_clicked.png",
+				"pagePath": "pages/common/scan",
+				"text": "扫描"
+			},
+			{
+				"iconPath": "static/whoami.png",
+				"pagePath": "pages/common/woami",
+				"selectedIconPath":"static/whoami_clicked.png",
+				"text": "(可能会改成记录功能)"
+			},
+
+			{
+				"iconPath": "static/setting.png",
+				"pagePath": "pages/common/setting",
+				"selectedIconPath":"static/setting_clicked.png",
+
+				"text": "设置"
+			}
+
+			
+		]
+		},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+//		"navigationBarTitleText": "",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {}
+}
