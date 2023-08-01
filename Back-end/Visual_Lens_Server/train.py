@@ -5,11 +5,12 @@ import torch.optim as optim
 from torchvision import datasets
 from torch.optim.lr_scheduler import StepLR
 from CNN_lib.dataset_normal import transform
-from CNN_lib.net_model import ResNet_0602
+from CNN_lib.net_model import ResNet_50_Customize
 
 train_set_1 = datasets.ImageFolder('dataset', transform=transform)
 basicset = torch.utils.data.ConcatDataset([train_set_1, ])
 basicloader = torch.utils.data.DataLoader(basicset, batch_size=32, shuffle=True)
+
 indices = torch.randperm(len(basicset))
 basicset = torch.utils.data.Subset(basicset, indices)
 train_size = int(len(basicset) * 0.6)
@@ -78,7 +79,7 @@ def test(model, device, val_loader, criterion):
 
 # 设置超参数并训练模型
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = ResNet_0602(num_classes=10)
+model = ResNet_50_Customize(num_classes=10)
 model.to(device)
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 scheduler = StepLR(optimizer, step_size=10, gamma=0.1)  # 定义学习率调度器
