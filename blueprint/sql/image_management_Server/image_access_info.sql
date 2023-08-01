@@ -7,13 +7,11 @@ CREATE TABLE image_access_info (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     file_id BIGINT NOT NULL,
-    read_access BOOLEAN DEFAULT TRUE,
-    write_access BOOLEAN DEFAULT TRUE,
-    delete_access BOOLEAN DEFAULT TRUE,
-    create_access BOOLEAN DEFAULT TRUE,
-    modify_access BOOLEAN DEFAULT TRUE,
-    full_control BOOLEAN DEFAULT FALSE,
-    specific_control BOOLEAN DEFAULT FALSE,
+    READ BOOLEAN DEFAULT TRUE,
+    WRITE BOOLEAN DEFAULT TRUE,
+    EXECUTE BOOLEAN DEFAULT TRUE,
+    Full_Control BOOLEAN DEFAULT FALSE,
+    BASIC_CONTROL BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users (UID),
     FOREIGN KEY (file_id) REFERENCES file_info (id)
 );
