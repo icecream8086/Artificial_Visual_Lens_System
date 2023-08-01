@@ -40,8 +40,16 @@ CREATE TABLE auth_info (
 );
 /* end */
 
-/* useage = "用户组" */
+/* useage = "用户权限表" */
+CREATE TABLE user_access_info (
+  UID INT PRIMARY KEY,
+  group_id INT PRIMARY KEY
+  FOREIGN KEY (UID) REFERENCES users (UID)
+);
 
+/* end */
+
+/* useage = "用户组" */
 CREATE TABLE user_group (
   group_id INT PRIMARY KEY,
   group_name VARCHAR(255),
