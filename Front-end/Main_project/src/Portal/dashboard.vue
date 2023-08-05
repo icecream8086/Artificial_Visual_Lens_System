@@ -21,6 +21,8 @@
           <el-avatar :size="50" :src="circleUrl" />
         </div></el-menu-item
           >
+          <el-menu-item><el-icon><MessageBox /></el-icon> 消息</el-menu-item>
+          <el-menu-item ><el-icon><User /></el-icon> 联系人</el-menu-item>
           <el-sub-menu index="3">
             <template #title><el-icon><SetUp /></el-icon> Workspace</template>
             <el-menu-item index="2-1">item one</el-menu-item>

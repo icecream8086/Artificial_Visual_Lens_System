@@ -47,11 +47,11 @@
 
 <script>
 import { useDark } from "@vueuse/core";
-
 export default {
   name: "LoginForm",
   data() {
     return {
+      token: "",
       username: "",
       password: "",
     };
@@ -69,6 +69,7 @@ export default {
     },
     login() {
       // Login
+      this.$store.dispatch('updateToken', this.token);
       if (this.username === "admin" && this.password === "admin") {
         this.$router.push("/dashboard");
       } else {
