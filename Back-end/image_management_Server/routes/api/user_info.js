@@ -6,6 +6,16 @@ const redis = require('../../lib/datasource/redis_connection_promise');
 const fs = require('fs');
 const multer = require('multer');
 
+/**
+ * Route to test the API
+ * @name GET/api/user_info/test
+ * @function
+ * @memberof module:routers/user_info
+ * @inner
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} - Returns a JSON object with a message property
+ */
 router.get('/test', async (req, res) => {
 
     return res.status(200).json({ message: 'test' });
@@ -25,16 +35,22 @@ const storage_Avatar = multer.diskStorage({
 });
 const upload = multer({ storage: storage_Avatar });
 
+/**
+ * Route to modify user avatar
+ * @name POST/api/user_info/modify_Avatar
+ * @function
+ * @memberof module:routers/user_info
+ * @inner
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} - Returns a JSON object with a message property
+ */
 router.post('/modify_Avatar', upload.single('images'), function (req, res) {
     const { token } = req.headers;
     const { UID } = req.body;
-    console.log(req);
     //check out UID from redis
     redis.get(token).then((reply) => {
         if (reply != UID) {
-            console.log('token ' + token);
-            console.log('reply ' + reply);
-            console.log('UID ' + UID);
             return res.status(401).json({ message: 'token is not match UID please login again' });
         } else {
             // rename file
@@ -53,6 +69,16 @@ router.post('/modify_Avatar', upload.single('images'), function (req, res) {
 
 });
 
+/**
+ * Route to get user avatar
+ * @name GET/api/user_info/get_Avatar/:id
+ * @function
+ * @memberof module:routers/user_info
+ * @inner
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @returns {Object} - Returns the user's avatar image file
+ */
 router.get('/get_Avatar/:id', async (req, res) => {
 
     const { id } = req.params;
@@ -63,6 +89,17 @@ router.get('/get_Avatar/:id', async (req, res) => {
     }
 });
 
+/**
+ * Route to get user basic information
+ * @name GET/api/user_info/get_basic_info/:id
+ * @function
+ * @memberof module:routers/user_info
+ * @inner
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Object} - Returns a JSON object with the user's basic information
+ */
 router.get('/get_basic_info/:id', async (req, res, next) => {
     const { id } = req.params;
     try {
@@ -78,6 +115,17 @@ router.get('/get_basic_info/:id', async (req, res, next) => {
     }
 });
 
+/**
+ * Route to get user information
+ * @name GET/api/user_info/get_user_info/:id
+ * @function
+ * @memberof module:routers/user_info
+ * @inner
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Object} - Returns a JSON object with the user's information
+ */
 router.get('/get_user_info/:id', async (req, res, next) => {
     const { token } = req.headers;
     const { id } = req.params;
@@ -102,6 +150,17 @@ router.get('/get_user_info/:id', async (req, res, next) => {
     }
 });
 
+/**
+ * Route to modify user information
+ * @name POST/api/user_info/modify_user_info
+ * @function
+ * @memberof module:routers/user_info
+ * @inner
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Object} - Returns a JSON object with a message property
+ */
 router.post('/modify_user_info', async (req, res, next) => {
     const { token } = req.headers;
     const { UID, age, gender ,address ,phone_number,nickname } = req.body;
@@ -140,6 +199,17 @@ router.post('/modify_user_info', async (req, res, next) => {
     }
 });
 
+/**
+ * Route to get user account status
+ * @name GET/api/user_info/get_account_statu/:id
+ * @function
+ * @memberof module:routers/user_info
+ * @inner
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ * @returns {Object} - Returns a JSON object with the user's account status
+ */
 router.get('/get_account_statu/:id', async (req, res, next) => {
     const { token } = req.headers;
     const { id } = req.params;
@@ -202,7 +272,7 @@ router.post('/modify_account_statu/:id', async (req, res, next) => {
     }
 });
 
-router.get('/banned_users/:id', async (req, res, next) => {
+router.get('/user_is_banned/:id', async (req, res, next) => {
     const { id } = req.params;
     
     try {

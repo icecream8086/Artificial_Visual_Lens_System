@@ -1,18 +1,26 @@
+/**
+ * Express router for user authentication.
+ * @module authRouter
+ */
+
 const express = require('express');
 const router = express.Router();
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
-const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
-// const redis=require('../../lib/datasource/redis_connection');
-const redis=require('../../lib/datasource/redis_connection_promise');
+const query = require('../../lib/datasource/mysql_connection_promise');  // Database connection
+const redis=require('../../lib/datasource/redis_connection_promise'); // Redis connection
 
-/* user auth */
-
-//post /api/auth/signup
-// 接收 POST 请求中传递的用户信息。
-// 对用户信息进行验证，确保用户名和邮箱没有被使用过，密码符合要求。
-// 将用户信息保存到数据库中。
-// 返回一个包含用户信息和 token 的 JSON 响应。
+/**
+ * POST request to sign up a new user.
+ * @name POST/api/auth/signup
+ * @function
+ * @memberof module:authRouter
+ * @param {string} full_name - The full name of the user.
+ * @param {string} username - The username of the user.
+ * @param {string} password - The password of the user.
+ * @param {string} email - The email of the user.
+ * @returns {JSON} - A JSON object containing the user information and token.
+ */
 router.post('/signup', async (req, res, next) => {
   const { full_name, username, password, email } = req.body;
   try {
@@ -21,7 +29,7 @@ router.post('/signup', async (req, res, next) => {
       return res.status(400).json({ message: 'Username is required' });
     }
 
-    // 验证用户名和邮箱是否已被使用
+    // Check if username and email are already in use
     const checkUserQuery = 'SELECT * FROM users WHERE username = ? OR email = ?';
 
     const checkUserResult = await query({
@@ -39,7 +47,7 @@ router.post('/signup', async (req, res, next) => {
       values: [full_name, username, encryptedPassword, email],
     });
 
-    // 返回注册成功的用户信息
+    // Return the user information after successful registration
     res.json({
       // @ts-ignore
       UID: insertUserResult.insertId,
@@ -48,12 +56,21 @@ router.post('/signup', async (req, res, next) => {
       email
     });
   } catch (error) {
-    // 输出错误信息
+    // Output error message
     console.error('Error during signup:', error);
     next(error);
   }
 });
 
+/**
+ * POST request to log in a user.
+ * @name POST/api/auth/login
+ * @function
+ * @memberof module:authRouter
+ * @param {string} usernameOrEmail - The username or email of the user.
+ * @param {string} password - The password of the user.
+ * @returns {JSON} - A JSON object containing the user ID and token.
+ */
 router.post('/login', async (req, res, next) => {
   let results;
   try {
@@ -86,7 +103,7 @@ router.post('/login', async (req, res, next) => {
     } else if (results[0].allow_password_auth === 0) {
       return res.status(401).json({ message: 'User is not allowed to login.' });
     } else {
-      //redis get uid if not null
+      // Redis get UID if not null
       let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
       redis.set(token, results[0].UID);
       redis.expire(token, 3600);
@@ -100,6 +117,16 @@ router.post('/login', async (req, res, next) => {
 
 });
 
+/**
+ * POST request to change a user's password.
+ * @name POST/api/auth/change_password
+ * @function
+ * @memberof module:authRouter
+ * @param {string} token - The token of the user.
+ * @param {string} old_password - The old password of the user.
+ * @param {string} new_password - The new password of the user.
+ * @returns {JSON} - A JSON object containing a message indicating whether the password was changed successfully.
+ */
 router.post('/change_password', async (req, res, next) => {
   try {
     let UID;
@@ -135,6 +162,14 @@ router.post('/change_password', async (req, res, next) => {
   }
 });
 
+/**
+ * POST request to reset a user's password.
+ * @name POST/api/auth/reset_password
+ * @function
+ * @memberof module:authRouter
+ * @param {string} email - The email of the user.
+ * @returns {JSON} - A JSON object containing a message indicating whether the password was reset successfully.
+ */
 router.post('/reset_password', async (req, res, next) => {
   //
   try {
@@ -159,6 +194,5 @@ router.post('/reset_password', async (req, res, next) => {
   }
 
 });
-
 
 module.exports = router;
