@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
-const db = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
-const redis = require('../../lib/datasource/redis_connection_promise');
+const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
+// const redis=require('../../lib/datasource/redis_connection');
+const redis=require('../../lib/datasource/redis_connection_promise');
 
 /* user auth */
 
@@ -23,7 +24,7 @@ router.post('/signup', async (req, res, next) => {
     // 验证用户名和邮箱是否已被使用
     const checkUserQuery = 'SELECT * FROM users WHERE username = ? OR email = ?';
 
-    const checkUserResult = await db({
+    const checkUserResult = await query({
       sql: checkUserQuery,
       values: [username, email],
     });
@@ -33,7 +34,7 @@ router.post('/signup', async (req, res, next) => {
       return res.status(400).json({ message: 'Username or email already in use' });
     }
     const encryptedPassword = password ? md5(password) : null;
-    const insertUserResult = await db({
+    const insertUserResult = await query({
       sql: 'INSERT INTO users (full_name, username, password, email) VALUES (?, ?, ?, ?)',
       values: [full_name, username, encryptedPassword, email],
     });
@@ -57,11 +58,10 @@ router.post('/login', async (req, res, next) => {
   let results;
   try {
     const { usernameOrEmail, password } = req.body;
-
     if (!usernameOrEmail) {
       return res.status(400).json({ message: 'Username or email is required.' });
     }
-    const result = await db({
+    const result = await query({
       sql: `
         SELECT 
         users.UID,users.username, users.email, users.password, auth_info.allow_password_auth, banned_users.is_banned
@@ -86,24 +86,12 @@ router.post('/login', async (req, res, next) => {
     } else if (results[0].allow_password_auth === 0) {
       return res.status(401).json({ message: 'User is not allowed to login.' });
     } else {
-      let token;
       //redis get uid if not null
-      redis.get("uid_" + results[0].UID).then((result) => {
-        if (result == null) {
-          token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+      let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+      redis.set(token, results[0].UID);
+      redis.expire(token, 3600);
 
-          redis.set("uid_" + results[0].UID, res.json({ UID: results[0].UID, token }));
-          redis.expire("uid_" + results[0].UID, 3600);
-          return res.json({ UID: results[0].UID, token });
-
-        } else {
-          return res.json({ UID: results[0].UID, token });
-
-        }
-      }).catch((err) => {
-        console.log(err);
-      });
-
+      return res.json({ UID: results[0].UID, token: token });
     }
   } catch (err) {
     console.error('Error during login:', err);
@@ -127,7 +115,7 @@ router.post('/change_password', async (req, res, next) => {
     });
 
     const { old_password, new_password } = req.body;
-    const result = await db({
+    const result = await query({
       sql: 'SELECT * FROM users WHERE UID = ?',
       values: [UID],
     });
@@ -135,7 +123,7 @@ router.post('/change_password', async (req, res, next) => {
     if (results[0].password !== md5(old_password)) {
       return res.status(401).json({ message: 'Old password is incorrect.' });
     }
-    const updateResult = await db({
+    const updateResult = await query({
       sql: 'UPDATE users SET password = ? WHERE UID = ?',
       values: [md5(new_password), UID],
     });
@@ -151,7 +139,7 @@ router.post('/reset_password', async (req, res, next) => {
   //
   try {
     const { email } = req.body;
-    const result = await db({
+    const result = await query({
       sql: 'SELECT * FROM users WHERE email = ?',
       values: [email],
     });
@@ -159,7 +147,7 @@ router.post('/reset_password', async (req, res, next) => {
     if (results.length === 0) {
       return res.status(401).json({ message: 'Email not found.' });
     }
-    const updateResult = await db({
+    const updateResult = await query({
       sql: 'UPDATE users SET password = ? WHERE email = ?',
       values: [md5('123456'), email],
     });
@@ -169,6 +157,7 @@ router.post('/reset_password', async (req, res, next) => {
     console.error('Error during reset password:', err);
     next(err);
   }
+
 });
 
 
