@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS user_info (
 /* useage = "登录信息表" */
 CREATE TABLE IF NOT EXISTS auth_info (
   UID INT PRIMARY KEY,
-  force_change_password BOOLEAN DEFAULT TRUE,
+  force_change_password BOOLEAN DEFAULT FALSE,
   allow_password_auth BOOLEAN DEFAULT TRUE,
   FOREIGN KEY (UID) REFERENCES users (UID)
 );
