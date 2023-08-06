@@ -5,7 +5,10 @@ import SignUP from '@/Portal/SignUP.vue';
 import About from '@/components/About.vue';
 import dashboard from '@/Portal/dashboard.vue';
 import whoami from '@/Portal/whoami.vue';
-import test from '@/test.vue';
+import rand_eachart from '@/components/rand_eachart.vue';
+import NotFound from '@/host/NotFound.vue';
+import Empty from '@/host/Empty.vue';
+import User_rectify from '@/Portal/User/User_rectify.vue';
 const routes = [
   {
     path: '/',
@@ -42,11 +45,30 @@ const routes = [
     meta: { title: 'whoami' }
   },
   {
-    path: '/test',
-    component: test,
-    name: 'test',
-    meta: { title: 'test' }
+    path: '/test/rand_eachart',
+    component: rand_eachart,
+    name: 'rand_eachart',
+    meta: { title: 'rand_eachart' }
+  },
+  {
+    path: '/empty',
+    component: Empty,
+    name: 'Empty',
+    meta: { title: 'Empty' }
+  },
+  {
+    path: '/:catchAll(.*)',
+    component: NotFound,
+    name: 'NotFound',
+    meta: { title: 'Page Not Found' }
+  },
+  {
+    path: '/User/User_rectify',
+    component: User_rectify,
+    name: 'User_rectify',
+    meta: { title: 'User_rectify' }
   }
+  
 ];
 
 const router = createRouter({

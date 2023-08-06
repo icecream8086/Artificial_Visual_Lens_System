@@ -9,20 +9,29 @@
           :ellipsis="false"
           @select="handleSelect"
         >
-          <el-menu-item index="0"><el-icon><HomeFilled /></el-icon> Home</el-menu-item>
-          
+          <el-menu-item index="0"
+            ><el-icon><HomeFilled /></el-icon> Home</el-menu-item
+          >
+
           <div class="flex-grow" />
-          <el-menu-item index="1" @click="navigateTo_Whoami"
-            >  {{whoami}}</el-menu-item
+          <el-menu-item index="1" @click="navigateTo_Whoami">
+            {{ whoami }}</el-menu-item
           >
           <div class="flex-grow" />
-          <el-menu-item index="2" @click="navigateTo_Whoami"
-            >         <div class="block">
-          <el-avatar :size="50" :src="circleUrl" />
-        </div></el-menu-item
+          <el-menu-item index="2" @click="navigateTo_Whoami">
+            <div class="block">
+              <el-avatar :size="50" :src="circleUrl" /></div
+          ></el-menu-item>
+          <el-menu-item
+            ><el-icon><MessageBox /></el-icon> 消息</el-menu-item
+          >
+          <el-menu-item
+            ><el-icon><User /></el-icon> 联系人</el-menu-item
           >
           <el-sub-menu index="3">
-            <template #title><el-icon><SetUp /></el-icon> Workspace</template>
+            <template #title
+              ><el-icon><SetUp /></el-icon> Workspace</template
+            >
             <el-menu-item index="2-1">item one</el-menu-item>
             <el-menu-item index="2-2">item two</el-menu-item>
             <el-menu-item index="2-3">item three</el-menu-item>
@@ -36,7 +45,9 @@
           </el-sub-menu>
 
           <el-sub-menu index="4">
-            <template #title><el-icon><Menu /></el-icon> view settings </template>
+            <template #title
+              ><el-icon><Menu /></el-icon> view settings
+            </template>
             <el-menu-item index="2-1">
               <el-radio-group v-model="isCollapse">
                 <el-radio-button :label="false">expand</el-radio-button>
@@ -75,11 +86,32 @@
                 <el-menu-item index="1-4-1">item one</el-menu-item>
               </el-sub-menu>
             </el-sub-menu>
-            <el-menu-item index="2">
-              <el-icon><Setting /></el-icon>
 
-              <template #title>Navigator Two</template>
+            <el-menu-item index="2">
+              <el-icon><PieChart /></el-icon>
+              <template #title>Performance analysis</template>
             </el-menu-item>
+
+            <el-menu-item>
+              <el-icon><Picture /></el-icon>
+              <template #title>Image </template>
+            </el-menu-item>
+
+            <el-menu-item>
+              <el-icon><User /></el-icon>
+              <template #title>Users </template>
+            </el-menu-item>
+
+            <el-menu-item>
+              <el-icon><User /></el-icon>
+              <template #title>Host Setting </template>
+            </el-menu-item>
+
+            <el-menu-item>
+              <el-icon><FullScreen /></el-icon>
+              <template #title>Analyze Status</template>
+            </el-menu-item>
+
             <el-menu-item index="3" disabled>
               <el-icon><Setting /></el-icon>
 
@@ -116,8 +148,7 @@ export default {
   data() {
     return {
       whoami: "whoami",
-      circleUrl:
-        "https://img1.imgtp.com/2023/06/10/dSC7l8wI.jpg",
+      circleUrl: "http://192.168.1.100:3000/api/user/get_Avatar/33",
     };
   },
   methods: {
