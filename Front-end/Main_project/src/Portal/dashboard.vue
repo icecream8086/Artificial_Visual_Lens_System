@@ -119,7 +119,7 @@ export default {
     return {
       whoami: "whoami",
       circleUrl:
-        "https://img1.imgtp.com/2023/06/10/dSC7l8wI.jpg",
+        "http://192.168.1.100:3000/api/user/get_Avatar/33",
     };
   },
   methods: {

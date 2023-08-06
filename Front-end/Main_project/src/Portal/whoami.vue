@@ -54,7 +54,7 @@
                   <el-main>
                     <div class="">
                       <el-avatar :size="120"
-                        src="http://192.168.1.100:8080/s/4TaatypcZ4ikcBk/download/142448745725842.jpg"
+                        src="http://192.168.1.100:3000/api/user/get_Avatar/33"
                         @error="errorHandler">
                       </el-avatar>
                       <p>{{ "username" }}</p>
@@ -62,6 +62,10 @@
                     </div>
                     <p>{{ "Organizations info" }}</p>
                     <p>{{ "Individuals info" }}</p>
+                    <template>
+  <el-skeleton :rows="5" animated />
+</template>
+
                   </el-main>
                 </el-container>
               </div>
@@ -96,8 +100,10 @@
 </style>
 
 <script setup>
-  import { Position, Link } from "@element-plus/icons-vue";
+// don't move !!!
+import { Position, Link } from "@element-plus/icons-vue";
 </script>
+
 <script>
   import router from "@/router";
   export default {
