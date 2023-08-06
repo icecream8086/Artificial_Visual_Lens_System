@@ -1,39 +1,53 @@
+/**
+ * Express router for user authentication.
+ * @module authRouter
+ */
+
 const express = require('express');
 const router = express.Router();
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
-const db = require('../../lib/datasource/mysql_connection');  // 引用数据库连接
-// const redis=require('../../lib/datasource/redis_connection');
-const redis=require('../../lib/datasource/redis_connection_promise');
+const query = require('../../lib/datasource/mysql_connection_promise');  // Database connection
+const redis=require('../../lib/datasource/redis_connection_promise'); // Redis connection
 
-/* user auth */
-
-//post /api/auth/signup
-// 接收 POST 请求中传递的用户信息。
-// 对用户信息进行验证，确保用户名和邮箱没有被使用过，密码符合要求。
-// 将用户信息保存到数据库中。
-// 返回一个包含用户信息和 token 的 JSON 响应。
+/**
+ * POST request to sign up a new user.
+ * @name POST/api/auth/signup
+ * @function
+ * @memberof module:authRouter
+ * @param {string} full_name - The full name of the user.
+ * @param {string} username - The username of the user.
+ * @param {string} password - The password of the user.
+ * @param {string} email - The email of the user.
+ * @returns {JSON} - A JSON object containing the user information and token.
+ */
 router.post('/signup', async (req, res, next) => {
   const { full_name, username, password, email } = req.body;
-
   try {
-    // 验证用户名和邮箱是否已被使用
+    // Check if username is present in the request body
+    if (!username) {
+      return res.status(400).json({ message: 'Username is required' });
+    }
+
+    // Check if username and email are already in use
     const checkUserQuery = 'SELECT * FROM users WHERE username = ? OR email = ?';
-    const checkUserResult = await db.query(checkUserQuery, [username, email]);
-    // @ts-ignore
+
+    const checkUserResult = await query({
+      sql: checkUserQuery,
+      values: [username, email],
+    });
+
     if (checkUserResult.length > 0) {
       console.log('Username or email already in use:', username, email);
       return res.status(400).json({ message: 'Username or email already in use' });
     }
+    const encryptedPassword = password ? md5(password) : null;
+    const insertUserResult = await query({
+      sql: 'INSERT INTO users (full_name, username, password, email) VALUES (?, ?, ?, ?)',
+      values: [full_name, username, encryptedPassword, email],
+    });
 
-    // 将用户信息插入数据库
-    const insertUserQuery = 'INSERT INTO users (full_name, username, password, email) VALUES (?, ?, ?, ?)';
-    const insertUserResult = await db.query(insertUserQuery, [full_name, username, password, email]);
-
-    // 输出调试信息
-    console.log('User registered successfully:', insertUserResult);
-
-    // 返回注册成功的用户信息
+    // Return the user information after successful registration
     res.json({
       // @ts-ignore
       UID: insertUserResult.insertId,
@@ -42,17 +56,25 @@ router.post('/signup', async (req, res, next) => {
       email
     });
   } catch (error) {
-    // 输出错误信息
+    // Output error message
     console.error('Error during signup:', error);
     next(error);
   }
 });
 
+/**
+ * POST request to log in a user.
+ * @name POST/api/auth/login
+ * @function
+ * @memberof module:authRouter
+ * @param {string} usernameOrEmail - The username or email of the user.
+ * @param {string} password - The password of the user.
+ * @returns {JSON} - A JSON object containing the user ID and token.
+ */
 router.post('/login', async (req, res, next) => {
   let results;
   try {
     const { usernameOrEmail, password } = req.body;
-    console.log('Username or email:', usernameOrEmail);
     if (!usernameOrEmail) {
       return res.status(400).json({ message: 'Username or email is required.' });
     }
@@ -81,41 +103,96 @@ router.post('/login', async (req, res, next) => {
     } else if (results[0].allow_password_auth === 0) {
       return res.status(401).json({ message: 'User is not allowed to login.' });
     } else {
-      let token;
-      //redis get uid if not null
-      redis.get("uid_"+results[0].UID).then((result)=>{
-        if(result==null){ 
-          token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+      // Redis get UID if not null
+      let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+      redis.set(token, results[0].UID);
+      redis.expire(token, 3600);
 
-          redis.set("uid_"+results[0].UID,res.json({ UID: results[0].UID, token }));
-          redis.expire("uid_"+results[0].UID,3600);
-          return res.json({ UID: results[0].UID, token });
-
-        }else{
-          return res.json({ UID: results[0].UID, token });
-
-        }
-      }).catch((err)=>{
-        console.log(err);
-      });
-
+      return res.json({ UID: results[0].UID, token: token });
     }
   } catch (err) {
     console.error('Error during login:', err);
     next(err);
   }
 
-  function query({ sql, values }) {
-    return new Promise((resolve, reject) => {
-      db.query(sql, values, (err, results) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(JSON.parse(JSON.stringify(results)));
-        }
-      });
+});
+
+/**
+ * POST request to change a user's password.
+ * @name POST/api/auth/change_password
+ * @function
+ * @memberof module:authRouter
+ * @param {string} token - The token of the user.
+ * @param {string} old_password - The old password of the user.
+ * @param {string} new_password - The new password of the user.
+ * @returns {JSON} - A JSON object containing a message indicating whether the password was changed successfully.
+ */
+router.post('/change_password', async (req, res, next) => {
+  try {
+    let UID;
+    const { token } = req.headers;
+    redis.get(token).then((result) => {
+      if (result == null) {
+        return res.status(401).json({ message: 'Token is invalid.' });
+      } else {
+        UID = result;
+      }
+    }).catch((err) => {
+      console.log(err);
     });
+
+    const { old_password, new_password } = req.body;
+    const result = await query({
+      sql: 'SELECT * FROM users WHERE UID = ?',
+      values: [UID],
+    });
+    const results = JSON.parse(JSON.stringify(result));
+    if (results[0].password !== md5(old_password)) {
+      return res.status(401).json({ message: 'Old password is incorrect.' });
+    }
+    const updateResult = await query({
+      sql: 'UPDATE users SET password = ? WHERE UID = ?',
+      values: [md5(new_password), UID],
+    });
+    return res.json({ message: 'Password changed successfully.' });
+
+  } catch (err) {
+    console.error('Error during change password:', err);
+    next(err);
   }
+});
+
+/**
+ * POST request to reset a user's password.
+ * @name POST/api/auth/reset_password
+ * @function
+ * @memberof module:authRouter
+ * @param {string} email - The email of the user.
+ * @returns {JSON} - A JSON object containing a message indicating whether the password was reset successfully.
+ */
+router.post('/reset_password', async (req, res, next) => {
+  //
+  try {
+    const { email } = req.body;
+    const result = await query({
+      sql: 'SELECT * FROM users WHERE email = ?',
+      values: [email],
+    });
+    const results = JSON.parse(JSON.stringify(result));
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Email not found.' });
+    }
+    const updateResult = await query({
+      sql: 'UPDATE users SET password = ? WHERE email = ?',
+      values: [md5('123456'), email],
+    });
+    return res.json({ message: 'Password reset successfully.' });
+
+  } catch (err) {
+    console.error('Error during reset password:', err);
+    next(err);
+  }
+
 });
 
 module.exports = router;

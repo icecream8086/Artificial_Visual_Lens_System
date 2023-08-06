@@ -61,7 +61,7 @@ router.get('/image_test', function(req, res, next) {
 
 
 // 配置multer
-const storage = multer.diskStorage({
+const storage_demo = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './File_Stream/Test/catch'); // 设置文件保存的路径
   },
@@ -70,7 +70,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage_demo });
 
 router.post('/upload_image_Test', upload.single('files'), function(req, res, next) {
   // 文件上传成功后的处理逻辑
