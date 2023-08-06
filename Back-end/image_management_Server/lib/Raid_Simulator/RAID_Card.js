@@ -98,6 +98,23 @@ async function Raid_V() {
       // 计算分块大小
       const chunkSize = Math.floor(data.length / (targetFolders_RV.length + 1));
 
+      // 创建临时文件夹用于备份目标文件夹中的数据
+      const tempFolder = 'path/to/temp/folder';
+      await fs.mkdir(tempFolder);
+
+      // 备份目标文件夹中的数据到临时文件夹
+      for (let i = 0; i < targetFolders_RV.length; i++) {
+        const targetFilePath = targetFilePaths[i];
+        const tempFilePath = path.join(tempFolder, `${file}.bak${i + 1}`);
+
+        try {
+          await fs.copyFile(targetFilePath, tempFilePath);
+        } catch (err) {
+          console.error(`Failed to backup data from ${targetFilePath}. Skipping file ${file}.`);
+          throw err; // 抛出异常，终止操作
+        }
+      }
+
       // 分块写入目标文件夹
       let offset = 0;
 
@@ -105,12 +122,25 @@ async function Raid_V() {
         const chunk = data.slice(offset, offset + chunkSize);
         const targetFilePath = targetFilePaths[i];
 
-        // 写入目标文件夹
-        await fs.writeFile(targetFilePath, chunk);
-        console.log(`Chunk ${i + 1} of file ${file} copied successfully.`);
+        try {
+          // 写入目标文件夹
+          await fs.writeFile(targetFilePath, chunk);
+          console.log(`Chunk ${i + 1} of file ${file} copied successfully.`);
+        } catch (err) {
+          console.error(`Failed to copy chunk ${i + 1} of file ${file}. Restoring data from backup.`);
+          
+          // 恢复目标文件夹中的数据
+          const tempFilePath = path.join(tempFolder, `${file}.bak${i + 1}`);
+          await fs.copyFile(tempFilePath, targetFilePath);
+
+          throw err; // 抛出异常，终止操作
+        }
 
         offset += chunkSize;
       }
+
+      // 删除临时文件夹
+      await fs.rmdir(tempFolder);
 
       // 计算校验信息
       const parityChunk = Buffer.alloc(chunkSize);
@@ -122,6 +152,14 @@ async function Raid_V() {
       // 写入校验文件夹
       await fs.writeFile(parityFilePath, parityChunk);
       console.log(`Parity chunk of file ${file} copied successfully.`);
+
+      // 读取校验文件
+      const parityData = await fs.readFile(parityFilePath);
+
+      // 比较源文件和校验文件的数据
+      if (!data.equals(parityData)) {
+        console.error(`Data inconsistency detected in parity chunk of file ${file}.`);
+      }
     }
   } catch (err) {
     console.error('Failed to copy files:', err);
@@ -129,6 +167,7 @@ async function Raid_V() {
 }
 
 // Raid_V();
+
 
 
 const sourceFolderPath_RI = '/path/source_folder';
