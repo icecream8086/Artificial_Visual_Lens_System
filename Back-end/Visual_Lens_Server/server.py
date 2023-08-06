@@ -2,9 +2,8 @@ from flask import Flask, request, jsonify
 from sdk.access import ImageClassifier
 import os
 import uuid
-from sdk.get_max_prob import get_max_prob_desc  # 导入 get_max_prob_desc 函数
+from sdk.get_max import get_max_prob_desc  # 导入 get_max_prob_desc 函数
 from PIL import Image
-import io
 
 app = Flask(__name__)
 

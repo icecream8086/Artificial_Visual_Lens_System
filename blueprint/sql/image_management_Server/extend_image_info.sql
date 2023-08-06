@@ -1,41 +1,43 @@
-/* 文件信息
-        格式
-        大小
-        模式
-        修改时间
-        访问时间
-        创建时间
-        文件大小
-        磁盘使用量
-        路径 */
+/* useage = "文件信息表"
+id: 文件ID，自增主键。
+sha256: 文件的SHA256哈希值。
+format: 文件的格式。
+size: 文件大小。
+mode: 文件的模式。
+mod_time: 文件的修改时间。
+access_time: 文件的访问时间。
+create_time: 文件的创建时间。
+file_size: 文件的实际大小。
+disk_usage: 文件在磁盘上占用的空间。
+path: 文件的路径。
+owner_uid: 文件的所有者UID，外键参考自用户表的UID。 
+*/
 
 CREATE TABLE file_info (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    sha256 VARCHAR(64) NOT NULL,
-    format VARCHAR(20) NOT NULL,
-    size BIGINT NOT NULL,
-    mode VARCHAR(10) NOT NULL,
-    mod_time DATETIME NOT NULL,
-    access_time DATETIME NOT NULL,
-    create_time DATETIME NOT NULL,
-    file_size BIGINT NOT NULL,
-    disk_usage BIGINT NOT NULL,
-    path VARCHAR(255) NOT NULL
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  sha256 VARCHAR(64) NOT NULL,
+  format VARCHAR(20) NOT NULL,
+  size BIGINT NOT NULL,
+  mode VARCHAR(10) NOT NULL,
+  mod_time DATETIME NOT NULL,
+  access_time DATETIME NOT NULL,
+  create_time DATETIME NOT NULL,
+  file_size BIGINT NOT NULL,
+  disk_usage BIGINT NOT NULL,
+  path VARCHAR(255) NOT NULL,
+  owner_uid INT NOT NULL,
+  FOREIGN KEY (owner_uid) REFERENCES users (UID)
 );
 
-/* insert data */
-
-INSERT INTO file_info (sha256, format, size, mode, mod_time, access_time, create_time, file_size, disk_usage, path)
-VALUES ('your_sha256', 'your_format', your_size, 'your_mode', 'your_mod_time', 'your_access_time', 'your_create_time', your_file_size, your_disk_usage, 'your_path');
-
-/* select data */
-SELECT * FROM file_info WHERE sha256 = 'your_sha256';
-
-/* update data */
-UPDATE file_info SET format = 'new_format', size = new_size, path = 'new_path' WHERE sha256 = 'your_sha256';
-
-/* delete data */
-DELETE FROM file_info WHERE sha256 = 'your_sha256';
+CREATE TABLE file_ownership (
+  file_id BIGINT NOT NULL,
+  owner_uid INT NOT NULL,
+  PRIMARY KEY (file_id, owner_uid),
+  FOREIGN KEY (file_id) REFERENCES file_info (id),
+  FOREIGN KEY (owner_uid) REFERENCES users (UID)
+);
+/*path: docs/Back-end/image_management_Server/sqlTable/Chapter_User/File_Access.md */
+/* end */
 
 /* 说明
         标题
