@@ -21,8 +21,3 @@ CREATE TABLE IF NOT EXISTS history_version (
 
 
 /* 每当文件的SHA-256哈希值发生变化时，就会将该版本的信息插入到history_version表中，以便记录历史版本的修改。 */
-
-INSERT INTO history_version (file_id, version_name, modification_date, sha256)
-SELECT id, '版本名称', CURRENT_TIMESTAMP, sha256
-FROM file_info
-WHERE sha256 = '旧的SHA-256哈希值' AND id = '文件ID';
