@@ -1,21 +1,3 @@
-/* 
-id：唯一标识每个权限记录的ID。
-user_id：关联到users表的UID，表示用户ID。
-file_id：关联到file_info表的id，表示文件ID。
-*_access：表示权限，每个图像对象的info来自，创建时的user_group表的权限。 */
-CREATE TABLE image_access_info (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    file_id BIGINT NOT NULL,
-    READ BOOLEAN DEFAULT TRUE,
-    WRITE BOOLEAN DEFAULT TRUE,
-    EXECUTE BOOLEAN DEFAULT TRUE,
-    Full_Control BOOLEAN DEFAULT FALSE,
-    BASIC_CONTROL BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (user_id) REFERENCES users (UID),
-    FOREIGN KEY (file_id) REFERENCES file_info (id)
-);
-
 
 
 /* 
@@ -27,14 +9,16 @@ CREATE TABLE image_access_info (
 〇 sha256：历史版本的SHA-256哈希值。
 
  */
-CREATE TABLE history_version (
-id BIGINT PRIMARY KEY AUTO_INCREMENT,
-file_id BIGINT NOT NULL,
-version_name VARCHAR(255) NOT NULL,
-modification_date DATETIME NOT NULL,
-sha256 VARCHAR(64) NOT NULL,
-FOREIGN KEY (file_id) REFERENCES file_info (id)
+CREATE TABLE IF NOT EXISTS history_version (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  file_sha256 VARCHAR(64) NOT NULL,
+  version_name VARCHAR(255) NOT NULL,
+  modification_date DATETIME NOT NULL,
+  sha256 VARCHAR(64) NOT NULL,
+  FOREIGN KEY (file_sha256) REFERENCES file_info (sha256)
 );
+
+
 
 /* 每当文件的SHA-256哈希值发生变化时，就会将该版本的信息插入到history_version表中，以便记录历史版本的修改。 */
 
