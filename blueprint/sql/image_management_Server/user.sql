@@ -33,7 +33,6 @@ CREATE TABLE IF NOT EXISTS user_info (
 /* useage = "登录信息表" */
 CREATE TABLE IF NOT EXISTS auth_info (
   UID INT PRIMARY KEY,
-  password VARCHAR(255) DEFAULT NULL,
   force_change_password BOOLEAN DEFAULT TRUE,
   allow_password_auth BOOLEAN DEFAULT TRUE,
   FOREIGN KEY (UID) REFERENCES users (UID)
@@ -52,16 +51,16 @@ CREATE TABLE IF NOT EXISTS user_access_info (
 /* end */
 
 /* useage = "用户组" */
-CREATE TABLE IF NOT EXISTS user_group  (
+CREATE TABLE IF NOT EXISTS user_group (
   group_id INT PRIMARY KEY,
   group_name VARCHAR(255),
   READ_A BOOLEAN DEFAULT TRUE,
   WRITE_A BOOLEAN DEFAULT TRUE,
   EXECUTE_A BOOLEAN DEFAULT TRUE,
   Full_Control_A BOOLEAN DEFAULT FALSE,
-  BASIC_CONTROL_A BOOLEAN DEFAULT FALSE,
-  FOREIGN KEY (group_id)
+  BASIC_CONTROL_A BOOLEAN DEFAULT FALSE
 );
+
 /* end */
 
 
