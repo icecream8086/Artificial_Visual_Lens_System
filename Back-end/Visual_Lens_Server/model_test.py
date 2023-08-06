@@ -33,16 +33,16 @@ print('Device:', device)
 model = ResNet_50_Customize(num_classes=5).to(device)
 
 # 加载模型状态字典到CPU
-state_dict = torch.load('ResNet-0602.pth', map_location=torch.device('cpu'))
+state_dict = torch.load('ResNet-0602.pth', device)
 
 # Print the keys in the state_dict dictionary
 # print(state_dict.keys())
 
-# Check if the key is present but with a different name
-if 'fc.weight' in state_dict:
-    state_dict['fc.weight'] = state_dict['fc.weight'][:5]
-if 'fc.bias' in state_dict:
-    state_dict['fc.bias'] = state_dict['fc.bias'][:5]
+# # Check if the key is present but with a different name
+# if 'fc.weight' in state_dict:
+#     state_dict['fc.weight'] = state_dict['fc.weight'][:5]
+# if 'fc.bias' in state_dict:
+#     state_dict['fc.bias'] = state_dict['fc.bias'][:5]
 
 # Adjust the size of the fc.weight and fc.bias parameters in the checkpoint to match the size of the corresponding parameters in the current model
 if 'resnet50.fc.weight' in state_dict:
