@@ -37,16 +37,6 @@ model = ResNet_50_Customize(num_classes=5).to(device)
 # 加载模型状态字典到CPU
 state_dict = torch.load('ResNet-0602.pth', device)
 
-# Print the keys in the state_dict dictionary
-# print(state_dict.keys())
-
-# # Check if the key is present but with a different name
-# if 'fc.weight' in state_dict:
-#     state_dict['fc.weight'] = state_dict['fc.weight'][:5]
-# if 'fc.bias' in state_dict:
-#     state_dict['fc.bias'] = state_dict['fc.bias'][:5]
-
-# Adjust the size of the fc.weight and fc.bias parameters in the checkpoint to match the size of the corresponding parameters in the current model
 if 'resnet50.fc.weight' in state_dict:
     state_dict['resnet50.fc.weight'] = state_dict['resnet50.fc.weight'][:5]
 if 'resnet50.fc.bias' in state_dict:
@@ -66,7 +56,10 @@ test_acc = torch.tensor(0.0, dtype=torch.float32, device=device)
 
 # 在验证集上评估模型
 with torch.no_grad():
-    for images, labels in val_loader:
+    val_loss = 0.0
+    val_acc = 0.0
+    val_bar = tqdm(val_loader, desc='Validation', leave=False)
+    for images, labels in val_bar:
         criterion = nn.CrossEntropyLoss()
         images, labels = images.to(device), labels.to(device)
         outputs = model(images)
@@ -74,23 +67,43 @@ with torch.no_grad():
         val_loss += loss.item()
         _, predicted = torch.max(outputs.data, 1)
         val_acc += (predicted == labels).sum().item()
+        val_bar.set_postfix({'Loss': val_loss / len(val_loader), 'Accuracy': val_acc / len(val_loader)})
+
+        # 准备输出的 JSON 数据
+        output_data = {
+            'type': 'validation',
+            'validation_loss': val_loss / len(val_loader.dataset),
+            'validation_accuracy': val_acc / len(val_loader.dataset),
+            'test_loss': test_loss / len(test_loader.dataset),
+            'test_accuracy': test_acc / len(test_loader.dataset)
+        }
+
+        
+        # 打印输出的 JSON 数据
+        print(output_data)
 
 # 在测试集上评估模型
 with torch.no_grad():
-    for images, labels in test_loader:
+    test_loss = 0.0
+    test_acc = 0.0
+    test_bar = tqdm(test_loader, desc='Testing', leave=False)
+    for images, labels in test_bar:
         images, labels = images.to(device), labels.to(device)
         outputs = model(images)
         loss = criterion(outputs, labels)
         test_loss += loss.item()
         _, predicted = torch.max(outputs.data, 1)
         test_acc += (predicted == labels).sum().item()
+        test_bar.set_postfix({'Loss': test_loss / len(test_loader), 'Accuracy': test_acc / len(test_loader)})
 
-# 计算平均损失和准确率
-val_loss /= len(val_loader.dataset)
-val_acc /= len(val_loader.dataset)
-test_loss /= len(test_loader.dataset)
-test_acc /= len(test_loader.dataset)
+        # 准备输出的 JSON 数据
+        output_data = {
+            'type': 'test',
+            'validation_loss': val_loss / len(val_loader.dataset),
+            'validation_accuracy': val_acc / len(val_loader.dataset),
+            'test_loss': test_loss / len(test_loader.dataset),
+            'test_accuracy': test_acc / len(test_loader.dataset)
+        }
 
-
-print('Validation Loss: {:.4f}, Validation Accuracy: {:.4f}'.format(val_loss.item(), val_acc.item()))
-print('Test Loss: {:.4f}, Test Accuracy: {:.4f}'.format(test_loss.item(), test_acc.item()))
+        # 打印输出的 JSON 数据
+        print(output_data)
