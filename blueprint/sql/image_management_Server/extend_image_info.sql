@@ -188,3 +188,11 @@ CREATE TABLE sources (
     acquire_date DATE,
     copyright VARCHAR(100)
 );
+
+
+
+CREATE TABLE IF NOT EXISTS  deleteinfo (
+    sha256 VARCHAR(64) NOT NULL,
+    isdelete BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (sha256) REFERENCES file_info (sha256)
+);
