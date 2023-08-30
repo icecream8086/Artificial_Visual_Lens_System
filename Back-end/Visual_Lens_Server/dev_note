@@ -1,0 +1,278 @@
+Web服务器
+    '''
+    禁止直接删除任何内容，通过移动到文件夹，定时删除文件夹内的内容，需要设置crontab，也可以管理员模式强制删除
+    管理员UID为本地文件，白名单制，禁止服务器编辑
+    队列任务划分制度则基于一个全局队列
+    '''
+        基于文件夹的数据集管理
+        通过本地的一个Json文件存储数据集和用户的映射关系
+        通过本地的一个Json文件存储用户的信息
+        基于队列的任务管理
+        基于队列的训练管理
+        ...
+分类器管理
+    '''
+    分类器,允许指定所有者,基于字典功能
+    '''
+        包含Res_Net系列,允许通过参数选择不同的模型
+        数据集分原始数据集和训练数据集
+        通过复制数据集的方式，指定参数训练模型
+        包含零样本分类器
+        ...
+风格鉴定
+    '''
+    基于任务队列机制，测试后返回，不存储结果和原始图像
+    (因为测试结果可能充满不确定性，禁止使用有向无环图拓扑排序，使用队列模式)
+    '''
+        抽象化工作 基于clip 模型
+        允许测试
+            图像风格: 允许是迪士尼，漫画，卡通，写实，油画，素描
+            色彩调性：色彩调性是指图片所使用的整体色彩的情感特点和氛围。
+            对比度：对比度描述了图片中明暗、色彩等方面的差异程度。
+            纹理：纹理是指图片中物体或表面的质感和纹理特征。
+            构图：构图是指图片中各个元素的布局和排列方式。
+            故事性：故事性是指图片中可能存在的故事情节或情感表达。
+        物体识别工作
+            画面主体
+            画面次要
+            画面背景
+        分类工作
+            包含Res_Net系列,允许通过参数选择不同的模型
+            大力出奇迹
+______ 数据集接口
+    | 上传单张图片，允许设置裁剪大小
+    post:
+        /upload_data
+            {
+                data_dir:"..."
+                img_size
+            }
+    | 上传压缩包，允许设置裁剪大小
+    post:
+        /upload_data_zip
+            {
+                data_dir:"..."
+                img_size
+            }
+    | 删除数据集
+    post:
+        /delete_data
+            {
+                data_dir:"..."
+            }
+    | 获取数据集列表
+    get:
+        /get_data_list
+            {
+                data_dir:"..."
+            }
+    
+    | 删除数据集的单张图片
+    post:
+        /delete_data_img
+            {
+                data_dir:"..."
+                img_name:"..."
+            }
+______ 训练接口
+    | 开始训练
+    post:
+        /start_train
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 获取训练列表
+    get:
+        /get_train_list
+            {
+                data_dir:"..."
+            }
+    | 中止训练
+    post:
+        /stop_train
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 删除训练
+    post:
+        /delete_train
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+______ 模型接口
+    | 模型列表
+    get:
+        /get_model_list
+            {
+                data_dir:"..."
+            }
+    | 删除模型
+    post:
+        /delete_model
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+______ 任务接口
+    | 查看任务队列
+    get:
+        /get_task_list
+            {
+                data_dir:"..."
+            }
+    | 删除任务
+    post:
+        /delete_task
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 添加任务
+    post:
+        /add_task
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 中止任务
+    post:
+        /stop_task
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 修改任务
+    post:
+        /modify_task
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 获取任务
+    post:
+        /get_task
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 删除任务
+    post:
+        /delete_task
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+______ 分类器接口
+    | 获取分类器
+    post:
+        /get_classifier
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 获取分类器(指定名称)
+    post:
+        /get_classifier_by_name
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 获取分类器(零样本分类器)
+    post:
+        /get_classifier_zero
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 获取分类器(零样本分类器)(指定名称)
+    post:
+        /get_classifier_zero_by_name
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 测试分类器
+    post:
+        /test_classifier
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 测试分类器(指定名称)
+    post:
+        /test_classifier_by_name
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 测试分类器(零样本分类器)
+    post:
+        /test_classifier_zero
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+    | 测试分类器(零样本分类器)(指定名称)
+    post:
+        /test_classifier_zero_by_name
+            {
+                data_dir:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
+______ 风格鉴定接口
+    | 打标图片(获取风格，画面主体信息等)
+    post:
+        /get_img_info
+            {
+                data_dir:"..."
+                img_name:"..."
+            }
+    | 打标图片(获取风格，画面主体信息等)(指定模型)
+    post:
+        /get_img_info_by_model
+            {
+                data_dir:"..."
+                img_name:"..."
+                model_name:"..."
+                model_param:"..."
+                owner:"..."
+            }
