@@ -9,6 +9,9 @@ import rand_eachart from '@/components/rand_eachart.vue';
 import NotFound from '@/host/NotFound.vue';
 import Empty from '@/host/Empty.vue';
 import User_rectify from '@/Portal/User/User_rectify.vue';
+import ErrorPage from '@/host/Error.vue';
+import UnauthorizedPage from '@/host/Unauthorized.vue';
+
 const routes = [
   {
     path: '/',
@@ -67,6 +70,18 @@ const routes = [
     component: User_rectify,
     name: 'User_rectify',
     meta: { title: 'User_rectify' }
+  },
+  {
+    path:'/host/Error',
+    component:ErrorPage,
+    name:'ErrorPage',
+    meta:{title:'ErrorPage'}
+  },
+  {
+    path:'/host/Unauthorized',
+    component:UnauthorizedPage,
+    name:'UnauthorizedPage',
+    meta:{title:'UnauthorizedPage'}
   }
   
 ];
