@@ -1,3 +1,8 @@
+/**
+ * Checks the file type of a given file path using the `file` command.
+ * @param {string} filePath - The path of the file to check.
+ * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating whether the file is a JPEG, PNG, JPEG, or RAW image.
+ */
 const { exec } = require('child_process');
 
 function checkFileType(filePath) {

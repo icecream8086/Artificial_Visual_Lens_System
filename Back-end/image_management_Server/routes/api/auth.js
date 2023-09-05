@@ -206,4 +206,29 @@ router.post('/reset_password', async (req, res, next) => {
 
 });
 
+
+router.post('/get_token', async (req, res, next) => {
+  const UID = req.body.UID;
+  const User_UID = req.body.User_UID;
+
+  try {
+    const result = await query({
+      sql: 'SELECT * FROM users WHERE UID = ?',
+      values: [UID],
+    });
+    const results = JSON.parse(JSON.stringify(result));
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'UID not found.' });
+    }
+    let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+    redis.set(token, results[0].UID);
+    redis.expire(token, 3600);
+
+    return res.json({ UID: results[0].UID, token: token });
+  } catch (err) {
+    console.error('Error during get token:', err);
+    return next(err);
+  }
+});
+
 module.exports = router;

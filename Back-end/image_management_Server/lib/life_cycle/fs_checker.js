@@ -1,3 +1,7 @@
+/**
+ * Tracks changes in a directory by watching for file changes and renames.
+ * @param {string} directoryPath - The path of the directory to track changes for.
+ */
 const fs = require('fs');
 const path = require('path');
 
