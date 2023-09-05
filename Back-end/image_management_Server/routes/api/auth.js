@@ -81,7 +81,7 @@ router.post('/login', async (req, res, next) => {
     const result = await query({
       sql: `
         SELECT 
-        users.UID,users.username, users.email, users.password, auth_info.allow_password_auth, banned_users.is_banned
+        users.UID,users.username, users.email, users.password, auth_info.allow_password_auth, banned_users.is_banned ,auth_info.force_change_password
         FROM 
           users
         LEFT JOIN
@@ -102,7 +102,11 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ message: 'User is banned.' });
     } else if (results[0].allow_password_auth === 0) {
       return res.status(401).json({ message: 'User is not allowed to login.' });
-    } else {
+    } else if (results[0].force_change_password  === 1) {
+    
+      return res.status(401).json({ message: 'User must change password.' });
+    } else 
+    {
       // Redis get UID if not null
       let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
       redis.set(token, results[0].UID);
@@ -128,9 +132,13 @@ router.post('/login', async (req, res, next) => {
  * @returns {JSON} - A JSON object containing a message indicating whether the password was changed successfully.
  */
 router.post('/change_password', async (req, res, next) => {
+  let pinCode_group=['6666969','5993520','3659205','0010001','3459832','2226553','9439943'];
   try {
     let UID;
     const { token } = req.headers;
+    if (token==undefined) {
+      return res.status(401).json({ message: 'Token is required.' });
+    }
     redis.get(token).then((result) => {
       if (result == null) {
         return res.status(401).json({ message: 'Token is invalid.' });
@@ -141,7 +149,7 @@ router.post('/change_password', async (req, res, next) => {
       console.log(err);
     });
 
-    const { old_password, new_password } = req.body;
+    const { old_password, new_password,pinCode } = req.body;
     const result = await query({
       sql: 'SELECT * FROM users WHERE UID = ?',
       values: [UID],
@@ -173,12 +181,15 @@ router.post('/change_password', async (req, res, next) => {
 router.post('/reset_password', async (req, res, next) => {
   //
   try {
-    const { email } = req.body;
+    const { email ,UID } = req.body;
+
     const result = await query({
       sql: 'SELECT * FROM users WHERE email = ?',
       values: [email],
     });
     const results = JSON.parse(JSON.stringify(result));
+    
+    
     if (results.length === 0) {
       return res.status(401).json({ message: 'Email not found.' });
     }
@@ -193,6 +204,31 @@ router.post('/reset_password', async (req, res, next) => {
     next(err);
   }
 
+});
+
+
+router.post('/get_token', async (req, res, next) => {
+  const UID = req.body.UID;
+  const User_UID = req.body.User_UID;
+
+  try {
+    const result = await query({
+      sql: 'SELECT * FROM users WHERE UID = ?',
+      values: [UID],
+    });
+    const results = JSON.parse(JSON.stringify(result));
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'UID not found.' });
+    }
+    let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+    redis.set(token, results[0].UID);
+    redis.expire(token, 3600);
+
+    return res.json({ UID: results[0].UID, token: token });
+  } catch (err) {
+    console.error('Error during get token:', err);
+    return next(err);
+  }
 });
 
 module.exports = router;

@@ -48,6 +48,9 @@ const upload = multer({ storage: storage_Avatar });
 router.post('/modify_Avatar', upload.single('images'), function (req, res) {
     const { token } = req.headers;
     const { UID } = req.body;
+    if (token==undefined) {
+        return res.status(401).json({ message: 'Token is required.' });
+      }
     //check out UID from redis
     redis.get(token).then((reply) => {
         if (reply != UID) {
@@ -130,6 +133,9 @@ router.get('/get_user_info/:id', async (req, res, next) => {
     const { token } = req.headers;
     const { id } = req.params;
     const { UID } = req.body;
+    if (token==undefined) {
+        return res.status(401).json({ message: 'Token is required.' });
+      }
     try {
         redis.get(token).then((reply) => {
             if (reply != UID) {
@@ -162,6 +168,9 @@ router.get('/get_user_info/:id', async (req, res, next) => {
  * @returns {Object} - Returns a JSON object with a message property
  */
 router.post('/modify_user_info', async (req, res, next) => {
+    if (token==undefined) {
+        return res.status(401).json({ message: 'Token is required.' });
+      }
     const { token } = req.headers;
     const { UID, age, gender ,address ,phone_number,nickname } = req.body;
     try {
@@ -235,6 +244,9 @@ router.get('/get_account_statu/:id', async (req, res, next) => {
 });
 
 router.post('/modify_account_statu/:id', async (req, res, next) => {
+    if (token==undefined) {
+        return res.status(401).json({ message: 'Token is required.' });
+      }
     const { id } = req.params;
     const { token } = req.headers;
     /* useage = "登录信息表" */
@@ -292,7 +304,9 @@ router.post('/banned_users/:id', async (req, res, next) => {
     const { is_banned,UID } = req.body;
     // id 为被封禁的用户的UID
     // UID 为封禁者的UID
-
+    if (token==undefined) {
+        return res.status(401).json({ message: 'Token is required.' });
+      }
     try {
         redis.get(token).then((reply) => {
             if (reply != UID) {

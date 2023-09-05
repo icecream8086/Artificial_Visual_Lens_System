@@ -1,7 +1,7 @@
 echo "Starting Unit Test ..."
 # module file name: 
-cd sysinfo
+cd fileinfo
 pwd
 
 # module name: 
-node call.js
+node fs_checker.js
