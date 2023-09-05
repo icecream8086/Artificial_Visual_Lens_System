@@ -128,6 +128,8 @@
         <el-main>
           <!-- this is body -->
           <p>this is a demo page</p>
+          <p>将来配置局部刷新内容</p>
+          <p>部分管理员专用组件可以隐藏</p>
           <img
             src="../assets/test/ZxjqtA-q9Q9dCkSYapPkXOtD5MYaQxF4PXS2EHVG7Hc.png"
             alt=""
