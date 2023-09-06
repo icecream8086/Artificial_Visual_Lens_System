@@ -13,10 +13,10 @@
 				"backgroundColor": "#F8F8F8"
 			}
 		},
-
 		{
 			"path": "pages/common/setting",
 			"style": {
+				"navigationStyle": "custom",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -24,7 +24,6 @@
 			"path": "pages/common/scan",
 			"style": {
 				"navigationBarBackgroundColor": "#171717",
-
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -37,6 +36,9 @@
 		{
 			"path": "pages/user/about",
 			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"navigationBarTextStyle": "white",
+				"backgroundTextStyle": "light",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -187,7 +189,6 @@
 		"backgroundTextStyle": "@bgTxtStyle",
 		"backgroundColorTop": "@bgColorTop",
 		"backgroundColorBottom": "@bgColorBottom"
-		
 	},
 	"uniIdRouter": {}
 }

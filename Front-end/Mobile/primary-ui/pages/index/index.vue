@@ -5,7 +5,7 @@
       <div>
         <view style="padding: 65px ">
           <p class="text-area-title">问候语</p>
-          <p class="text-area-title">hello ? Mother Fucker ?..</p>
+          <p class="text-area-title">hello ? 2 ?..</p>
 
           <view class="text-area">
           <div class="element1">
@@ -118,8 +118,10 @@ export default {
 
 .bg_box {
   position: relative;
-  width: 350px;
-  height: 500px;
+  min-width: 350px;
+  min-height: 500px;
+  width: calc(100vw - 50px);
+  height: calc((100vw - 50px) * 350 / 500);
   position: absolute;
   top: 50%;
   left: 50%;
