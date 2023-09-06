@@ -235,16 +235,18 @@
   }
 
   .login_bg_containers {
-    position: relative;
-    width: 350px;
-    height: 500px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #171717;
-    border: 1px solid #1999ef;
-    padding: 1px color #1999ef;
+  position: relative;
+  min-width: 350px;
+  min-height: 500px;
+  width: calc(100vw - 50px);
+  height: calc((100vw - 50px) * 350 / 500);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #171717;
+  border: 1px solid #1999ef;
+  padding: 1px color #1999ef;
   }
 
   .element1 {

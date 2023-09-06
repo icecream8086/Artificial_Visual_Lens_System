@@ -1,6 +1,57 @@
 <template>
   <view class="login_bg_containe">
-    <div class="bg_box"></div>
+    <div class="">
+      <!-- <div class="bg_box"> -->
+      <div>
+        <view style="padding: 65px ">
+          <p class="text-area-title">问候语</p>
+          <p class="text-area-title">hello ? 2 ?..</p>
+
+          <view class="text-area">
+          <div class="element1">
+              <u-icon
+                name="photo"
+                color="#2979ff"
+                size="64"
+                class="button_icon"
+              ></u-icon>
+            </div>
+            <div class="element2">
+              <u-button class="main_button" text="本地天气"></u-button>
+            </div>
+        </view>
+
+        <view class="text-area">
+          <div class="element3">
+              <u-icon
+                name="photo"
+                color="#2979ff"
+                size="64"
+                class="button_icon"
+              ></u-icon>
+            </div>
+            <div class="element2">
+              <u-button class="main_button" text="查看日志"></u-button>
+            </div>
+        </view>
+
+        <view class="text-area">
+          <div class="element4">
+              <u-icon
+                name="photo"
+                color="#2979ff"
+                size="64"
+                class="button_icon"
+              ></u-icon>
+            </div>
+            <div class="element2">
+              <u-button class="main_button" text="服务器负载"></u-button>
+            </div>
+        </view>
+
+        </view>
+      </div>
+    </div>
   </view>
 </template>
 
@@ -67,8 +118,10 @@ export default {
 
 .bg_box {
   position: relative;
-  width: 350px;
-  height: 500px;
+  min-width: 350px;
+  min-height: 500px;
+  width: calc(100vw - 50px);
+  height: calc((100vw - 50px) * 350 / 500);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -84,7 +137,19 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
+.main_button {
+  background-color: #171717;
+  border: 1px solid #1999ef;
+  padding: 1px color #1999ef;
+  color: #1999ef;
+  border: 2px solid;
+  border-radius: 5px;
+  height: 50px;
+  width: 300px;
+  padding: 35px;
+  margin-top: 35px;
+  z-index: 1;
+}
 .logo {
   height: 200rpx;
   width: 200rpx;
@@ -94,6 +159,16 @@ export default {
   margin-bottom: 50rpx;
 }
 
+.text-area-title {
+  display: flex;
+  justify-content: center;
+  color: white;
+}
+.button_icon {
+  position: absolute;
+
+  z-index: 2;
+}
 .text-area {
   display: flex;
   justify-content: center;
@@ -109,5 +184,35 @@ export default {
   height: 300rpx;
   line-height: 300rpx;
   text-align: center;
+}
+
+.element1 {
+  position: absolute;
+  top: 24%;
+  left: 60%;
+  /* background-color: red; */
+  z-index: 2;
+}
+
+.element3 {
+  position: absolute;
+  top: 41%;
+  left: 60%;
+  /* background-color: red; */
+  z-index: 3;
+}
+.element4 {
+  position: absolute;
+  top: 59%;
+  left: 60%;
+  /* background-color: red; */
+  z-index: 4;
+}
+
+
+.element2 {
+
+  /* background-color: blue; */
+  z-index: 1;
 }
 </style>

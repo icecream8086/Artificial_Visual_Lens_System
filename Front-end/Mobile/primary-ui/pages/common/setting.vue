@@ -1,20 +1,21 @@
-<template>
+<template >
 
+<view class="login_bg_containe">
   <view>
-    <uni-section :title="nickname" :subTitle="group" type="line" padding>
+    <uni-section :title="nickname" :subTitle="group" type="line" padding class="sections">
       <div>
         <u-avatar :src="src" mode="square" @click="goAbout"></u-avatar>
       </div>
     </uni-section>
 
-    <u-collapse @change="change" @close="close" @open="open">
+    <u-collapse @change="change" @close="close" @open="open" class="collapses">
       <u-collapse-item title="用户设置" name="login info">
         <text class="u-collapse-content">将来用于处理用户登录相关接口，部分组件将来会通过条件渲染隐藏</text>
         <div>
           <!-- 个人门户 -->
-          <u-button text="个人信息设置" @click="goAbout"></u-button>
+          <u-button text="个人信息设置" @click="goAbout" class="collapses"></u-button>
           <!-- 用户组 -->
-          <u-button text="个人权限设置" @click="permissions"></u-button>
+          <u-button text="个人权限设置" @click="permissions" class=""></u-button>
           <!-- 如果登录用户是狗管理的话，显示组成员的CRUD功能 -->
           <u-button text="用户组成员管理"></u-button>
           <u-button text="用户组管理"></u-button>
@@ -54,6 +55,7 @@
     </view>
 
   </view>
+</view>
 </template>
 
 <script>
@@ -138,3 +140,32 @@
     },
   };
 </script>
+
+<style>
+.login_bg_containe {
+  background-image: url("../../static/bokeh-hex.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: blue;
+}
+.sections{
+  background-color: #171717;
+  position: sticky;
+}
+
+.collapses{
+  background-color: #171717;
+  border: 1px solid #1999ef;
+  color: #1999ef;
+
+}
+</style>

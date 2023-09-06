@@ -3,6 +3,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
+				"navigationStyle": "custom",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -15,12 +16,14 @@
 		{
 			"path": "pages/common/setting",
 			"style": {
+				"navigationStyle": "custom",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
 		{
 			"path": "pages/common/scan",
 			"style": {
+				"navigationBarBackgroundColor": "#171717",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -33,6 +36,9 @@
 		{
 			"path": "pages/user/about",
 			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"navigationBarTextStyle": "white",
+				"backgroundTextStyle": "light",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -52,6 +58,19 @@
 			"path": "pages/woami/login_portal",
 			"style": {
 				"navigationStyle": "custom",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/woami/forget_password",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/woami/login_token",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -101,7 +120,7 @@
 		"color": "#c0c4cc",
 		"selectedColor": "#65bbe8",
 		"borderStyle": "black",
-		"backgroundColor": "#ffffff",
+		"backgroundColor": "#171717",
 		"list": [
 			{
 				"pagePath": "pages/index/index",
@@ -170,7 +189,6 @@
 		"backgroundTextStyle": "@bgTxtStyle",
 		"backgroundColorTop": "@bgColorTop",
 		"backgroundColorBottom": "@bgColorBottom"
-		
 	},
 	"uniIdRouter": {}
 }

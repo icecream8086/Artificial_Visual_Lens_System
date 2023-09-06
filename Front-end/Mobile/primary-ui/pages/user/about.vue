@@ -1,10 +1,14 @@
 <template>
-	<view class="content">
+<view class="login_bg_containe">
+	<view class="bg_box">
+		<view class="content">
 		<image class="logo" src="/static/logo.png"></image>
 		<view class="text-area">
 			<text class="title">{{title}}</text>
 		</view>
 	</view>
+	</view>
+</view>
 	
 </template>
 
@@ -16,7 +20,7 @@
 			return {
 				windowWidth:'',
 				windowHeight:'',
-				title: '暂时不知道放什么，暂时用作占位符\n 可能会用来显示百科功能\n 将来可能有其他放面的用处',
+				title: '待完成',
 			}
 		},
 		onLoad() {
@@ -74,4 +78,34 @@
 		line-height: 300rpx;
 		text-align: center;
 	}
+	.login_bg_containe {
+  background-image: url("../../static/bokeh-hex.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: blue;
+}
+
+.bg_box {
+  position: relative;
+  min-width: 350px;
+  min-height: 500px;
+  width: calc(100vw - 50px);
+  height: calc((100vw - 50px) * 350 / 500);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #171717;
+  border: 1px solid #1999ef;
+  padding: 1px color #1999ef;
+}
 </style>
