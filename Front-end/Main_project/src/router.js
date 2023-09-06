@@ -11,6 +11,9 @@ import Empty from '@/host/Empty.vue';
 import User_rectify from '@/Portal/User/User_rectify.vue';
 import ErrorPage from '@/host/Error.vue';
 import UnauthorizedPage from '@/host/Unauthorized.vue';
+//--------------Test----------------
+import Test_page from '@/test/card.vue';
+
 
 const routes = [
   {
@@ -82,6 +85,10 @@ const routes = [
     component:UnauthorizedPage,
     name:'UnauthorizedPage',
     meta:{title:'UnauthorizedPage'}
+    path:'/test/card',
+    component:Test_page,
+    name :'Test_page',
+    meta:{title:'Test_page'}
   }
   
 ];

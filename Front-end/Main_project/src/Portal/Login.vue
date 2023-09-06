@@ -122,10 +122,10 @@ export default {
 
 
 .login-page-container {
-  max-width: 40%;
-  margin: 150px 0 0 3%;
+  max-width: 45%;
+  margin: 150px 0 5% 7.5%;
   padding: 45px;
-  border: 1px solid #ccc;
+  border: 1px solid #1999ef;
   border-radius: 1%;
   opacity: 0.9;
   background-color: var(--bg-color);
