@@ -85,6 +85,8 @@ const routes = [
     component:UnauthorizedPage,
     name:'UnauthorizedPage',
     meta:{title:'UnauthorizedPage'}
+  },
+  {
     path:'/test/card',
     component:Test_page,
     name :'Test_page',
