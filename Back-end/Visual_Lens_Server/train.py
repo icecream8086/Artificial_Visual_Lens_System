@@ -88,4 +88,4 @@ def train_module(val_loader, train_loader, train, test ,module_name='ResNet-0602
     val_bar.close()
     torch.save(model.state_dict(), module_name)
 
-train_module(val_loader, train_loader, train, test)
+train_module(val_loader, train_loader, train, test, module_name='ResNet-0602.pth')
