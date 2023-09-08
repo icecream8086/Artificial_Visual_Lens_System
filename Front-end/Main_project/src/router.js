@@ -11,6 +11,9 @@ import Empty from '@/host/Empty.vue';
 import User_rectify from '@/Portal/User/User_rectify.vue';
 import ErrorPage from '@/host/Error.vue';
 import UnauthorizedPage from '@/host/Unauthorized.vue';
+import edit_info from '@/Portal/User/edit_info.vue';
+import creat_user from '@/Portal/User/create_user.vue';
+import creat_user_group from '@/Portal/User/user_group/user_group.vue';
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -91,6 +94,24 @@ const routes = [
     component:Test_page,
     name :'Test_page',
     meta:{title:'Test_page'}
+  }
+  ,{
+    path:'/User/edit_info',
+    component:edit_info,
+    name :'edit_info',
+    meta:{title:'edit_info'}
+  },
+  {
+    path:'/User/creat_user',
+    component:creat_user,
+    name :'creat_user',
+    meta:{title:'creat_user'}
+  },
+  {
+    path:'/User/user_group',
+    component:creat_user_group,
+    name :'user_group',
+    meta:{title:'user_group'}
   }
   
 ];
