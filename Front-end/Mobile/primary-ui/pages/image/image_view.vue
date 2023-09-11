@@ -1,0 +1,1 @@
+<!-- https://zh.uniapp.dcloud.io/uni-app-x/api/previewImage.html#previewimageoptions -->
