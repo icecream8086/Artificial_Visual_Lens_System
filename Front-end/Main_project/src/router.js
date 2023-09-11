@@ -14,6 +14,7 @@ import UnauthorizedPage from '@/host/Unauthorized.vue';
 import edit_info from '@/Portal/User/edit_info.vue';
 import creat_user from '@/Portal/User/create_user.vue';
 import creat_user_group from '@/Portal/User/user_group/user_group.vue';
+import image_Grid from '@/host/image_GRID';
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -112,8 +113,13 @@ const routes = [
     component:creat_user_group,
     name :'user_group',
     meta:{title:'user_group'}
+  },
+  {
+    path:'/image/imageGRID',
+    component:image_Grid,
+    name:'Image_Grid',
+    meta :{title:'user_group'}
   }
-  
 ];
 
 const router = createRouter({
