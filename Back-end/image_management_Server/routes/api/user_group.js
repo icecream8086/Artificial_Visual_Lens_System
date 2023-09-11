@@ -4,12 +4,31 @@ const query = require('../../lib/datasource/mysql_connection_promise');  // å¼•ç
 const redis = require('../../lib/datasource/redis_connection_promise');
 const fs = require('fs');
 const multer = require('multer');
-// todo ... 
+
 
 router.get('/list', async (req, res, next) => {
+    // list group menber
     try {
-        // let sql = 'select * from user_group';
-        // let result = await query(sql);
+        let UID;
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.get('/list_group', async (req, res, next) => {
+    // list all group 
+    // only admin can use
+    try {
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.post('/add', async (req, res, next) => {
+    // add user to group
+    try {
+        // let sql = 'insert into user_group set ?';
+        // let result = await query(sql, req.body);
         // res.json(result);
     } catch (error) {
         next(error);
@@ -17,7 +36,8 @@ router.get('/list', async (req, res, next) => {
 });
 
 
-router.post('/add', async (req, res, next) => {
+router.post('/add_group', async (req, res, next) => {
+    // add new group
     try {
         // let sql = 'insert into user_group set ?';
         // let result = await query(sql, req.body);
@@ -28,6 +48,7 @@ router.post('/add', async (req, res, next) => {
 });
 
 router.post('/modifiy', async (req, res, next) => {
+    // modifiy user to group
     try {
         // let sql = 'update user_group set ? where id = ?';
         // let result = await query(sql, [req.body, req.body.id]);
@@ -36,5 +57,24 @@ router.post('/modifiy', async (req, res, next) => {
         next(error);
     }
 });
+
+router.post('/delete', async (req, res, next) => {
+    // delete user to group
+    try {
+        // let sql = 'delete from user_group where id = ?';
+    } catch (error) {
+        next(error);
+    }
+});
     
+router.post('/delete_group', async (req, res, next) => {
+    // delete group
+    try {
+        // let sql = 'delete from user_group where id = ?';
+    } catch (error) {
+        next(error);
+    }
+});
+
+
 module.exports = router;

@@ -45,6 +45,7 @@ router.post('/signup', async (req, res, next) => {
     const insertUserResult = await query({
       sql: 'INSERT INTO users (full_name, username, password, email) VALUES (?, ?, ?, ?)',
       values: [full_name, username, encryptedPassword, email],
+      // values: [full_name, username, password, email],
     });
 
     // Return the user information after successful registration
@@ -94,7 +95,6 @@ router.post('/login', async (req, res, next) => {
       values: [usernameOrEmail, usernameOrEmail, password],
     });
     results = JSON.parse(JSON.stringify(result));
-
 
     if (results.length === 0) {
       return res.status(401).json({ message: 'Username or email not found or password is incorrect.' });

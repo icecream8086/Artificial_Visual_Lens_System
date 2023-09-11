@@ -6,11 +6,12 @@
 const express = require('express');
 const router = express.Router();
 
-const query = require('../../lib/datasource/mysql_connection_promise');  // Database connection
-const redis = require('../../lib/datasource/redis_connection_promise'); // Redis connection
-const multer = require('multer');
-const jwt = require('jsonwebtoken');
+const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
+const redis = require('../../lib/datasource/redis_connection_promise');
+const validateToken = require('../../lib/logic_module/check_user');
 
+const fs = require('fs');
+const multer = require('multer');
 
 
 // 配置multer
@@ -26,68 +27,42 @@ const storage_demo = multer.diskStorage({
   const upload = multer({ storage: storage_demo });
 
 router.post('/uploadFile',upload.single('files'), async (req, res, next) => {
+  const  UID  = req.headers;
+  const  token  = req.headers;
 
-    let UID;
-    const { tokens } = req.headers;
-    if (tokens==undefined) {
-      return res.status(401).json({ message: 'Token is required.' });
-    }
-    redis.get(tokens).then((result) => {
-      if (result == null) {
-        return res.status(401).json({ message: 'Token is invalid.' });
-      } else {
-        UID = result;
-      }
-    }).catch((err) => {
-      console.log(err);
-    });
-// Todo 
-// selece UID if UID is not exist return 401
-// select UserGroup if UserGroup not allow upload return 401
-// select FileTypes if FileTypes must be in FileTypes return 401
+  validateToken(token, UID)
+  .then(() => {
+    console.log('Token is valid.'); // if token is valid
 
-    
-    return res.status(200).json({ message: 'uploadFile Test' });
+  })
+  .catch((error) => {
+    return res.status(401).json({ message: error.message });
+  });
+
 });
 
 router.post('/downloadFile', async (req, res, next) => {
     
-
     //
     return res.status(200).json({ message: 'downloadFile Test' });
 });
 
+router.post('/downloadFile_share', async (req, res, next) => {
+    
+  //
+  return res.status(200).json({ message: 'downloadFile Test' });
+});
 router.post('/deleteFile', async (req, res, next) => {
-    let UID;
-    const { tokens } = req.headers;
-    const { filename } = req.body;
-    if (tokens==undefined) {
-        return res.status(401).json({ message: 'Token is required.' });
-    }
-    redis.get(tokens).then((result) => {
-        if (result == null) {
-            return res.status(401).json({ message: 'Token is invalid.' });
-        } else {
-            UID = result;
-        }
-    }).catch((err) => {
-        console.log(err);
-    });
-    // Todo
-    // filename
-    if (filename == undefined) {
-        return res.status(401).json({ message: 'filename is required.' });
-    }
-    // multer delete file
-    // delete file from database
-    // delete file from dir
-    
+  const { token,UID } = req.headers;
 
-    //--------------------------------
-    //sql update attribute unlink , is_delete  
-    // move file to catch
-    
-        return res.status(200).json({ message: 'deleteFile Test' });
+  validateToken(token, UID)
+  .then(() => {
+    console.log('Token is valid.'); // if token is valid
+
+  })
+  .catch((error) => {
+    return res.status(401).json({ message: error.message });
+  });
 });
 
 

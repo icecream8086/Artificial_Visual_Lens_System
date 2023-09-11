@@ -7,6 +7,7 @@ const redis=require('../../lib/datasource/redis_connection_promise'); // Redis c
 
 
 router.post('/add_ownership', async (req, res, next) => {
+
 });
 
 router.post('/delete_ownership', async (req, res, next) => {
@@ -15,16 +16,17 @@ router.post('/delete_ownership', async (req, res, next) => {
 router.post('/modify_ownership', async (req, res, next) => {
 });
 
-router.post('/query_ownership', async (req, res, next) => {
+router.post('/image_ownership', async (req, res, next) => {
+    
 });
 
-router.post('/query_ownership_list', async (req, res, next) => {
+router.post('/image_ownership_list', async (req, res, next) => {
 });
 
-router.post('/query_ownership_list_by_user', async (req, res, next) => {
+router.post('/image_ownership_list_by_user', async (req, res, next) => {
 });
 
-router.post('/query_ownership_list_by_file', async (req, res, next) => {
+router.post('/image_ownership_list_by_file', async (req, res, next) => {
 });
 
 
