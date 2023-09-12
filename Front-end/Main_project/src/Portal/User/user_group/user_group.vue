@@ -43,16 +43,29 @@
               <el-col :span="8">
                 <el-checkbox v-model="checked1"
                   >用户首次登录必须修改密码</el-checkbox
-                >
+                ><el-icon :plain="true" @click="reset_pwd_help"
+                  ><Help
+                /></el-icon>
               </el-col>
               <el-col :span="8">
-                <el-checkbox v-model="checked1">账户是否封禁</el-checkbox>
+                <el-checkbox v-model="checked1">账户是否封禁</el-checkbox
+                ><el-icon :plain="true" @click="is_banned_help"
+                  ><Help
+                /></el-icon>
               </el-col>
               <el-col :span="8">
-                <el-checkbox v-model="checked1">不允许密码登录</el-checkbox>
+                <el-checkbox v-model="checked1">不允许密码登录</el-checkbox
+                ><el-icon :plain="true" @click="help_nopassword_login"
+                  ><Help
+                /></el-icon>
               </el-col>
               <el-col :span="8"
-                ><p>用户组 id</p>
+                ><p>
+                  用户组 id
+                  <el-icon :plain="true" @click="help_usergroup"
+                    ><Help
+                  /></el-icon>
+                </p>
                 <el-input v-model="input" placeholder="Please input" />
               </el-col>
               <el-col :span="8"> </el-col>
@@ -67,6 +80,8 @@
             </span>
           </template>
         </el-dialog>
+        <el-divider />
+        <p>列表的方式展示用户</p>
       </div></el-tab-pane
     >
     <el-tab-pane label="批量封禁">Config</el-tab-pane>
@@ -77,20 +92,26 @@
   </el-tabs>
 </template>
 
-<script>
-import { ref } from "vue";
 
+<script setup>
+import {
+  is_banned_help,
+  reset_pwd_help,
+  help_usergroup,
+  help_nopassword_login,
+  centerDialogVisible,
+} from "./user_group_dir.js";
+
+centerDialogVisible;
+console.log(centerDialogVisible);
+</script>
+
+<script>
 export default {
   name: "UserGroup",
-  setup() {
-    const centerDialogVisible = ref(false);
-
-    return {
-      centerDialogVisible,
-    };
-  },
 };
 </script>
+
 
 
 <style scoped>
