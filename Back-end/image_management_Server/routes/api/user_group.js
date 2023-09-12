@@ -47,7 +47,7 @@ router.post('/add_group', async (req, res, next) => {
     }
 });
 
-router.post('/modifiy', async (req, res, next) => {
+router.post('/modifiy_menber', async (req, res, next) => {
     // modifiy user to group
     try {
         // let sql = 'update user_group set ? where id = ?';

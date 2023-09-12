@@ -30,14 +30,6 @@ router.post('/uploadFile',upload.single('files'), async (req, res, next) => {
   const  UID  = req.headers;
   const  token  = req.headers;
 
-  validateToken(token, UID)
-  .then(() => {
-    console.log('Token is valid.'); // if token is valid
-
-  })
-  .catch((error) => {
-    return res.status(401).json({ message: error.message });
-  });
 
 });
 

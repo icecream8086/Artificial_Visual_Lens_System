@@ -9,7 +9,6 @@ const checkBoolean = require('../../lib/logic_module/checkBoolean');
 
 const fs = require('fs');
 const multer = require('multer');
-const { type } = require('os');
 
 /**
  * Route to test the API
