@@ -6,5 +6,5 @@ const redis = new Redis({
     host: host,
     port: port,
 });
-console.log('redis on ' + host + ': ' + port + 'mode ' + redis.mode);
+console.log('redis on ' + host + ': ' + port+'  ' + 'mode ' + redis.mode);
 exports.redis = redis;
