@@ -1,84 +1,101 @@
 <template>
-<view class="login_bg_containe">
-	<view class="bg_box">
-		<view class="content">
-		<image class="logo" src="/static/logo.png"></image>
-		<view class="text-area">
-			<text class="title">{{title}}</text>
-		</view>
-	</view>
-	</view>
-</view>
-	
+  <view class="login_bg_containe">
+    <view class="bg_box">
+      <view>
+        <u-avatar
+          :src="src"
+          size="120"
+          style="margin-left: 10%; margin-top: 5%"
+        ></u-avatar>
+        <u-row>
+          <u-col :span="8"> </u-col>
+          <u-col :span="4">
+            <span style="color: #ffffff">UserName</span>
+            <p></p>
+            <span style="color: #ffffff">group</span>
+          </u-col>
+        </u-row>
+      </view>
+
+      <view>
+        <u-row style="margin-top: 10%">
+          <u-col :span="4" style="text-align: center">
+            <div style="background-color: aqua">ICON</div>
+          </u-col>
+          <u-col :span="8" style="text-align: center">
+            <div style="background-color: red">personal Info</div>
+          </u-col>
+        </u-row>
+      </view>
+    </view>
+  </view>
 </template>
 
 
 <script>
-	var _this;
-	export default {
-		data() {
-			return {
-				windowWidth:'',
-				windowHeight:'',
-				title: '待完成',
-			}
-		},
-		onLoad() {
-		_this= this;
-		this.init();
-		},
-		methods: {
-			
-			//初始化
-			init(){
-				let _this = this;
-				uni.getSystemInfo({
-					success: function(res) {
-						_this.windowWidth = res.windowWidth;
-						_this.windowHeight = res.windowHeight;
-					}
-				});
-			},
-
-
-		}
-	}
+var _this;
+export default {
+  data() {
+    return {
+      src: "https://img1.imgtp.com/2023/06/10/dSC7l8wI.jpg",
+      windowWidth: "",
+      windowHeight: "",
+      title: "待完成",
+    };
+  },
+  onLoad() {
+    _this = this;
+    this.init();
+  },
+  methods: {
+    //初始化
+    init() {
+      let _this = this;
+      uni.getSystemInfo({
+        success: function (res) {
+          _this.windowWidth = res.windowWidth;
+          _this.windowHeight = res.windowHeight;
+        },
+      });
+    },
+  },
+};
 </script>
 
 <style>
-	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-	}
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
-	.logo {
-		height: 200rpx;
-		width: 200rpx;
-		margin-top: 200rpx;
-		margin-left: auto;
-		margin-right: auto;
-		margin-bottom: 50rpx;
-	}
+.logo {
+  height: 200rpx;
+  width: 200rpx;
+  margin-top: 200rpx;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 50rpx;
+}
 
-	.text-area {
-		display: flex;
-		justify-content: center;
-	}
+.text-area {
+  display: flex;
+  justify-content: center;
+}
 
-	.title {
-		font-size: 36rpx;
-		color: #8f8f94;
-	}
+.title {
+  font-size: 36rpx;
+  color: #8f8f94;
+}
 
-	.swiper-item {
-		display: block;
-		height: 300rpx;
-		line-height: 300rpx;
-		text-align: center;
-	}
-	.login_bg_containe {
+.swiper-item {
+  display: block;
+  height: 300rpx;
+  line-height: 300rpx;
+  text-align: center;
+}
+.login_bg_containe {
   background-image: url("../../static/bokeh-hex.jpg");
   background-size: cover;
   background-position: center center;
@@ -99,7 +116,7 @@
   min-width: 350px;
   min-height: 500px;
   width: calc(100vw - 50px);
-  height: calc((100vw - 50px) * 350 / 500);
+  height: calc((100vw - 50px) * 1080 / 1920);
   position: absolute;
   top: 50%;
   left: 50%;

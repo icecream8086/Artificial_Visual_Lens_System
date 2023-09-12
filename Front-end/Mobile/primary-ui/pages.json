@@ -115,6 +115,14 @@
 				"backgroundColor": "#000000"
 			}
 		}
+		,
+		{
+			"path": "pages/user/modify_presonal_info",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		}
 	],
 	"tabBar": {
 		"color": "#c0c4cc",
@@ -124,8 +132,8 @@
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"iconPath": "static/index.png",
-				"selectedIconPath": "static/index_clicked.png",
+				"iconPath": "static/home.png",
+				"selectedIconPath": "static/home_clicked.png",
 				"navigationBarTitleText": "播放",
 				"text": "首页"
 			},
@@ -148,9 +156,9 @@
 				"text": "(可能会改成记录功能)"
 			},
 			{
-				"iconPath": "static/setting.png",
+				"iconPath": "static/more.png",
 				"pagePath": "pages/common/setting",
-				"selectedIconPath": "static/setting_clicked.png",
+				"selectedIconPath": "static/more_clicked.png",
 				"text": "设置"
 			}
 		]

@@ -8,24 +8,24 @@
       </div>
     </uni-section>
 
-    <u-collapse @change="change" @close="close" @open="open" class="collapses">
-      <u-collapse-item title="用户设置" name="login info">
+    <u-collapse @change="change" @close="close" @open="open" class="collapses" :show-animation="false">
+      <u-collapse-item title="用户设置" name="login info"  class="">
         <text class="u-collapse-content">将来用于处理用户登录相关接口，部分组件将来会通过条件渲染隐藏</text>
         <div>
           <!-- 个人门户 -->
-          <u-button text="个人信息设置" @click="goAbout" class="collapses"></u-button>
+          <u-button text="个人信息设置" @click="goAbout" class="collapses_content"></u-button>
           <!-- 用户组 -->
-          <u-button text="个人权限设置" @click="permissions" class=""></u-button>
+          <u-button text="个人权限设置" @click="permissions" class="collapses_content"></u-button>
           <!-- 如果登录用户是狗管理的话，显示组成员的CRUD功能 -->
-          <u-button text="用户组成员管理"></u-button>
-          <u-button text="用户组管理"></u-button>
+          <u-button text="用户组成员管理" class="collapses_content"></u-button>
+          <u-button text="用户组管理" class="collapses_content"></u-button>
         </div>
       </u-collapse-item>
 
-      <u-collapse-item title="权限设置" name="permission settings">
+      <u-collapse-item title="权限设置" name="permission settings" class="collapses_content">
         <text class="u-collapse-content">包含Android操作系统相关的权限设置</text>
         <div>
-          <u-button text="检查读写权限"></u-button>
+          <u-button text="检查读写权限" class="collapses_content"></u-button>
           <u-button text="检查摄像头权限"></u-button>
           <u-button text="检查定位权限"></u-button>
           <u-button text="关于此设备" @click="aboutdevice"></u-button>
@@ -158,6 +158,7 @@
   background-color: blue;
 }
 .sections{
+  /**用户名片背景 */
   background-color: #171717;
   position: sticky;
 }
@@ -165,7 +166,12 @@
 .collapses{
   background-color: #171717;
   border: 1px solid #1999ef;
-  color: #1999ef;
+  color:#1999ef
 
+}
+.collapses_content{
+  background-color: #171717;
+  border: 1px solid #1999ef;
+  color:#1999ef
 }
 </style>
