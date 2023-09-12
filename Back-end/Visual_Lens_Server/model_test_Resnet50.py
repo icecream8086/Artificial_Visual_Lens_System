@@ -5,27 +5,14 @@ The script adjusts the size of the fully connected layer of the model to match t
 Finally, the script evaluates the model's performance on the validation and test sets and prints the average loss and accuracy for each set.
 """
 import torch
-from torchvision import datasets
 import torch.nn as nn
 from CNN_lib.net_model import ResNet_50_Customize
-from CNN_lib.dataset_sample import transform
-import json
+from CNN_lib.data_split import data_split
 from tqdm import tqdm
 
 
-train_set = datasets.ImageFolder('dataset', transform=transform)
-train_loader = torch.utils.data.DataLoader(train_set, batch_size=32, shuffle=True)
-
-# 划分数据集
-train_size = int(len(train_set) * 0.6)
-test_size = int(len(train_set) * 0.2)
-val_size = len(train_set) - train_size - test_size
-train_set, test_set, val_set = torch.utils.data.random_split(train_set, [train_size, test_size, val_size])
-
 # 加载数据集
-train_loader = torch.utils.data.DataLoader(train_set, batch_size=32, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_set, batch_size=32, shuffle=True)
-val_loader = torch.utils.data.DataLoader(val_set, batch_size=32, shuffle=True)
+test_loader, val_loader = data_split()
 
 # 判断是否有GPU可用
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
