@@ -1,0 +1,25 @@
+[
+    {
+        "UID": "1",
+        "labels_dir": [
+            "/data/aac/",
+            "/data/aawc/"
+        ],
+        "data_set_dir": [
+            "/data/aac/",
+            "/data/aac/",
+            "/data/aac2/",
+        ]
+    },
+    {
+        "UID": "2",
+        "labels_dir": [
+            "/data/aac2/",
+            "/data/aac2/"
+        ],
+        "data_set_dir": [
+            "/data/aac/",
+            "/data/awac/"
+        ]
+    }
+]
