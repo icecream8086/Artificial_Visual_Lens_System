@@ -1,14 +1,12 @@
 const bcrypt = require('bcrypt');
 
-function generateSecurePassword() {
-  const passwordLength = 10; // 密码长度
-  const saltRounds = 10; // 加盐轮数
+function generateSecurePassword(passwordLength = 10,saltRounds = 10) {
   return new Promise((resolve, reject) => {
     bcrypt.genSalt(saltRounds, (err, salt) => {
       if (err) {
         reject(err);
       } else {
-        bcrypt.hash(generateRandomString(), salt, (err, hash) => {
+        bcrypt.hash(generateRandomString(passwordLength), salt, (err, hash) => {
           if (err) {
             reject(err);
           } else {
@@ -20,7 +18,7 @@ function generateSecurePassword() {
   });
 }
 
-function generateRandomString(passwordLength=10) {
+ function generateRandomString(passwordLength=10) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let randomString = '';
   for (let i = 0; i < passwordLength; i++) {
@@ -28,6 +26,7 @@ function generateRandomString(passwordLength=10) {
   }
   return randomString;
 }
+
 
 module.exports = {
   generateSecurePassword
