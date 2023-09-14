@@ -8,8 +8,9 @@ const router = express.Router();
 const md5 = require('md5');
 const jwt = require('jsonwebtoken');
 const query = require('../../lib/datasource/mysql_connection_promise');  // Database connection
-const redis=require('../../lib/datasource/redis_connection_promise'); // Redis connection
-
+const redis = require('../../lib/datasource/redis_connection_promise'); // Redis connection
+require('../../lib/logic_module/check_authority'); // authority check
+const { Store_token } = require('../../lib/logic_module/Load_Store_token'); // token load and store
 /**
  * POST request to sign up a new user.
  * @name POST/api/auth/signup
@@ -102,23 +103,18 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ message: 'User is banned.' });
     } else if (results[0].allow_password_auth === 0) {
       return res.status(401).json({ message: 'User is not allowed to login.' });
-    } else if (results[0].force_change_password  === 1) {
-    
-      return res.status(401).json({ message: 'User must change password.' });
-    } else 
-    {
-      // Redis get UID if not null
-      let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
-      redis.set(token, results[0].UID);
-      redis.expire(token, 3600);
+    } else if (results[0].force_change_password === 1) {
 
-      return res.json({ UID: results[0].UID, token: token });
+      return res.status(401).json({ message: 'User must change password.' });
+    } else {
+      // Redis get UID if not null
+      let tokens = await Store_token(results[0].UID);
+      return res.json({ UID: results[0].UID, token: tokens });
     }
   } catch (err) {
     console.error('Error during login:', err);
     next(err);
   }
-
 });
 
 /**
@@ -132,11 +128,10 @@ router.post('/login', async (req, res, next) => {
  * @returns {JSON} - A JSON object containing a message indicating whether the password was changed successfully.
  */
 router.post('/change_password', async (req, res, next) => {
-  let pinCode_group=['6666969','5993520','3659205','0010001','3459832','2226553','9439943'];
   try {
     let UID;
     const { token } = req.headers;
-    if (token==undefined) {
+    if (token == undefined) {
       return res.status(401).json({ message: 'Token is required.' });
     }
     redis.get(token).then((result) => {
@@ -149,7 +144,7 @@ router.post('/change_password', async (req, res, next) => {
       console.log(err);
     });
 
-    const { old_password, new_password,pinCode } = req.body;
+    const { old_password, new_password } = req.body;
     const result = await query({
       sql: 'SELECT * FROM users WHERE UID = ?',
       values: [UID],
@@ -158,10 +153,6 @@ router.post('/change_password', async (req, res, next) => {
     if (results[0].password !== md5(old_password)) {
       return res.status(401).json({ message: 'Old password is incorrect.' });
     }
-    const updateResult = await query({
-      sql: 'UPDATE users SET password = ? WHERE UID = ?',
-      values: [md5(new_password), UID],
-    });
     return res.json({ message: 'Password changed successfully.' });
 
   } catch (err) {
@@ -181,22 +172,18 @@ router.post('/change_password', async (req, res, next) => {
 router.post('/reset_password', async (req, res, next) => {
   //
   try {
-    const { email ,UID } = req.body;
+    const { email } = req.body;
 
     const result = await query({
       sql: 'SELECT * FROM users WHERE email = ?',
       values: [email],
     });
     const results = JSON.parse(JSON.stringify(result));
-    
-    
+
+
     if (results.length === 0) {
       return res.status(401).json({ message: 'Email not found.' });
     }
-    const updateResult = await query({
-      sql: 'UPDATE users SET password = ? WHERE email = ?',
-      values: [md5('123456'), email],
-    });
     return res.json({ message: 'Password reset successfully.' });
 
   } catch (err) {
@@ -209,7 +196,6 @@ router.post('/reset_password', async (req, res, next) => {
 
 router.post('/get_token', async (req, res, next) => {
   const UID = req.body.UID;
-  const User_UID = req.body.User_UID;
 
   try {
     const result = await query({

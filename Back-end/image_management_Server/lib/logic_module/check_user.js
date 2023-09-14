@@ -9,6 +9,7 @@ const redis=require('../datasource/redis_connection_promise');
 
 function validateToken(token, UID) {
     return new Promise((resolve, reject) => {
+      // redis.select(0)
       redis.get(token)
         .then((reply) => {
           if (reply !== UID) {

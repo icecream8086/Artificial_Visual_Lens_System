@@ -4,7 +4,8 @@ const router = express.Router();
 const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
 const redis = require('../../lib/datasource/redis_connection_promise');
 const validateToken = require('../../lib/logic_module/check_user');
-const checkBoolean = require('../../lib/logic_module/checkBoolean');
+const {validateInput_booleam} = require('../../lib/logic_module/checkBoolean');
+const {validate_authority_admin,validate_authority_root,validate_authority_modify,validate_authority_write,validate_authority_Read} = require('../../lib/logic_module/check_authority'); // authority check
 
 
 const fs = require('fs');
@@ -128,8 +129,8 @@ router.get('/get_basic_info/:id', async (req, res, next) => {
         }
         return res.status(200).json({ results });
     } catch (error) {
-        console.error('Error during get_user_basicinfo:', error);
         return res.status(401).json({ message: error.message });
+        console.error('Error during get_user_basicinfo:', error);
     }
 });
 
@@ -284,7 +285,7 @@ router.post('/modify_account_statu', async (req, res, next) => {
     }
 
     try {
-        await checkBoolean(force_change_password,allow_password_auth);
+        await validateInput_booleam(force_change_password,allow_password_auth);
         await validateToken(token, UID);
         //UPDATE auth_info SET force_change_password = your_force_change_password, allow_password_auth = your_allow_password_auth WHERE UID = your_uid;
         let sql = `UPDATE auth_info SET`;
