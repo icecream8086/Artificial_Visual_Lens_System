@@ -15,7 +15,7 @@
           padding: 10px;
           margin-top: 10px;
           color: #fff;
-          font-size: 35px;
+          font-size: 18px;
           font-family: 'Segoe UI';
         ">
           登陆到 {{ App_Name }}

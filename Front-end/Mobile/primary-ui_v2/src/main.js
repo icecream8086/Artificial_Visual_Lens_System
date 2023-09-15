@@ -14,11 +14,14 @@ import App from "./App.vue";
 
 export function createApp() {
 	const app = createSSRApp(App);
-	for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-		app.component(key, component)
-	}
 	app.use(ElementPlus)
 	app.use(echarts)
+	app.config.productionTip = false;
+	app.config.globalProperties.$echarts = echarts;
+
+	for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+		app.component(key, component);
+	}
 	return {
 		app,
 	};

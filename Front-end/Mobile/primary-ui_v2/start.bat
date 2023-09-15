@@ -1,6 +1,8 @@
 @echo start primary-ui_v2 uni-app build
 @echo ...
 
+set compile_type=dev:h5
+
 @REM Scripts available in uni-preset-vue@0.0.0 via `npm run-script`:
 @REM   dev:app
 @REM     uni -p app
@@ -70,4 +72,4 @@
 @REM     uni build -p quickapp-webview-huawei
 @REM   build:quickapp-webview-union
 @REM     uni build -p quickapp-webview-union
-npm run dev:h5
+npm run %compile_type%

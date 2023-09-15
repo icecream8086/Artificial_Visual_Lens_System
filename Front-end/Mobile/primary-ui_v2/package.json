@@ -51,6 +51,7 @@
     "@dcloudio/uni-mp-toutiao": "3.0.0-3081220230817001",
     "@dcloudio/uni-mp-weixin": "3.0.0-3081220230817001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-3081220230817001",
+    "@element-plus/icons-vue": "^2.1.0",
     "echarts": "^5.4.3",
     "element-plus": "^2.3.12",
     "vue": "^3.2.45",
@@ -63,6 +64,6 @@
     "@dcloudio/uni-stacktracey": "3.0.0-3081220230817001",
     "@dcloudio/vite-plugin-uni": "3.0.0-3081220230817001",
     "@vue/runtime-core": "^3.2.45",
-    "vite": "4.1.4"
+    "vite": "^4.1.4"
   }
 }

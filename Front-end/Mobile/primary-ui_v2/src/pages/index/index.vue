@@ -1,47 +1,85 @@
 <template>
-  <view class="content">
-    <image class="logo" src="/static/logo.png"></image>
-    <view class="text-area">
-      <text class="title">{{ title }}</text>
-    </view>
-  </view>
-  <view>
-    <table class="demo-border">
-    <tbody>
-      <tr>
-        <td class="text">Name</td>
-        <td class="text">Thickness</td>
-        <td class="line">Demo</td>
-      </tr>
-      <tr>
-        <td class="text">Solid</td>
-        <td class="text">1px</td>
-        <td class="line">
-          <div />
-        </td>
-      </tr>
-      <tr>
-        <td class="text">Dashed</td>
-        <td class="text">2px</td>
-        <td class="line">
-          <div class="dashed" />
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <view class="login_bg_containe" id="1" @touchmove.stop.prevent="() => {}">
+    
+    <el-button @click="switchThemes_clicked">AAAAAAAAAAA</el-button>
+    <div class="container">
+      <el-row>
+        <el-col :span="24">
+          <el-text style="
+        font-size: 18px;
+        font-family: 'Segoe UI';
+      "> 随机问候语</el-text>
+        </el-col>
+      </el-row>
+    </div>
+
+    <div class="centered-element">
+      <el-row>
+        <el-col :span="12" class="padding_border">
+          <el-button plain class="blue_border main_button_style" icon="MessageBox" type="primary"
+            >查看当前天气</el-button
+          >
+        </el-col>
+        
+      </el-row>
+    </div>
+
+    <div class="centered-element">
+      <el-row>
+        <el-col :span="12" class="padding_border">
+          <el-button plain class="blue_border main_button_style" icon="MessageBox" type="primary"
+            >查看服务器日志</el-button
+          >
+        </el-col>
+        
+      </el-row>
+    </div>
+    <div class="centered-element">
+      <el-row>
+        <el-col :span="12" class="padding_border">
+          <el-button plain class="blue_border main_button_style" icon="Cpu" type="primary"
+            >查看服务器负载</el-button
+          >
+        </el-col>
+        
+      </el-row>
+    </div>
+
   </view>
 </template>
 
 <script>
+import { setTabBarStyle_black } from "../Color/uni_framework/tab_bar";
+import { Navigation_bar_white } from "../Color/uni_framework/Navigation_bar";
+
+import { useDark } from "@vueuse/core";
+import { switchThemes, checkDarkMode, fuck_it } from "../style.js";
 export default {
   data() {
     return {
-      title: 'Hello',
-    }
+      title: "Hello",
+    };
   },
   onLoad() {},
-  methods: {},
-}
+  methods: {
+    switchThemes_clicked() {
+      switchThemes();
+    },
+  },
+  mounted() {
+    // fuck_it();
+    setTabBarStyle_black();
+    Navigation_bar_white();
+    if (checkDarkMode() === true && useDark().value === false) {
+      // only allowed to switch at first load
+      // otherwise it will load switch repeatedly
+      switchThemes();
+      console.log("Dark mode is enabled.");
+    } else {
+      console.log("checkDarkMode() ok");
+    }
+  },
+};
 </script>
 
 <style>
@@ -60,31 +98,52 @@ export default {
   margin-right: auto;
   margin-bottom: 50rpx;
 }
-
+  .login_bg_containe {
+    flex: 1;
+    background-image: url("../../static/bokeh-hex.jpg");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: blue;
+  }
 .text-area {
   display: flex;
   justify-content: center;
 }
-
+.blue_border {
+  border: 1px solid #1999ef;
+  padding: 1px color #1999ef;
+}
 .title {
   font-size: 36rpx;
   color: #8f8f94;
 }
-</style>
+.container {
+  position: relative;
+}
 
-<style scoped>
-.demo-border .text {
-  width: 15%;
+.padding_border {
+  padding: 5%;
 }
-.demo-border .line {
-  width: 70%;
+.main_button_style {
+  height: 100px;
+  width: 300px;
+  border-radius: 10px;
+  font-size: 25px;
+
 }
-.demo-border .line div {
-  width: 100%;
-  height: 0;
-  border-top: 1px solid var(--el-border-color);
-}
-.demo-border .line .dashed {
-  border-top: 2px dashed var(--el-border-color);
+.centered-element {
+  position: relative;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
