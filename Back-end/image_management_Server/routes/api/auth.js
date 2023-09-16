@@ -11,6 +11,8 @@ const query = require('../../lib/datasource/mysql_connection_promise');  // Data
 const redis = require('../../lib/datasource/redis_connection_promise'); // Redis connection
 require('../../lib/logic_module/check_authority'); // authority check
 const { Store_token } = require('../../lib/logic_module/Load_Store_token'); // token load and store
+const validateToken = require('../../lib/logic_module/check_user');
+const { validate_authority_root, validate_authority_admin } = require('../../lib/logic_module/check_authority');
 /**
  * POST request to sign up a new user.
  * @name POST/api/auth/signup
@@ -129,31 +131,26 @@ router.post('/login', async (req, res, next) => {
  */
 router.post('/change_password', async (req, res, next) => {
   try {
-    let UID;
-    const { token } = req.headers;
-    if (token == undefined) {
-      return res.status(401).json({ message: 'Token is required.' });
-    }
-    redis.get(token).then((result) => {
-      if (result == null) {
-        return res.status(401).json({ message: 'Token is invalid.' });
-      } else {
-        UID = result;
-      }
-    }).catch((err) => {
-      console.log(err);
-    });
-
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    await validateToken(token, UID);
+    await validate_authority_admin(UID);
+    
     const { old_password, new_password } = req.body;
     const result = await query({
-      sql: 'SELECT * FROM users WHERE UID = ?',
+      sql: 'SELECT password FROM users WHERE UID = ?',
       values: [UID],
     });
     const results = JSON.parse(JSON.stringify(result));
-    if (results[0].password !== md5(old_password)) {
-      return res.status(401).json({ message: 'Old password is incorrect.' });
+    if (results[0].password !== old_password) {
+      return res.status(401).json({ message: 'verify password failed ...' });
     }
-    return res.json({ message: 'Password changed successfully.' });
+
+    const updateResult = await query({
+      sql: 'UPDATE users SET password = ? WHERE UID = ?',
+      values: [new_password, UID],
+    });
+    return res.json({ message: 'Password changed successfully.' ,result:updateResult});
 
   } catch (err) {
     console.error('Error during change password:', err);
@@ -170,9 +167,14 @@ router.post('/change_password', async (req, res, next) => {
  * @returns {JSON} - A JSON object containing a message indicating whether the password was reset successfully.
  */
 router.post('/reset_password', async (req, res, next) => {
-  //
+
   try {
     const { email } = req.body;
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+
+    await validateToken(UID, token);
+    await validate_authority_root(UID);
 
     const result = await query({
       sql: 'SELECT * FROM users WHERE email = ?',
@@ -195,9 +197,14 @@ router.post('/reset_password', async (req, res, next) => {
 
 
 router.post('/get_token', async (req, res, next) => {
-  const UID = req.body.UID;
 
   try {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let {effective_time}=req.body;
+
+    await validateToken(UID, token);
+    
     const result = await query({
       sql: 'SELECT * FROM users WHERE UID = ?',
       values: [UID],
@@ -206,12 +213,13 @@ router.post('/get_token', async (req, res, next) => {
     if (results.length === 0) {
       return res.status(401).json({ message: 'UID not found.' });
     }
-    let token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
-    redis.set(token, results[0].UID);
-    redis.expire(token, 3600);
+    let user_token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
+    redis.set(user_token, results[0].UID);
+    redis.expire(user_token, effective_time);
 
-    return res.json({ UID: results[0].UID, token: token });
+    return res.json({ UID: results[0].UID, token: user_token });
   } catch (err) {
+    return res.status(401).json({ message: err.message });
     console.error('Error during get token:', err);
     return next(err);
   }
