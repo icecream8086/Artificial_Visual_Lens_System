@@ -192,6 +192,64 @@ const flushdb = () => {
         });
     });
 }
+
+const incr = (key) => {
+    return new Promise((resolve, reject) => {
+        redis.incr(key, (/** @type {any} */ err, /** @type {number | PromiseLike<number>} */ result) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
+}
+
+
+const decr = (key) => {
+    return new Promise((resolve, reject) => {
+        redis.decr(key, (/** @type {any} */ err, /** @type {number | PromiseLike<number>} */ result) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
+}
+
+const zadd = (key, score, value) => {
+    return new Promise((resolve, reject) => {
+        redis.zadd(key, score, value, (/** @type {any} */ err, /** @type {number | PromiseLike<number>} */ result) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
+}
+
+const zrange = (key, start, stop) => {
+    return new Promise((resolve, reject) => {
+        redis.zrange(key, start, stop, (/** @type {any} */ err, /** @type {string[] | PromiseLike<string[]>} */ result) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
+}
+
+const zrem = (key, value) => {
+    return new Promise((resolve, reject) => {
+        redis.zrem(key, value, (/** @type {any} */ err, /** @type {number | PromiseLike<number>} */ result) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
+}
+
+
 module.exports = {
     get,
     set,
@@ -205,4 +263,9 @@ module.exports = {
     get_all,
     set_all,
     del_all,
+    incr,
+    zadd,
+    decr,
+    zrange,
+    zrem
 }
