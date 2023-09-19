@@ -1,0 +1,54 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/Auth/Login",
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/Auth/login_token",
+			"style": {
+			}
+		},
+		{
+			"path": "pages/Auth/connect_admin",
+			"style": {
+			}
+		},
+		{
+			"path": "pages/control_panel/control_panel",
+			"style": {
+			}		}
+	],
+	"tabBar": {
+		"color": "#c0c4cc",
+		"selectedColor": "#65bbe8",
+		"borderStyle": "black",
+		"backgroundColor": "#171717",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"navigationBarTitleText": "首页",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/Auth/Login",
+				"navigationBarTitleText": "功能",
+				"text": "功能"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
+}

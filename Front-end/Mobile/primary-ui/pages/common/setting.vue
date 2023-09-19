@@ -1,50 +1,50 @@
 <template >
 
 <view class="login_bg_containe">
-  <view>
-    <uni-section :title="nickname" :subTitle="group" type="line" padding class="sections">
-      <div>
-        <u-avatar :src="src" mode="square" @click="goAbout"></u-avatar>
-      </div>
-    </uni-section>
 
-    <u-collapse @change="change" @close="close" @open="open" class="collapses" :show-animation="false">
-      <u-collapse-item title="用户设置" name="login info"  class="">
-        <text class="u-collapse-content">将来用于处理用户登录相关接口，部分组件将来会通过条件渲染隐藏</text>
-        <div>
-          <!-- 个人门户 -->
-          <u-button text="个人信息设置" @click="goAbout" class="collapses_content"></u-button>
-          <!-- 用户组 -->
-          <u-button text="个人权限设置" @click="permissions" class="collapses_content"></u-button>
-          <!-- 如果登录用户是狗管理的话，显示组成员的CRUD功能 -->
-          <u-button text="用户组成员管理" class="collapses_content"></u-button>
-          <u-button text="用户组管理" class="collapses_content"></u-button>
-        </div>
-      </u-collapse-item>
+  <uni-section :title="nickname" :subTitle="group" type="line" padding class="sections">
+  <div>
+    <u-avatar :src="src" mode="square" @click="goAbout"></u-avatar>
+  </div>
+</uni-section>
 
-      <u-collapse-item title="权限设置" name="permission settings" class="collapses_content">
-        <text class="u-collapse-content">包含Android操作系统相关的权限设置</text>
-        <div>
-          <u-button text="检查读写权限" class="collapses_content"></u-button>
-          <u-button text="检查摄像头权限"></u-button>
-          <u-button text="检查定位权限"></u-button>
-          <u-button text="关于此设备" @click="aboutdevice"></u-button>
-        </div>
-      </u-collapse-item>
+<u-collapse style=" font-size: 18px; background-color: #171717; opacity: 75%;" >
+  <u-collapse-item title="用户设置" name="login info" >
+    <text >将来用于处理用户登录相关接口，部分组件将来会通过条件渲染隐藏</text>
+    <div>
+      <!-- 个人门户 -->
+      <u-button text="个人信息设置" @click="goAbout"></u-button>
+      <!-- 用户组 -->
+      <u-button text="个人权限设置" @click="permissions"></u-button>
+      <!-- 如果登录用户是狗管理的话，显示组成员的CRUD功能 -->
+      <u-button text="用户组成员管理"></u-button>
+      <u-button text="用户组管理"></u-button>
+    </div>
+  </u-collapse-item>
 
-      <u-collapse-item title="服务器设置" name="server">
-        <text class="u-collapse-content">包括杂七杂八的调试功能</text>
-        <u-button text="服务器地址"></u-button>
-        <u-button text="服务器负载状态"></u-button>
-        <u-button text="服务器健康状况测试"></u-button>
-      </u-collapse-item>
+  <u-collapse-item title="权限设置" name="permission settings">
+    <text >包含Android操作系统相关的权限设置</text>
+    <div>
+      <u-button text="检查读写权限"></u-button>
+      <u-button text="检查摄像头权限"></u-button>
+      <u-button text="检查定位权限"></u-button>
+      <u-button text="关于此设备" @click="aboutdevice"></u-button>
+    </div>
+  </u-collapse-item>
 
-      <u-collapse-item title="关于" name="other">
-        <text class="u-collapse-content">包含软件许可和一些乱七八糟的东西</text>
-      </u-collapse-item>
-    </u-collapse>
+  <u-collapse-item title="服务器设置" name="server">
+    <text >包括杂七杂八的调试功能</text>
+    <u-button text="服务器地址"></u-button>
+    <u-button text="服务器负载状态"></u-button>
+    <u-button text="服务器健康状况测试"></u-button>
+  </u-collapse-item>
 
-    <view class="content">
+  <u-collapse-item title="关于" name="other">
+    <text >包含软件许可和一些乱七八糟的东西</text>
+  </u-collapse-item>
+</u-collapse>
+
+  <view class="content">
       <view class="text">
         <view style="padding: 20px">
           <u-button type="primary" text="登录" @click="login_portal"></u-button>
@@ -53,9 +53,9 @@
         </view>
       </view>
     </view>
-
-  </view>
 </view>
+
+
 </template>
 
 <script>
@@ -70,6 +70,10 @@
         src: 'https://img1.imgtp.com/2023/06/10/dSC7l8wI.jpg',
         text: '无头像',
         disabled_logout: true,
+        itemStyle: {
+          padding: '20px 0',
+          'border-bottom': '1px solid #e5e5e5'
+        }
       };
     },
     methods: {
@@ -140,6 +144,14 @@
     },
   };
 </script>
+
+<style scoped>
+	.collapse-item {
+		color: red;
+		padding-bottom: 10px;
+	}
+</style>
+
 
 <style>
 .login_bg_containe {

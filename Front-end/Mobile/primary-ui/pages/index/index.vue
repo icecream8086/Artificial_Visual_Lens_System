@@ -3,52 +3,36 @@
     <div class="">
       <!-- <div class="bg_box"> -->
       <div>
-        <view style="padding: 65px ">
+        <view style="padding: 65px">
           <p class="text-area-title">问候语</p>
           <p class="text-area-title">hello ? 2 ?..</p>
 
           <view class="text-area">
-          <div class="element1">
-              <u-icon
-                name="photo"
-                color="#2979ff"
-                size="64"
-                class="button_icon"
-              ></u-icon>
-            </div>
-            <div class="element2">
-              <u-button class="main_button" text="本地天气"></u-button>
-            </div>
-        </view>
+            
+            <view class="main_button_normal">
+              <image class="logo" src="../../static/sunshine.png"></image>
+              <p class="logo_context"> 天气状态(vue组件，基于定位)</p>
+            </view>  
+            
+          </view>
 
-        <view class="text-area">
-          <div class="element3">
-              <u-icon
-                name="photo"
-                color="#2979ff"
-                size="64"
-                class="button_icon"
-              ></u-icon>
-            </div>
-            <div class="element2">
-              <u-button class="main_button" text="查看日志"></u-button>
-            </div>
-        </view>
+          <view class="text-area">
+            
+            <view class="main_button_normal">
+              <image class="logo" src="../../static/sunshine.png"></image>
+              <p class="logo_context"> 查看日志</p>
+            </view>  
+            
+          </view>
 
-        <view class="text-area">
-          <div class="element4">
-              <u-icon
-                name="photo"
-                color="#2979ff"
-                size="64"
-                class="button_icon"
-              ></u-icon>
-            </div>
-            <div class="element2">
-              <u-button class="main_button" text="服务器负载"></u-button>
-            </div>
-        </view>
-
+          <view class="text-area">
+            
+            <view class="main_button_normal">
+              <image class="logo" src="../../static/sunshine.png"></image>
+              <p class="logo_context"> 服务器负载</p>
+            </view>  
+            
+          </view>
         </view>
       </div>
     </div>
@@ -137,26 +121,61 @@ export default {
   align-items: center;
   justify-content: center;
 }
-.main_button {
+.main_button_clicked {
+  /* 按钮主体 */
+  position: relative;
+  background-color: #f1ebeb;
+  border: 1px solid #0881d2;
+  padding: 1px color #1999ef;
+  border: 2px solid;
+  border-radius: 5px;
+  min-height: 30px;
+  min-width: 250px;
+  padding: 35px;
+  margin-top: 35px;
+  opacity: 50%;
+  overflow: visible;
+  z-index: 1;
+}
+
+.main_button_normal {
+  /* 按钮主体 */
+  position: relative;
   background-color: #171717;
   border: 1px solid #1999ef;
   padding: 1px color #1999ef;
   color: #1999ef;
   border: 2px solid;
   border-radius: 5px;
-  height: 50px;
-  width: 300px;
+  min-height: 30px;
+  min-width: 250px;
   padding: 35px;
   margin-top: 35px;
+  overflow: visible;
   z-index: 1;
 }
 .logo {
-  height: 200rpx;
-  width: 200rpx;
-  margin-top: 200rpx;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 50rpx;
+  /* Logo部分 */
+  height: 50px;
+  width: 50px;
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.logo_context {
+  /* 模拟按钮，正文 */
+  font-size: 25px;
+
+  position: absolute;
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .text-area-title {
@@ -184,35 +203,5 @@ export default {
   height: 300rpx;
   line-height: 300rpx;
   text-align: center;
-}
-
-.element1 {
-  position: absolute;
-  top: 24%;
-  left: 60%;
-  /* background-color: red; */
-  z-index: 2;
-}
-
-.element3 {
-  position: absolute;
-  top: 41%;
-  left: 60%;
-  /* background-color: red; */
-  z-index: 3;
-}
-.element4 {
-  position: absolute;
-  top: 59%;
-  left: 60%;
-  /* background-color: red; */
-  z-index: 4;
-}
-
-
-.element2 {
-
-  /* background-color: blue; */
-  z-index: 1;
 }
 </style>
