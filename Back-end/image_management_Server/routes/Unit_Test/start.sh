@@ -1,6 +1,6 @@
 echo "Starting Unit Test ..."
 # module file name: 
-cd model_check
+cd Message
 pwd
 
 # module name: 

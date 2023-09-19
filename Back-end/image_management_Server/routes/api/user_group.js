@@ -128,7 +128,7 @@ router.get('/get_group', async (req, res, next) => {
     // list group
     let UID = req.headers.uid;
     let token = req.headers.token;
-    let sql = 'SELECT * FROM user_group ;';
+    let sql = 'SELECT group_name,group_id FROM user_group ;';
     try {
         await validateInput_is_null_or_empty(UID, token);
         await validateToken(token, UID);
@@ -143,11 +143,18 @@ router.get('/get_group', async (req, res, next) => {
 
 router.post('/add', async (req, res, next) => {
     // add user to group
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let sql = ';';
     try {
-        // let sql = 'insert into user_group set ?';
-        // let result = await query(sql, req.body);
-        // res.json(result);
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(token, UID);
+        
+        let result = await query(sql);
+        return res.status(200).json({ message: result });
     } catch (error) {
+        return res.status(401).json({ message: error.message });
+        console.log(error.message);
         next(error);
     }
 });

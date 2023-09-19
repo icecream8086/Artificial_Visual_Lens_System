@@ -17,7 +17,7 @@ const multer = require('multer');
 // 配置multer
 const storage_demo = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, './File_Stream/Test/catch'); // 设置文件保存的路径
+      cb(null, './File_Stream/File_Block'); // 设置文件保存的路径
     },
     filename: function (req, file, cb) {
       cb(null, file.originalname); // 设置文件保存时的文件名
@@ -27,10 +27,21 @@ const storage_demo = multer.diskStorage({
   const upload = multer({ storage: storage_demo });
 
 router.post('/uploadFile',upload.single('files'), async (req, res, next) => {
-  const  UID  = req.headers;
-  const  token  = req.headers;
 
+  let UID = req.headers.uid;
+  let token = req.headers.token;
+  
+  try {
+      await validateToken(token, UID);
+      
 
+      // result.results.is_banned = result.results.is_banned == 1 ? true : false;
+      return res.status(200).json({  });
+  } catch (err) {
+      return res.status(401).json({ message: err.message });
+      console.error('Error during banned_users:', err);
+      next(err);
+  }
 });
 
 router.post('/downloadFile', async (req, res, next) => {
