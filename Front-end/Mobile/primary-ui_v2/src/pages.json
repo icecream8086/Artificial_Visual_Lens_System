@@ -21,7 +21,11 @@
 			"path": "pages/Auth/connect_admin",
 			"style": {
 			}
-		}
+		},
+		{
+			"path": "pages/control_panel/control_panel",
+			"style": {
+			}		}
 	],
 	"tabBar": {
 		"color": "#c0c4cc",

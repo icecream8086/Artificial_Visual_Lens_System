@@ -198,10 +198,11 @@ export default {
 
 .login_bg_containe {
   background-image: url("../../static/bokeh-hex.jpg");
-  background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  background-size: cover; /* 或者 contain */
+  background-position: center;
   margin: 0;
   padding: 0;
   position: absolute;
@@ -211,6 +212,7 @@ export default {
   height: 100%;
   background-color: blue;
 }
+
 
 </style>
 <style lang="scss">
