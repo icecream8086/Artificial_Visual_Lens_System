@@ -153,6 +153,7 @@ router.post('/change_password', async (req, res, next) => {
     return res.json({ message: 'Password changed successfully.' ,result:updateResult});
 
   } catch (err) {
+    return res.status(401).json({ message: err.message });
     console.error('Error during change password:', err);
     next(err);
   }
