@@ -1,13 +1,12 @@
 <template>
-  <div class="login-page-container">
-
-    <h2>Login</h2>
+<el-card class="login-page-container">
+  <el-text class="mx-1" size="large">Login</el-text>
     <div class="form-group">
-      <label for="username">Username</label>
+      <el-text class="mx-2" size="large">Username</el-text>
       <el-input type="text" id="username" v-model="username" placeholder="Enter your username" />
     </div>
     <div class="form-group">
-      <label for="password">Password</label>
+      <el-text class="mx-2" size="large">Password</el-text>
       <el-input type="password" id="password" v-model="password" placeholder="Enter your password" />
       <div class="demo-collapse">
         <el-collapse v-model="activeNames" @change="handleChange">
@@ -25,15 +24,15 @@
 
         </el-collapse>
       </div>
-      <div class="form-group">
-        <el-button @click="login">Login</el-button>
-        <!-- <el-button @click="switchThemes()">暗黑模式</el-button> -->
-      </div>
+      <el-button :icon="ArrowRightBold" @click="login" class="form-group-button" >登录</el-button>
     </div>
-  </div>
-
+</el-card>
 </template>
 
+<script setup>
+import { ArrowRightBold } from '@element-plus/icons-vue'
+
+</script>
 <script>
   import { useDark } from "@vueuse/core";
   export default {
@@ -67,14 +66,7 @@
       },
     },
     mounted() {
-      if (this.checkDarkMode() === true && useDark().value === false) {
-        // only allowed to switch at first load
-        // otherwise it will load switch repeatedly
-        this.switchThemes();
-        console.log("Dark mode is enabled.");
-      } else {
-        console.log("checkDarkMode() ok");
-      }
+
       //添加一个类 刷新时修改当前body的class
       document.body.className = "login-page";
     },
@@ -82,7 +74,7 @@
 </script>
 
 <style>
-  :root {
+  /* :root {
     --bg-color-light: #ccc;
     --bg-color-dark: #333;
   }
@@ -97,7 +89,7 @@
     :root {
       --bg-color: var(--bg-color-dark);
     }
-  }
+  } */
 
   .login-page {
     background-image: url("../assets/background/Logins_HDR.png");
@@ -117,14 +109,34 @@
     border: 1px solid #1999ef;
     border-radius: 1%;
     opacity: 0.9;
-    background-color: var(--bg-color);
+    /* background-color: var(--bg-color); */
   }
-
+  .mx-1{
+    margin: 0 5px;
+    /* text size */
+    font-size: 2rem;
+  }
+  .mx-2{
+    margin: 0 10px;
+    /* text size */
+    font-size: 1.5rem;
+  }
+  .form-group{
+    width: 100%;
+    margin: 0 auto;
+    padding: 5px;
+  }
+  .form-group-button{
+    width: 50%;
+    margin: 0 auto;
+    padding: 5px;
+    left: 50%;
+  }
   el-input[type="text"],
   el-input[type="password"] {
     width: 100%;
     padding: 5px;
-    border: 1px solid #ccc;
+    /* border: 1px solid #ccc; */
     border-radius: 4px;
   }
 </style>

@@ -15,6 +15,11 @@ import edit_info from '@/Portal/User/edit_info.vue';
 import creat_user from '@/Portal/User/create_user.vue';
 import creat_user_group from '@/Portal/User/user_group/user_group.vue';
 import image_Grid from '@/host/image_GRID';
+import Message_dialog from '@/components/Message_dialog.vue';
+import cpu_panel from '@/components/cpu_panel.vue';
+import diskInfo_panel from '@/components/diskInfo_panel.vue';
+import hostinfo_panel from '@/components/hostinfo_panel.vue';
+import coresPercent_panel  from '@/components/sub_components/coresPercent_panel.vue' ;
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -119,7 +124,39 @@ const routes = [
     component:image_Grid,
     name:'Image_Grid',
     meta :{title:'user_group'}
+  },
+  {
+    path:'/local_api/Message_dialog',
+    component:Message_dialog,
+    name:'Message_dialog',
+    meta :{title:'Message_dialog'}
+  },
+  {
+    path:'/local_api/cpu_panel',
+    component:cpu_panel,
+    name:'Cpu_panel',
+    meta :{title:'Cou_panel'}
+  },
+  {
+    path:'/local_api/diskInfo_panel',
+    component:diskInfo_panel,
+    name:'diskInfo_panel',
+    meta :{title:'diskInfo_panel'}  
+  },
+  {
+    path:'/local_api/hostinfo_panel',
+    component:hostinfo_panel,
+    name:'hostinfo_panel',
+    meta :{title:'hostinfo_panel'}  
+  },
+  {
+    path:'/local_api/coresPercent_panel',
+    component:coresPercent_panel,
+    name:'coresPercent_panel',
+    meta :{title:'coresPercent_panel'}
   }
+
+
 ];
 
 const router = createRouter({
@@ -140,3 +177,5 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
+
+
