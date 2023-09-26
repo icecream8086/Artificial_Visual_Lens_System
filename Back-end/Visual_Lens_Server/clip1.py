@@ -27,7 +27,7 @@ print(probs[0][probs.argmax(-1).item()].item() )# we can then take the max of th
 
 print(text[probs.argmax(-1).item()]) # we can then take the max of these label probabilities
 
-# pip install -i https://repo.nju.edu.cn/repository/pypi/simple torch
+# pip install -i https://mirrors.nju.edu.cn/pypi/web/simple torch
 # URL https://doc.nju.edu.cn/books/35f4a/page/pypi-python-package-index
 
 # pip install -i https://mirrors.aliyun.com/pypi/simple/ torch

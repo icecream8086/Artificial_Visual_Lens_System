@@ -9,6 +9,8 @@ from torchvision import datasets
 import torch.nn as nn
 from CNN_lib.net_model import ResNet_50_Customize
 from CNN_lib.dataset_sample import transform
+import json
+from tqdm import tqdm
 
 
 train_set = datasets.ImageFolder('dataset', transform=transform)
@@ -88,6 +90,7 @@ val_loss /= len(val_loader.dataset)
 val_acc /= len(val_loader.dataset)
 test_loss /= len(test_loader.dataset)
 test_acc /= len(test_loader.dataset)
+
 
 print('Validation Loss: {:.4f}, Validation Accuracy: {:.4f}'.format(val_loss.item(), val_acc.item()))
 print('Test Loss: {:.4f}, Test Accuracy: {:.4f}'.format(test_loss.item(), test_acc.item()))
