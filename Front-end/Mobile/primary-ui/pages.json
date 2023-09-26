@@ -129,8 +129,21 @@
 				"navigationBarBackgroundColor": "#171717",
 				"backgroundColor": "#F8F8F8"
 			}
+		},
+		{
+			"path": "pages/test/A",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/test/B",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
 		}
-		
 	],
 	"tabBar": {
 		"color": "#c0c4cc",
