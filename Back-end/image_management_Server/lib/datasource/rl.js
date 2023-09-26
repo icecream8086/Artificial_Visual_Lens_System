@@ -1,3 +1,9 @@
+/**
+ * Reads a text file line by line and logs each line to the console.
+ * @async
+ * @param {string} filePath - The path to the text file to read.
+ * @returns {Promise<void>} - A Promise that resolves when the file has been read.
+ */
 const fs = require('fs');
 const readline = require('readline');
 

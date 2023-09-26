@@ -37,6 +37,7 @@ Vue.use(uView)
 
 uni.$u.config.unit = 'rpx'
 
+t
 export function createApp() {
   const app = createSSRApp(App)
   return {
