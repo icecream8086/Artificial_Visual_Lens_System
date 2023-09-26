@@ -2,7 +2,7 @@ export const request = config => {
 	return new Promise((resolve,reject) => 
 	{
 		uni.request({
-			url: 'http://10.21.78.46:9090' + config.url,
+			url: 'http://10.21.78.46:5000' + config.url,
 			method: config.method || 'GET',
 			data: config.data || {},
 			header: config.url == '/user/login' ? {} : {
