@@ -143,6 +143,13 @@
 				"navigationBarBackgroundColor": "#171717",
 				"backgroundColor": "#F8F8F8"
 			}
+		},
+		{
+			"path": "pages/test/C",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
 		}
 	],
 	"tabBar": {
