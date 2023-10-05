@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
+    "@ffmpeg/core": "^0.10.0",
+    "@ffmpeg/ffmpeg": "^0.10.1",
     "@vueuse/core": "^10.2.0",
     "axios": "^1.4.0",
     "core-js": "^3.8.3",

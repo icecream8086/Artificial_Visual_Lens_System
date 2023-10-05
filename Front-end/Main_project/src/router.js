@@ -27,7 +27,7 @@ import Host_Setting from '@/datapanel/Host_Setting.vue';
 import Analyze_Status from '@/datapanel/Analyze_Status.vue';
 import gpu_status from '@/components/sub_components/gpu_status.vue';
 import Progress_Area from '@/components/sub_components/Progress_Area.vue';
-
+import Step_recorder from '@/datapanel/Step_recorder.vue';
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -205,6 +205,12 @@ const routes = [
     component:Progress_Area,
     name:'Progress_Area',
     meta :{title:'Progress_Area'}
+  },
+  {
+    path:'/local_api/Step_recorder',
+    component:Step_recorder,
+    name:'Step_recorder',
+    meta :{title:'Step_recorder'}
   }
 
 ];
