@@ -9,6 +9,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import * as echarts from 'echarts';
 import store from './store';
 
+
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)

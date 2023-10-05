@@ -33,27 +33,7 @@
             消息
           </el-menu-item>
 
-
           <el-sub-menu index="3">
-            <template #title
-              ><el-icon>
-                <SetUp />
-              </el-icon>
-              Workspace</template
-            >
-            <el-menu-item index="2-1">item one</el-menu-item>
-            <el-menu-item index="2-2">item two</el-menu-item>
-            <el-menu-item index="2-3">item three</el-menu-item>
-
-            <el-sub-menu index="2-4">
-              <template #title>item four</template>
-              <el-menu-item index="2-4-1">item one</el-menu-item>
-              <el-menu-item index="2-4-2">item two</el-menu-item>
-              <el-menu-item index="2-4-3">item three</el-menu-item>
-            </el-sub-menu>
-          </el-sub-menu>
-
-          <el-sub-menu index="4">
             <template #title
               ><el-icon>
                 <Menu />
@@ -66,113 +46,103 @@
                 <el-radio-button :label="true" plain>隐藏侧栏</el-radio-button>
               </el-radio-group></el-menu-item
             >
-            <el-menu-item index="2-2"> <el-radio-group  v-model="Color_Mode" >
+            <el-menu-item index="2-2">
+              <el-radio-group v-model="Color_Mode">
                 <el-radio-button :label="false" plain>浅色模式</el-radio-button>
                 <el-radio-button :label="true" plain>深色模式</el-radio-button>
-              </el-radio-group></el-menu-item>
-            <el-menu-item index="2-3" v-model="view_mode"> 
+              </el-radio-group></el-menu-item
+            >
+            <el-menu-item index="2-3" v-model="view_mode">
               <el-radio-button :label="false" plain>展示模式</el-radio-button>
-                <el-radio-button :label="true" plain>用户模式</el-radio-button>
+              <el-radio-button :label="true" plain>用户模式</el-radio-button>
             </el-menu-item>
           </el-sub-menu>
         </el-menu>
       </el-header>
 
-      <el-container >
-        <el-aside  style="width: unset;">
+      <el-container>
+        <el-aside style="width: unset">
           <!-- style="width: unset;"
           用于自适应容器大小 -->
           <el-menu
-            default-active="2"
+            default-active="1"
             class="el-menu-vertical-demo"
             :collapse="isCollapse"
             @open="handleOpen"
             @close="handleClose"
           >
-            <el-sub-menu index="1">
-              <template #title>
-                <el-icon>
-                  <Setting />
-                </el-icon>
-                <span>Navigator One</span>
-              </template>
-              <el-menu-item-group>
-                <template #title><span>Group One</span></template>
-                <el-menu-item index="1-1">item one</el-menu-item>
-                <el-menu-item index="1-2">item two</el-menu-item>
-              </el-menu-item-group>
-              <el-menu-item-group title="Group Two">
-                <el-menu-item index="1-3">item three</el-menu-item>
-              </el-menu-item-group>
-              <el-sub-menu index="1-4">
-                <template #title><span>item four</span></template>
-                <el-menu-item index="1-4-1">item one</el-menu-item>
-              </el-sub-menu>
-            </el-sub-menu>
+            <el-menu-item index="1" @click="select_host_info" v-if="loadmode_default.at(0)">
+              <el-icon>
+                <Postcard />
+              </el-icon>
+              <template #title>Host Info</template>
+            </el-menu-item>
 
-            <el-menu-item index="2">
+            <el-menu-item index="2" @click="select_performance_analysis"  v-if="loadmode_default.at(1)">
               <el-icon>
                 <PieChart />
               </el-icon>
               <template #title>Performance analysis</template>
             </el-menu-item>
 
-            <el-menu-item>
+            <el-menu-item index="3" @click="select_image_grid"  v-if="loadmode_default.at(2)">
               <el-icon>
                 <Picture />
               </el-icon>
               <template #title>Image </template>
             </el-menu-item>
 
-            <el-menu-item>
+            <el-menu-item index="4" @click="select_user_group"  v-if="loadmode_default.at(3)">
               <el-icon>
                 <User />
               </el-icon>
               <template #title>Users </template>
             </el-menu-item>
 
-            <el-menu-item>
+            <el-menu-item index="5" @click="select_host_setting"  v-if="loadmode_default.at(4)">
               <el-icon>
-                <User />
+                <Setting />
               </el-icon>
               <template #title>Host Setting </template>
             </el-menu-item>
 
-            <el-menu-item>
+            <el-menu-item index="6" @click="select_analyze_status"  v-if="loadmode_default.at(5)">
               <el-icon>
                 <FullScreen />
               </el-icon>
               <template #title>Analyze Status</template>
             </el-menu-item>
 
-            <el-menu-item index="3" disabled>
+            <el-menu-item index="7" @click="select_step_recorder"  v-if="loadmode_default.at(6)">
               <el-icon>
-                <Setting />
+                <VideoCamera />
               </el-icon>
-
-              <template #title>Navigator Three</template>
+              <template #title>Step recorder</template>
             </el-menu-item>
-            <el-menu-item index="4">
-              <el-icon>
-                <setting />
-              </el-icon>
-              <template #title>Navigator Four</template>
-            </el-menu-item>
-          </el-menu> 
+          </el-menu>
         </el-aside>
 
         <el-main>
-          <!-- this is body -->
-          <p>this is a demo page</p>
-          <p>将来配置局部刷新内容</p>
-          <p>部分管理员专用组件可以隐藏</p>
-          <img
-            src="../assets/test/ZxjqtA-q9Q9dCkSYapPkXOtD5MYaQxF4PXS2EHVG7Hc.png"
-            alt=""
-            srcset=""
-          />
+          <div v-if="booleanArray.at(4)"><user_group> </user_group></div>
+          <div v-if="booleanArray.at(3)"><image_GRID></image_GRID></div>
+          <div v-if="booleanArray.at(2)"><Performance_analysis></Performance_analysis></div>
+          <div v-if="booleanArray.at(6)"><Analyze_Status></Analyze_Status> </div>
+          <div v-if="booleanArray.at(7)"><Step_recorder></Step_recorder> </div>
+          <div v-if="booleanArray.at(5)"><Host_Setting></Host_Setting> </div>
+          <div v-if="booleanArray.at(1)">
+            <host_info></host_info>
+            <!-- this is body -->
+            <p>this is a demo page</p>
+            <p>主机信息页面-占位符</p>
+            <p>将来配置局部刷新内容</p>
+            <p>部分管理员专用组件可以隐藏</p>
+            <img
+              src="../assets/test/ZxjqtA-q9Q9dCkSYapPkXOtD5MYaQxF4PXS2EHVG7Hc.png"
+              alt=""
+              srcset=""
+            />
+          </div>
         </el-main>
-        
       </el-container>
     </el-container>
   </div>
@@ -183,46 +153,108 @@ import { ref } from "vue";
 import router from "@/router";
 import { useDark } from "@vueuse/core";
 
-// import {switchThemes,checkDarkMode} from "../lib/style_lib/color_style";
+import user_group from "@/Portal/User/user_group/user_group.vue";
+import image_GRID from "@/host/image_GRID.vue";
+import Performance_analysis from "@/datapanel/Performance_analysis.vue";
+import host_info from "@/datapanel/host_info.vue";
+import Analyze_Status from "@/datapanel/Analyze_Status.vue";
+import Step_recorder from "@/datapanel/Step_recorder.vue";
+import Host_Setting from "@/datapanel/Host_Setting.vue";
+
 export default {
   name: "DashboardPage",
   data() {
     return {
+      booleanArray: [true, false, false, false, false, false, false],
+      loadmode_default: [true, true, true, true, true, true, true],
+      loadmode_normal_user: [true, true, true, false, false, true, true],
+      loadmode_control_mode: [false, false, true, true, true, true, false],
+      loadmode_normal_user_control_mode: [false, false, true, false, false, true, false],
+
       whoami: "whoami",
       circleUrl: "http://192.168.1.100:3000/api/user/get_Avatar/33",
     };
   },
   watch: {
     Color_Mode() {
-      this.switchThemes();    
+      this.switchThemes();
     },
     view_mode() {
       // v-show
-      console.log("use v-show to hide or show")
+      console.log("use v-show to hide or show");
     },
   },
+  components: {
+    user_group,
+    image_GRID,
+    Performance_analysis,
+    host_info,
+    Analyze_Status,
+    Step_recorder,
+    Host_Setting,
+  },
   methods: {
+    
+    initBooleanArray(booleanArray) {
+      for (let i = 0; i < booleanArray.length; i++) {
+        booleanArray[i] = false;
+      }
+    },
     switchThemes() {
-        // Switch themes
-        useDark().value = !useDark().value;
-
-      },
-      checkDarkMode() {
-        // Check if dark mode is enabled
-        return window.matchMedia("(prefers-color-scheme: dark)").matches;
-      },
+      // Switch themes
+      useDark().value = !useDark().value;
+    },
+    checkDarkMode() {
+      // Check if dark mode is enabled
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    },
     navigateTo() {
       console.log("navigate to");
+    },
+    select_user_group() {
+      this.initBooleanArray(this.booleanArray);
+      this.booleanArray[4] = true;
+    },
+    select_image_grid() {
+      this.initBooleanArray(this.booleanArray);
+      this.booleanArray[3] = true;    
     },
     navigateTo_Whoami() {
       router.push({ name: "whoami" });
     },
+    select_host_info() {
+      this.initBooleanArray(this.booleanArray);
+      this.booleanArray[1] = true;
+    },
+    select_performance_analysis() {
+      this.initBooleanArray(this.booleanArray);
+      this.booleanArray[2] = true;
+      
+    },
+    select_host_setting() {
+      this.initBooleanArray(this.booleanArray);
+      this.booleanArray[5] = true;
+    },
+    select_analyze_status() {
+      this.initBooleanArray(this.booleanArray);
+      this.booleanArray[6] = true;
+    },
+    select_step_recorder() {
+      this.initBooleanArray(this.booleanArray);
+      this.booleanArray[7] = true;
+    },
   },
+  mounted() {
+    this.initBooleanArray(this.booleanArray);
+    this.booleanArray[1] = true;
+    // this.loadmode_default = this.loadmode_control_mode;
 
+    // this.loadmode_default = this.loadmode_normal_user;
+    // this.loadmode_default = this.loadmode_normal_user_control_mode;
+  },
   setup() {
     const isCollapse = ref(true);
     const Color_Mode = ref(true);
-    //基于cookie存储
     const view_mode = ref(false);
     const handleOpen = (key, keyPath) => {
       console.log(key, keyPath);

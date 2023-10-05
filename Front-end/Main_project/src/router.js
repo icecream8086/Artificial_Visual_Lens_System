@@ -20,6 +20,14 @@ import cpu_panel from '@/components/cpu_panel.vue';
 import diskInfo_panel from '@/components/diskInfo_panel.vue';
 import hostinfo_panel from '@/components/hostinfo_panel.vue';
 import coresPercent_panel  from '@/components/sub_components/coresPercent_panel.vue' ;
+import Performance_analysis from '@/datapanel/Performance_analysis.vue';
+import health_card from '@/components/sub_components/health_card.vue';
+import host_info from '@/datapanel/host_info.vue';
+import Host_Setting from '@/datapanel/Host_Setting.vue';
+import Analyze_Status from '@/datapanel/Analyze_Status.vue';
+import gpu_status from '@/components/sub_components/gpu_status.vue';
+import Progress_Area from '@/components/sub_components/Progress_Area.vue';
+import Step_recorder from '@/datapanel/Step_recorder.vue';
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -155,7 +163,55 @@ const routes = [
     name:'coresPercent_panel',
     meta :{title:'coresPercent_panel'}
   }
-
+  ,
+  {
+    path:'/local_api/Performance_analysis',
+    component:Performance_analysis,
+    name:'Performance_analysis',
+    meta :{title:'Performance_analysis'}
+  },
+  {
+    path:'/local_api/health_card',
+    component:health_card,
+    name:'health_card',
+    meta :{title:'health_card'}
+  },
+  {
+    path:'/local_api/host_info',
+    component:host_info,
+    name:'host_info',
+    meta :{title:'host_info'}
+  },
+  {
+    path:'/local_api/Host_Setting',
+    component:Host_Setting,
+    name:'Host_Setting',
+    meta :{title:'Host_Setting'}
+  },
+  {
+    path:'/local_api/Analyze_Status',
+    component:Analyze_Status,
+    name:'Analyze_Status',
+    meta :{title:'Analyze_Status'}
+  },
+  {
+    path:'/local_api/gpu_status',
+    component:gpu_status,
+    name:'gpu_status',
+    meta :{title:'gpu_status'}
+  },
+  {
+    path:'/local_api/Progress_Area',
+    component:Progress_Area,
+    name:'Progress_Area',
+    meta :{title:'Progress_Area'}
+  },
+  {
+    path:'/local_api/Step_recorder',
+    component:Step_recorder,
+    name:'Step_recorder',
+    meta :{title:'Step_recorder'}
+  }
 
 ];
 
