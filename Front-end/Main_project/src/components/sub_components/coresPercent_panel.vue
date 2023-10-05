@@ -1,5 +1,9 @@
 <template>
-    <div ref="chart" style="height: 400px;"></div>
+  <el-card class="box-card">
+
+    <div ref="chart" style="height: 400px"></div>
+    
+  </el-card>
   </template>
   
   <script>
