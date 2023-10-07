@@ -1,5 +1,5 @@
 <template>
-    <el-card class="timelines">
+    <el-card class="timelines" style="overflow: auto;">
         <el-timeline>
       <el-timeline-item timestamp="2018/4/12" placement="top">
         <el-card>

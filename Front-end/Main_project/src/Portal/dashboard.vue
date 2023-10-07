@@ -124,7 +124,7 @@
 
         <el-main>
           <div v-if="booleanArray.at(4)"><user_group> </user_group></div>
-          <div v-if="booleanArray.at(3)"><image_GRID></image_GRID></div>
+          <div v-if="booleanArray.at(3)"><image_conf></image_conf></div>
           <div v-if="booleanArray.at(2)"><Performance_analysis></Performance_analysis></div>
           <div v-if="booleanArray.at(6)"><Analyze_Status></Analyze_Status> </div>
           <div v-if="booleanArray.at(7)"><Step_recorder></Step_recorder> </div>
@@ -154,12 +154,12 @@ import router from "@/router";
 import { useDark } from "@vueuse/core";
 
 import user_group from "@/Portal/User/user_group/user_group.vue";
-import image_GRID from "@/host/image_GRID.vue";
 import Performance_analysis from "@/datapanel/Performance_analysis.vue";
 import host_info from "@/datapanel/host_info.vue";
 import Analyze_Status from "@/datapanel/Analyze_Status.vue";
 import Step_recorder from "@/datapanel/Step_recorder.vue";
 import Host_Setting from "@/datapanel/Host_Setting.vue";
+import image_conf from "@/components/image_conf.vue";
 
 export default {
   name: "DashboardPage",
@@ -186,12 +186,12 @@ export default {
   },
   components: {
     user_group,
-    image_GRID,
     Performance_analysis,
     host_info,
     Analyze_Status,
     Step_recorder,
     Host_Setting,
+    image_conf,
   },
   methods: {
     
