@@ -150,6 +150,22 @@
 				"navigationBarBackgroundColor": "#171717",
 				"backgroundColor": "#F8F8F8"
 			}
+		},
+		{
+			//进度卡功能
+			"path": "pages/component/Progress_card",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			//图片详细信息
+			"path": "pages/control_panel/image_advanced_info",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
 		}
 	],
 	"tabBar": {
