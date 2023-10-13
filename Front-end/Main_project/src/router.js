@@ -32,6 +32,8 @@ import image_conf from '@/components/image_conf.vue';
 import image_box from '@/components/sub_components/image_box.vue';
 import add_image from '@/components/sub_components/add_image.vue';
 import image_preview from '@/components/sub_components/image_preview.vue';
+import manual from '@/Portal/manual.vue';
+import manual_page from '@/components/manual_page.vue'
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -239,6 +241,18 @@ const routes = [
     component:image_preview,
     name:'image_preview',
     meta :{title:'image_preview'}
+  },
+  {
+    path:'/local_api/manual',
+    component:manual,
+    name:'manual',
+    meta :{title:'manual'}
+  },
+  {
+    path:'/local_api/manual_page',
+    component:manual_page,
+    name:'manual_page',
+    meta :{title:'manual_page'}
   }
 
 ];
