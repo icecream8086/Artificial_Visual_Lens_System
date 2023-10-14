@@ -20,6 +20,8 @@ async function TestModule() {
   setTimeout(() => {
     messageQueue.clear('myQueue');
   }, 5000);
+
+  //循环消费消息队列
 }
 
 TestModule();

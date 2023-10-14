@@ -76,6 +76,50 @@ router.post('/uploadFile', upload.single('files'), async (req, res, next) => {
   }
 });
 
+router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, next) => {
+
+  // let UID = req.headers.uid;
+  // let token = req.headers.token;
+  sql='';
+  try {
+    // await validateToken(token, UID);
+
+    let type_isimage = true;
+
+    if (type_isimage) {
+      let hash = await getImageHash(req.file?.path);
+      console.log(hash);
+      
+    } else {
+      fs.unlink(req.file.path, (err) => {
+        if (err) throw err;
+      });
+      return res.status(401).json({ message: 'File type is not supported.' });
+    }
+
+
+    return res.status(200).json({ req: req.file });
+    // size == byte
+    //   {
+    //     "req": {
+    //         "fieldname": "files",
+    //         "originalname": "Clash.for.Windows.Setup.0.20.35.exe",
+    //         "encoding": "7bit",
+    //         "mimetype": "application/x-msdos-program",
+    //         "destination": "./File_Stream/File_Block",
+    //         "filename": "Clash.for.Windows.Setup.0.20.35.exe",
+    //         "path": "File_Stream/File_Block/Clash.for.Windows.Setup.0.20.35.exe",
+    //         "size": 87163934
+    //     }
+    // }
+
+  } catch (err) {
+    return res.status(401).json({ message: err.message });
+    console.error('Error during banned_users:', err);
+    next(err);
+  }
+});
+
 router.post('/downloadFile/:filename', async (req, res, next) => {
   try{
     const filename = req.params.filename;
