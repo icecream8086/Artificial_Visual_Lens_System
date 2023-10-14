@@ -10,6 +10,7 @@ redis = Redis(host='192.168.101.1', port=6379, db=13)
 @celery.task(bind=True)
 def add_numbers(self, x, y):
     """ 定义一个Celery任务 """
+    # 允许添加超时功能 time_limit=120
     # 在任务开始时将任务 ID 添加到 Redis
     redis.rpush('tasks', self.request.id)
     # 执行任务...

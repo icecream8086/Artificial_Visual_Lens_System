@@ -77,6 +77,42 @@ router.post('/upload_image_Test', upload.single('files'), function(req, res, nex
   console.log('File uploaded successfully.');
   res.status(200).send('File uploaded successfully.');
 });
+router.get('/search', function(req, res, next) {
+  const searchTerm = req.query.term;
+  const searchType = req.query.type;
+  let query = '';
+  let values = [];
+
+  // 根据搜索类型构建查询
+  switch (searchType) {
+    case 'exact':
+      query = 'SELECT * FROM mytable WHERE column = ?';
+      values = [searchTerm];
+      break;
+    case 'contains':
+      query = 'SELECT * FROM mytable WHERE column LIKE ?';
+      values = [`%${searchTerm}%`];
+      break;
+    case 'starts_with':
+      query = 'SELECT * FROM mytable WHERE column LIKE ?';
+      values = [`${searchTerm}%`];
+      break;
+    case 'ends_with':
+      query = 'SELECT * FROM mytable WHERE column LIKE ?';
+      values = [`%${searchTerm}`];
+      break;
+    default:
+      query = 'SELECT * FROM mytable WHERE column LIKE ?';
+      values = [`%${searchTerm}%`];
+  }
+
+  // 查询MySQL数据库
+  connection.query(query, values, (error, results, fields) => {
+    if (error) throw error;
+    res.send(results);
+  });
+  
+});
 
 router.post('/test_py', (req, res) => {
   const options = {
