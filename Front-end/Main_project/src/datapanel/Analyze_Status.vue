@@ -1,6 +1,6 @@
 <template>
     <el-row>
-        <el-col :span="24">
+        <el-col :span="24" style="overflow: hidden; width: 800px; height: 432px;">
             <Progress_Area ></Progress_Area>
         </el-col>
         <el-col :span="12">

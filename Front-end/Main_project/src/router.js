@@ -28,6 +28,12 @@ import Analyze_Status from '@/datapanel/Analyze_Status.vue';
 import gpu_status from '@/components/sub_components/gpu_status.vue';
 import Progress_Area from '@/components/sub_components/Progress_Area.vue';
 import Step_recorder from '@/datapanel/Step_recorder.vue';
+import image_conf from '@/components/image_conf.vue';
+import image_box from '@/components/sub_components/image_box.vue';
+import add_image from '@/components/sub_components/add_image.vue';
+import image_preview from '@/components/sub_components/image_preview.vue';
+import manual from '@/Portal/manual.vue';
+import manual_page from '@/components/manual_page.vue'
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -211,6 +217,42 @@ const routes = [
     component:Step_recorder,
     name:'Step_recorder',
     meta :{title:'Step_recorder'}
+  },
+  {
+    path:'/local_api/image_conf',
+    component:image_conf,
+    name:'image_conf',
+    meta :{title:'image_conf'}
+  },
+  {
+    path:'/local_api/image_box',
+    component:image_box,
+    name:'image_box',
+    meta :{title:'image_box'}
+  },
+  {
+    path:'/local_api/add_image',
+    component:add_image,
+    name:'add_image',
+    meta :{title:'add_image'}
+  },
+  {
+    path:'/local_api/image_preview',
+    component:image_preview,
+    name:'image_preview',
+    meta :{title:'image_preview'}
+  },
+  {
+    path:'/local_api/manual',
+    component:manual,
+    name:'manual',
+    meta :{title:'manual'}
+  },
+  {
+    path:'/local_api/manual_page',
+    component:manual_page,
+    name:'manual_page',
+    meta :{title:'manual_page'}
   }
 
 ];

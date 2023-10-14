@@ -13,7 +13,7 @@ module.exports = defineConfig({
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://192.168.1.100:3000',
+        target: 'http://10.21.78.46:3000',
         changeOrigin: true,
         ws: true,                       //是否代理 websockets
         secure: true,                   //是否https接口
