@@ -1,47 +1,59 @@
 const fs = require('fs').promises;
 const path = require('path');
 
+
 /**
- * Creates a directory at the specified path if it doesn't already exist.
- * @param {string} dir_path - The path of the directory to create.
- * @throws {Error} If the directory already exists.
- * @throws {Error} If there was an error accessing or creating the directory.
+ * Creates directories at the specified paths.
+ * @param  {...string} dir_paths - The paths of the directories to create.
+ * @throws {Error} If a directory already exists at the specified path.
  */
-async function create_dir(dir_path) {
-    try {
-        await fs.access(dir_path);
-        throw new Error('Directory already exists');
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            await fs.mkdir(dir_path, { recursive: true });
-        } else {
-            throw error;
+async function create_dir(...dir_paths) {
+    for (const dir_path of dir_paths) {
+        try {
+            await fs.access(dir_path);
+            throw new Error(`Directory '${dir_path}' already exists`);
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                await fs.mkdir(dir_path, { recursive: true });
+            } else {
+                throw error;
+            }
         }
     }
 }
+// useage:
+//   const paths = ['/path/to/dir1', '/path/to/dir2', '/path/to/dir3'];
+//   paths.forEach(async (path) => {
+//     await create_dir(path);
+//   });
 
 /**
- * Checks if a directory exists at the given path.
- * @param {string} dir_path - The path of the directory to check.
- * @returns {Promise<boolean>} - A Promise that resolves to true if the directory exists, false otherwise.
+ * Checks if the specified directories exist.
+ * @param  {...string} dir_paths - The paths of the directories to check.
+ * @returns {Promise<boolean>} - A Promise that resolves to true if all directories exist, false otherwise.
  */
-async function check_dir_exists(dir_path) {
+async function check_dir_exists(...dir_paths) {
     try {
-        await fs.access(dir_path);
+        for (const dir_path of dir_paths) {
+            await fs.access(dir_path);
+        }
         return true;
     } catch (error) {
         return false;
     }
 }
 
+
 /**
- * Checks if a file exists at the given file path.
- * @param {string} file_path - The path of the file to check.
- * @returns {Promise<boolean>} - A Promise that resolves to true if the file exists, false otherwise.
+ * Checks if the given file paths exist.
+ * @param  {...string} file_paths - The file paths to check.
+ * @returns {Promise<boolean>} - A Promise that resolves to true if all file paths exist, false otherwise.
  */
-async function check_file_exists(file_path) {
+async function check_file_exists(...file_paths) {
     try {
-        await fs.access(file_path);
+        for (const file_path of file_paths) {
+            await fs.access(file_path);
+        }
         return true;
     } catch (error) {
         return false;
@@ -56,28 +68,39 @@ async function copy_file(source, target) {
     }
 }
 
-async function delete_file(file_path) {
+/**
+ * Deletes one or more files from the file system.
+ * @param {...string} file_paths - The path(s) of the file(s) to be deleted.
+ * @throws {Error} If any error occurs while deleting the file(s).
+ */
+async function delete_file(...file_paths) {
     try {
-        await fs.unlink(file_path);
-    } catch (error) {
-        throw error;
-    }
-}
-
-async function delete_dir(dir_path) {
-    try {
-        await fs.rmdir(dir_path, { recursive: true });
+        for (const file_path of file_paths) {
+            await fs.unlink(file_path);
+        }
     } catch (error) {
         throw error;
     }
 }
 
 /**
- * Returns a list of file names in the specified directory path.
- * @param {string} dir_path - The directory path to retrieve file names from.
- * @returns {Promise<Array<string>>} - A promise that resolves to an array of file names.
- * @throws {Error} - If there was an error reading the directory.
+ * Deletes one or more directories recursively.
+ * @async
+ * @function delete_dir
+ * @param {...string} dir_paths - One or more directory paths to delete.
+ * @throws {Error} If an error occurs while deleting the directory.
  */
+async function delete_dir(...dir_paths) {
+    try {
+      for (const dir_path of dir_paths) {
+        await fs.rmdir(dir_path, { recursive: true });
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
 /**
  * Returns a list of file names in the specified directory path.
  *
@@ -134,53 +157,53 @@ async function get_folder_list(dir_path) {
 
 async function move_file(source, target) {
     try {
-      await fs.rename(source, target);
+        await fs.rename(source, target);
     } catch (error) {
-      throw error;
+        throw error;
     }
-  }
-  
+}
+
 /**
  * Moves a file from a source directory to a target directory.
  * @param {string} source - The path to the source file.
  * @param {string} target_dir - The path to the target directory.
  * @throws {Error} If there is an error moving the file.
  */
-  async function cut_file(source, target_dir) {
+async function cut_file(source, target_dir) {
     try {
-      const file_name = path.basename(source);
-      const target = path.join(target_dir, file_name);
-  
-      await move_file(source, target);
-    } catch (error) {
-      throw error;
-    }
-  }
+        const file_name = path.basename(source);
+        const target = path.join(target_dir, file_name);
 
-  async function move_folder(source, target) {
-    try {
-      await fs.rename(source, target);
+        await move_file(source, target);
     } catch (error) {
-      throw error;
+        throw error;
     }
-  }
-  
+}
+
+async function move_folder(source, target) {
+    try {
+        await fs.rename(source, target);
+    } catch (error) {
+        throw error;
+    }
+}
+
 /**
  * Moves a folder from the source directory to the target directory.
  * @param {string} source - The path to the source folder.
  * @param {string} target_dir - The path to the target directory.
  * @throws {Error} If an error occurs while moving the folder.
  */
-  async function cut_folder(source, target_dir) {
+async function cut_folder(source, target_dir) {
     try {
-      const folder_name = path.basename(source);
-      const target = path.join(target_dir, folder_name);
-  
-      await move_folder(source, target);
+        const folder_name = path.basename(source);
+        const target = path.join(target_dir, folder_name);
+
+        await move_folder(source, target);
     } catch (error) {
-      throw error;
+        throw error;
     }
-  }
+}
 
 module.exports = {
     create_dir,
