@@ -1,19 +1,24 @@
-import requests
+import base64
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
 
-# 注册接口的URL
-url = 'http://192.168.1.100:3000/api/auth/signup'
+def decrypt(data, private_key):
+    # 将 base64 编码的数据解码为字节串
+    encrypted_data = base64.b64decode(data)
 
-# 注册请求的数据
-data = {
-    'full_name': 'John Doe',
-    'username': 'johndoe',
-    'password': 'password123',
-    'email': 'johndoe@example.com'
-}
+    # 使用 RSA 私钥初始化解密器
+    rsa_private_key = RSA.import_key(private_key)
+    cipher = PKCS1_v1_5.new(rsa_private_key)
 
-# 发送注册请求
-response = requests.post(url, json=data)
+    # 解密数据
+    decrypted_data = cipher.decrypt(encrypted_data, None)
 
-# 打印响应结果
-print('Response status code:', response.status_code)
-print('Response JSON:', response.json())
+    # 返回解密后的数据
+    return decrypted_data.decode()
+
+# 示例用法
+data = "base64-encoded-encrypted-data"
+private_key = "RSA-private-key"
+
+decrypted_data = decrypt(data, private_key)
+print(decrypted_data)
