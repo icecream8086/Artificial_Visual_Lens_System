@@ -3,7 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
+const {generateKeyPair} = require('./lib/hash/rsa_pwd');
 //require the users.js file in the API server
 var indexRouter = require('./routes/index');
 
@@ -14,7 +14,8 @@ var host_info_Router = require('./routes/api/host');
 var file_stream_router = require('./routes/FileStream/LocalFile');
 
 var app = express();
-
+const { publicKey, privateKey } = generateKeyPair();
+console.log(publicKey+'\n'+privateKey+'\n');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
