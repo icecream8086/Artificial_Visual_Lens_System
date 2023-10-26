@@ -1,6 +1,6 @@
 echo "Starting Unit Test ..."
 # module file name: 
-cd other
+cd rsa_password
 pwd
 
 # module name: 

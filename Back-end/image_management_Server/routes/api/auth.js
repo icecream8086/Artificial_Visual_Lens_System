@@ -13,6 +13,7 @@ require('../../lib/logic_module/check_authority'); // authority check
 const { Store_token } = require('../../lib/logic_module/Load_Store_token'); // token load and store
 const validateToken = require('../../lib/logic_module/check_user');
 const { validate_authority_root, validate_authority_admin } = require('../../lib/logic_module/check_authority');
+const { decrypt }=require('../../lib/hash/rsa_pwd');
 /**
  * POST request to sign up a new user.
  * @name POST/api/auth/signup
@@ -44,6 +45,7 @@ router.post('/signup', async (req, res, next) => {
       console.log('Username or email already in use:', username, email);
       return res.status(400).json({ message: 'Username or email already in use' });
     }
+    
     const encryptedPassword = password ? md5(password) : null;
     const insertUserResult = await query({
       sql: 'INSERT INTO users (full_name, username, password, email) VALUES (?, ?, ?, ?)',
@@ -66,6 +68,17 @@ router.post('/signup', async (req, res, next) => {
   }
 });
 
+router.get('/get_public_key', async (req, res, next) => {
+  try {
+    const { publicKey,privateKey } = global.keyPair;
+    return res.json({ publicKey: publicKey,privateKey:privateKey });
+  } catch (error) {
+    console.error('Error during get public key:', error);
+    next(error);
+  }
+}
+);
+
 /**
  * POST request to log in a user.
  * @name POST/api/auth/login
@@ -78,7 +91,14 @@ router.post('/signup', async (req, res, next) => {
 router.post('/login', async (req, res, next) => {
   let results;
   try {
-    const { usernameOrEmail, password } = req.body;
+    const { usernameOrEmail, password,flag } = req.body;
+    const { privateKey } = global.keyPair;
+    let passwords=password.toString();
+    console.log(passwords);
+    if(flag ==='rsa'){
+      const decrypted = decrypt(passwords, privateKey);
+      passwords = decrypted;
+    }
     if (!usernameOrEmail) {
       return res.status(400).json({ message: 'Username or email is required.' });
     }
@@ -95,7 +115,7 @@ router.post('/login', async (req, res, next) => {
         WHERE
           (users.username = ? OR users.email = ?) AND users.password = ?;
       `,
-      values: [usernameOrEmail, usernameOrEmail, password],
+      values: [usernameOrEmail, usernameOrEmail, passwords],
     });
     results = JSON.parse(JSON.stringify(result));
 
@@ -114,6 +134,7 @@ router.post('/login', async (req, res, next) => {
       return res.json({ UID: results[0].UID, token: tokens });
     }
   } catch (err) {
+    // return res.status(401).json({ message: err.message });
     console.error('Error during login:', err);
     next(err);
   }
@@ -135,7 +156,7 @@ router.post('/change_password', async (req, res, next) => {
     let token = req.headers.token;
     await validateToken(token, UID);
     await validate_authority_admin(UID);
-    
+
     const { old_password, new_password } = req.body;
     const result = await query({
       sql: 'SELECT password FROM users WHERE UID = ?',
@@ -150,7 +171,7 @@ router.post('/change_password', async (req, res, next) => {
       sql: 'UPDATE users SET password = ? WHERE UID = ?',
       values: [new_password, UID],
     });
-    return res.json({ message: 'Password changed successfully.' ,result:updateResult});
+    return res.json({ message: 'Password changed successfully.', result: updateResult });
 
   } catch (err) {
     return res.status(401).json({ message: err.message });
@@ -202,10 +223,10 @@ router.post('/get_token', async (req, res, next) => {
   try {
     let UID = req.headers.uid;
     let token = req.headers.token;
-    let {effective_time}=req.body;
+    let { effective_time } = req.body;
 
     await validateToken(UID, token);
-    
+
     const result = await query({
       sql: 'SELECT * FROM users WHERE UID = ?',
       values: [UID],
