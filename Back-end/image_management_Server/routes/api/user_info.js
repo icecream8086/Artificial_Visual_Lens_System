@@ -353,5 +353,74 @@ router.post('/Modify_banned_users', async (req, res, next) => {
 });
 
 
+router.get('/get_save_auth', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let User_ID = req.body.User_ID;
+    try {
+        await validateToken(token, UID);
+        await validate_authority_admin(UID);
+        sql = `SELECT save_auth FROM safe_auth WHERE UID = ?;`;
+        /**
+         * Queries the database for user information using the provided User_ID.
+         * @param {number} User_ID - The ID of the user to retrieve information for.
+         * @returns {Promise<any>} - A Promise that resolves with the result of the query.
+         */
+        const result = await query(sql, [User_ID]);
+        return res.status(200).json({ result });
+    } catch (err) {
+        return res.status(401).json({ message: err.message });
+        console.error('Error during safe_auth:', err);
+        next(err);
+    }
+});
 
+router.post('/modify_save_auth', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let User_ID = req.body.User_ID;
+    let save_auth = req.body.save_auth;
+    try {
+        await validateToken(token, UID);
+        await checkBoolean(save_auth);
+        await validate_authority_root(UID);
+        sql = `UPDATE safe_auth SET save_auth = ? WHERE UID = ?;`;
+        /**
+         * Executes a SQL query with the provided parameters to update the authentication status of a user.
+         * @param {string} sql - The SQL query to execute.
+         * @param {Array} params - The parameters to pass to the SQL query.
+         * @returns {Promise} - A Promise that resolves with the result of the SQL query.
+         */
+        const result = await query(sql, [save_auth, User_ID]);
+        return res.status(200).json({ result });
+    } catch (err) {
+        return res.status(401).json({ message: err.message });
+        console.error('Error during safe_auth:', err);
+        next(err);
+    }
+});
+
+router.post('/delete_account', async (req, res, next) => {
+
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let User_ID = req.body.User_ID;
+    try {
+        await validateToken(token, UID);
+        await validate_authority_root(UID);
+        sql = `DELETE FROM users WHERE UID = ?;`;
+        /**
+         * Executes a SQL query with the provided parameters to delete a user.
+         * @param {string} sql - The SQL query to execute.
+         * @param {Array} params - The parameters to pass to the SQL query.
+         * @returns {Promise} - A Promise that resolves with the result of the SQL query.
+         */
+        const result = await query(sql, [User_ID]);
+        return res.status(200).json({ result });
+    } catch (err) {
+        return res.status(401).json({ message: err.message });
+        console.error('Error during delete_account:', err);
+        next(err);
+    }
+});
 module.exports = router;

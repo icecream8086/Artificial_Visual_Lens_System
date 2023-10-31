@@ -107,9 +107,13 @@ router.get('/get_ownership', async (req, res, next) => {
     // only slef can get
     let UID = req.headers.uid;
     let token = req.headers.token;
-
+    /**
+     * Retrieves the group ID associated with a given user ID from the user_access_info table.
+     *
+     * @param {number} UID - The user ID to retrieve the group ID for.
+     * @returns {string} The group ID associated with the given user ID.
+     */
     let sql = 'SELECT group_id FROM user_access_info WHERE UID = ?;';
-
     try {
         await validateInput_is_null_or_empty(UID, token);
         await validateToken(UID);
@@ -128,28 +132,15 @@ router.get('/get_group', async (req, res, next) => {
     // list group
     let UID = req.headers.uid;
     let token = req.headers.token;
+    /**
+     * Retrieves the group name and group ID from the user_group table in the database.
+     *
+     * @type {string}
+     */
     let sql = 'SELECT group_name,group_id FROM user_group ;';
     try {
         await validateInput_is_null_or_empty(UID, token);
         await validateToken(token, UID);
-        let result = await query(sql);
-        return res.status(200).json({ message: result });
-    } catch (error) {
-        return res.status(401).json({ message: error.message });
-        console.log(error.message);
-        next(error);
-    }
-});
-
-router.post('/add', async (req, res, next) => {
-    // add user to group
-    let UID = req.headers.uid;
-    let token = req.headers.token;
-    let sql = '';
-    try {
-        await validateInput_is_null_or_empty(UID, token);
-        await validateToken(token, UID);
-        
         let result = await query(sql);
         return res.status(200).json({ message: result });
     } catch (error) {
@@ -290,8 +281,6 @@ router.post('/add_menber_sys', async (req, res, next) => {
         next(error);
     }
 });
-
-
 
 router.post('/modifiy_group', async (req, res, next) => {
     let UID = req.headers.uid;

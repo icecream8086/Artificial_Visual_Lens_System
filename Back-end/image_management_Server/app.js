@@ -15,7 +15,8 @@ var file_stream_router = require('./routes/FileStream/LocalFile');
 
 var app = express();
 const { publicKey, privateKey } = generateKeyPair();
-console.log(publicKey+'\n'+privateKey+'\n');
+global.keyPair = { publicKey, privateKey };
+// console.log(publicKey+'\n'+privateKey+'\n');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
