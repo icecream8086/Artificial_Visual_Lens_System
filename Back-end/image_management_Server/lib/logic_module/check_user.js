@@ -9,6 +9,9 @@ const redis=require('../datasource/redis_connection_promise');
 
 function validateToken(token, UID) {
     return new Promise((resolve, reject) => {
+      if (token === undefined || UID === undefined) {
+        reject(new Error('Token or UID is undefined.'));
+      }
       // redis.select(0)
       redis.get(token)
         .then((reply) => {
