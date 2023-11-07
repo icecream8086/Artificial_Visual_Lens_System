@@ -1,2 +1,6 @@
 dataset
 *.pth
+
+clip-vit-base-patch32
+clip-vit-large-patch14
+vilt-b32-finetuned-vqa
