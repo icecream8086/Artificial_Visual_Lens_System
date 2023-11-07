@@ -70,8 +70,8 @@ router.post('/signup', async (req, res, next) => {
 
 router.get('/get_public_key', async (req, res, next) => {
   try {
-    const { publicKey,privateKey } = global.keyPair;
-    return res.json({ publicKey: publicKey,privateKey:privateKey });
+    const { publicKey } = global.keyPair;
+    return res.json({ publicKey: publicKey });
   } catch (error) {
     console.error('Error during get public key:', error);
     next(error);
@@ -94,7 +94,6 @@ router.post('/login', async (req, res, next) => {
     const { usernameOrEmail, password,flag } = req.body;
     const { privateKey } = global.keyPair;
     let passwords=password.toString();
-    console.log(passwords);
     if(flag ==='rsa'){
       const decrypted = decrypt(passwords, privateKey);
       passwords = decrypted;
@@ -151,25 +150,43 @@ router.post('/login', async (req, res, next) => {
  * @returns {JSON} - A JSON object containing a message indicating whether the password was changed successfully.
  */
 router.post('/change_password', async (req, res, next) => {
+  let UID = req.headers.uid;
+  let token = req.headers.token;
+  const { old_password, new_password,flag } = req.body;
+  const { privateKey } = global.keyPair;
+
   try {
-    let UID = req.headers.uid;
-    let token = req.headers.token;
     await validateToken(token, UID);
     await validate_authority_admin(UID);
-
-    const { old_password, new_password } = req.body;
+    let old_passwords=old_password.toString();
+    let new_passwords=new_password.toString();
+    if(flag ==='rsa'){
+      const decrypted = decrypt(old_passwords, privateKey);
+      const decrypted1 = decrypt(new_passwords, privateKey);
+      old_passwords = decrypted;
+      new_passwords = decrypted1;
+    }
     const result = await query({
       sql: 'SELECT password FROM users WHERE UID = ?',
       values: [UID],
     });
     const results = JSON.parse(JSON.stringify(result));
-    if (results[0].password !== old_password) {
+    if (results[0].password !== old_passwords) {
       return res.status(401).json({ message: 'verify password failed ...' });
+    }
+    if (old_passwords === new_passwords) {
+      return res.status(401).json({ message: 'The new password is the same as the old password.' });
+    }
+    if(results[0].force_change_password === 1){
+      await query({
+        sql: 'UPDATE auth_info SET force_change_password = 0 WHERE UID = ?',
+        values: [UID],
+      });
     }
 
     const updateResult = await query({
       sql: 'UPDATE users SET password = ? WHERE UID = ?',
-      values: [new_password, UID],
+      values: [new_passwords, UID],
     });
     return res.json({ message: 'Password changed successfully.', result: updateResult });
 
@@ -194,10 +211,8 @@ router.post('/reset_password', async (req, res, next) => {
     const { email } = req.body;
     let UID = req.headers.uid;
     let token = req.headers.token;
-
     await validateToken(UID, token);
     await validate_authority_root(UID);
-
     const result = await query({
       sql: 'SELECT * FROM users WHERE email = ?',
       values: [email],
@@ -218,28 +233,54 @@ router.post('/reset_password', async (req, res, next) => {
 });
 
 
-router.post('/get_token', async (req, res, next) => {
-
+router.post('/flush_token', async (req, res, next) => {
+  let UID = req.headers.uid;
+  let token = req.headers.token;
   try {
-    let UID = req.headers.uid;
-    let token = req.headers.token;
-    let { effective_time } = req.body;
-
     await validateToken(UID, token);
-
-    const result = await query({
-      sql: 'SELECT * FROM users WHERE UID = ?',
-      values: [UID],
-    });
-    const results = JSON.parse(JSON.stringify(result));
-    if (results.length === 0) {
-      return res.status(401).json({ message: 'UID not found.' });
+    // check authority
+    // CREATE TABLE `auth_info` (
+    //   `UID` int NOT NULL,
+    //   `force_change_password` tinyint(1) DEFAULT '0',
+    //   `allow_password_auth` tinyint(1) DEFAULT '1',
+    //   `flush_token` tinyint(1) DEFAULT '1',
+    //   PRIMARY KEY (`UID`),
+    //   CONSTRAINT `auth_info_ibfk_1` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`)
+    // ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    let sql = 'select flush_token from auth_info where UID=?';
+    let result = await query(sql, [UID]);
+    if (result.length === 0) {
+      return res.status(401).json({ message: 'no flush_token found ...' });
     }
-    let user_token = jwt.sign({ UID: results[0].UID }, 'secret_key', { expiresIn: '1h' });
-    redis.set(user_token, results[0].UID);
-    redis.expire(user_token, effective_time);
+    if (result[0].flush_token === 0) {
+      return res.status(401).json({ message: 'flush token not allowed ...' });
+    }
 
-    return res.json({ UID: results[0].UID, token: user_token });
+    let tokens = await Store_token(Number(UID));
+
+    return res.json({ message: 'flush token successfully.' ,token:tokens});
+  }
+  catch (err) {
+    return res.status(401).json({ message: err.message });
+    console.error('Error during flush token:', err);
+    next(err);
+  }
+});
+
+router.post('/create_token', async (req, res, next) => {
+  let UID = req.headers.uid;
+  let token = req.headers.token;
+  let effective_time  = req.body.effective_time;
+  let user_uid = req.body.user_token;
+  try {
+    await validateToken(UID, token);
+    if(user_uid!==UID){
+      await validate_authority_root(UID);
+    }
+    // check authority
+    let tokens = await Store_token(Number(user_uid),effective_time);
+    
+    return res.json({ user_uid:user_uid, user_token: tokens,effective_time:effective_time, message: 'create token successfully.' });
   } catch (err) {
     return res.status(401).json({ message: err.message });
     console.error('Error during get token:', err);

@@ -32,6 +32,22 @@ async function create_dir(...dir_paths) {
 //   });
 
 /**
+ * Renames a directory from the source path to the target path.
+ * @async
+ * @function
+ * @param {string} source - The source path of the directory to be renamed.
+ * @param {string} target - The target path of the directory to be renamed to.
+ * @throws {Error} If there is an error renaming the directory.
+ */
+async function rename_dir(source, target) {
+    try {
+        await fs.rename(source, target);
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
  * Checks if the specified directories exist.
  * @param  {...string} dir_paths - The paths of the directories to check.
  * @returns {Promise<boolean>} - A Promise that resolves to true if all directories exist, false otherwise.
@@ -46,7 +62,6 @@ async function check_dir_exists(...dir_paths) {
         return false;
     }
 }
-
 
 async function check_dir_not_exists(...dir_paths) {
     try {
@@ -177,6 +192,30 @@ async function register_file(sha_256, file_name, file_path) {
 }
 
 /**
+ * Retrieves the file path from the database based on the given SHA-256 hash value.
+ * @async
+ * @function
+ * @param {string} sha_256 - The SHA-256 hash value of the file.
+ * @returns {Promise<string>} - The file path associated with the given SHA-256 hash value.
+ * @throws {Error} - Throws an error if there was an issue querying the database.
+ */
+async function get_file_path(sha_256) {
+    try {
+        const result = await query({
+            sql: `
+            SELECT Path
+            FROM Files
+            WHERE sha256 = ?;
+            `,
+            values: [sha_256],
+        });
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
  * Unregisters a file with the given sha256 hash from the database.
  * @async
  * @function unregister_file
@@ -193,6 +232,57 @@ async function unregister_file(sha_256) {
         const result = await query({
             sql: `
             DELETE FROM Files
+            WHERE sha256 = ?;
+            `,
+            values: [sha_256],
+        });
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+/**
+ * Retrieves the SHA256 hash of a file from the database.
+ * @async
+ * @function
+ * @param {string} file_name - The name of the file.
+ * @param {string} file_path - The path of the file.
+ * @returns {Promise<Object>} - The SHA256 hash of the file.
+ * @throws {Error} - Throws an error if there was a problem retrieving the SHA256 hash from the database.
+ */
+async function get_file_sha256(file_name, file_path) {
+    try {
+        const result = await query({
+            sql: `
+            SELECT sha256
+            FROM Files
+            WHERE FileName = ?
+            OR Path = ?;
+            `,
+            values: [file_name, file_path],
+        });
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Retrieves the file name from the database based on the given SHA-256 hash value.
+ * @async
+ * @function
+ * @param {string} sha_256 - The SHA-256 hash value of the file.
+ * @returns {Promise<Object>} - The file object retrieved from the database.
+ * @throws {Error} - Throws an error if there was an issue with the database query.
+ */
+async function get_file_name(sha_256) {
+    try {
+        const result = await query({
+            sql: `
+            SELECT *
+            FROM Files
             WHERE sha256 = ?;
             `,
             values: [sha_256],
@@ -685,7 +775,8 @@ module.exports = {
     create_dir,
     check_dir_exists,
     check_file_exists,
-    
+    check_dir_not_exists,
+    rename_dir,
     copy_file,
     delete_file,
     delete_dir,
@@ -697,17 +788,25 @@ module.exports = {
     cut_folder,
     // file access
     register_file,
+    get_file_path,
     unregister_file,
+    get_file_sha256,
+    get_file_name,
     modify_file_permission,
     get_file_permission,
+
     modify_file_info,
     get_file_info,
+
     modify_link_info_file,
     get_link_info_file,
+
     modify_delete_info_file,
     get_delete_info_file,
+
     modify_documents_file,
     get_documents_file,
+    
     modify_source_file,
     get_source_file,
 };

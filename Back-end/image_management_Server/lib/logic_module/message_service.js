@@ -71,6 +71,8 @@ class MessageQueue {
       throw new Error('Error while publishing message: \n'+error);
     }
   }
+  
 }
+
 
 module.exports = { MessageQueue };

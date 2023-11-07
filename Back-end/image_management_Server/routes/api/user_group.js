@@ -39,7 +39,7 @@ router.post('/modifiy_basic_group_info', async (req, res, next) => {
     try {
         await validateInput_is_null_or_empty(UID, token);
         await validateToken(token, UID);
-        await validate_authority_modify(UID);
+        await validate_authority_admin(UID);
         if (group_id <= 127) {
             return res.status(401).json({ message: "group id not allowed" });
         }
@@ -87,7 +87,7 @@ router.get('/list', async (req, res, next) => {
     try {
         await validateInput_is_null_or_empty(UID, token);
         await validateToken(UID);
-
+        await validate_authority_admin(UID);
         await query(sql, group_id);
     } catch (error) {
         return res.status(401).json({ message: error.message });
@@ -107,9 +107,13 @@ router.get('/get_ownership', async (req, res, next) => {
     // only slef can get
     let UID = req.headers.uid;
     let token = req.headers.token;
-
+    /**
+     * Retrieves the group ID associated with a given user ID from the user_access_info table.
+     *
+     * @param {number} UID - The user ID to retrieve the group ID for.
+     * @returns {string} The group ID associated with the given user ID.
+     */
     let sql = 'SELECT group_id FROM user_access_info WHERE UID = ?;';
-
     try {
         await validateInput_is_null_or_empty(UID, token);
         await validateToken(UID);
@@ -128,6 +132,11 @@ router.get('/get_group', async (req, res, next) => {
     // list group
     let UID = req.headers.uid;
     let token = req.headers.token;
+    /**
+     * Retrieves the group name and group ID from the user_group table in the database.
+     *
+     * @type {string}
+     */
     let sql = 'SELECT group_name,group_id FROM user_group ;';
     try {
         await validateInput_is_null_or_empty(UID, token);
@@ -141,64 +150,334 @@ router.get('/get_group', async (req, res, next) => {
     }
 });
 
-router.post('/add', async (req, res, next) => {
-    // add user to group
+
+router.post('/add_group', async (req, res, next) => {
+    // add new group
     let UID = req.headers.uid;
     let token = req.headers.token;
-    let sql = ';';
+    let GroupID = req.body.group_id;
+    let GroupName = req.body.group_name;
+    let sql = '';
+    try {
+        validateInput_is_null_or_empty(UID, token);
+        validateToken(token, UID);
+        validate_authority_admin(UID);
+        if (GroupID <= 127) {
+            return res.status(401).json({ message: "group id not allowed" });
+        }
+        sql = 'insert into user_group (group_id,group_name) values (?,?);';
+        let result = await query(sql, [GroupID, GroupName]);
+        return res.status(200).json({ message: result });
+    } catch (error) {
+        next(error);
+    }
+});
+
+
+router.post('/modifiy_menber', async (req, res, next) => {
+    // modifiy user to group
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let user_id = req.body.user_id;
+    let group_id = req.body.group_id;
+    // 前127位为保护地址，只有管理员才能修改
+    // 后面的地址可以由管理员和组长修改
+    // 被可以避免组长把管理员踢出组导致系统权限被锁
+    // let sql = `
+    //     update user_access_info
+    //     set group_id = ?
+    //     where UID = ?;
+    // `;
+    let sql = `
+        update user_access_info
+        set group_id = ?
+        where UID = ?;
+    `;
     try {
         await validateInput_is_null_or_empty(UID, token);
         await validateToken(token, UID);
-        
-        let result = await query(sql);
+        await validate_authority_admin(UID);
+
+        if(group_id <= 127){
+            return res.status(401).json({ message: "group id not allowed ,group id must >= 127 " });
+        }
+        let result = await query(sql,[group_id,user_id]);        
+        return res.status(200).json({ message: result });
+
+    } catch (error) {
+        next(error);
+    }
+});
+
+
+router.post('/add_menber', async (req, res, next) => {
+
+    // add user to group
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let user_id = req.body.user_id;
+    let group_id = req.body.group_id;
+    let sql = `
+        insert into user_access_info (UID,group_id) values (?,?);
+    `;
+    try {
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(token, UID);
+        await validate_authority_admin(UID);
+        if(group_id <= 127){
+            return res.status(401).json({ message: "group id not allowed ,group id must >= 127 " });
+        }
+        let result = await query(sql,[user_id,group_id]);        
         return res.status(200).json({ message: result });
     } catch (error) {
+        next(error);
+    }
+}
+);
+
+
+router.post('/delete_menber', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let user_id = req.body.user_id;
+    let group_id = req.body.group_id;
+    let sql = `
+        delete from user_access_info where UID = ? and group_id = ?;
+    `;
+    try {
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(token, UID);
+        await validate_authority_admin(UID);
+        if(group_id <= 127){
+            return res.status(401).json({ message: "group id not allowed ,group id must >= 127 " });
+        }
+        let result = await query(sql,[user_id,group_id]);        
+        return res.status(200).json({ message: result });
+    }
+    catch (error) {
         return res.status(401).json({ message: error.message });
         console.log(error.message);
         next(error);
     }
 });
 
+router.post('/add_menber_sys', async (req, res, next) => {
 
-router.post('/add_group', async (req, res, next) => {
-    // add new group
+    // add user to group
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let user_id = req.body.user_id;
+    let group_id = req.body.group_id;
+    let sql = `
+        insert into user_access_info (UID,group_id) values (?,?);
+    `;
     try {
-        // let sql = 'insert into user_group set ?';
-        // let result = await query(sql, req.body);
-        // res.json(result);
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(token, UID);
+        await validate_authority_root(UID);
+        let result = await query(sql,[user_id,group_id]);        
+        return res.status(200).json({ message: result });
     } catch (error) {
         next(error);
     }
 });
 
-router.post('/modifiy_menber', async (req, res, next) => {
-    // modifiy user to group
+router.post('/modifiy_group', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let group_id = req.body.group_id;
+    let group_name = req.body.group_name;
+    let READ_A = req.body.READ_A;
+    let WRITE_A = req.body.WRITE_A;
+    let EXECUTE_A = req.body.EXECUTE_A;
+    let sql = `
+        UPDATE user_group
+        SET
+            group_name = ?,
+            READ_A = ?,
+            WRITE_A = ?,
+            EXECUTE_A = ?
+        WHERE
+            group_id = ?;
+    
+
+    `;
     try {
-        // let sql = 'update user_group set ? where id = ?';
-        // let result = await query(sql, [req.body, req.body.id]);
-        // res.json(result);
+        if (group_id <= 127) {
+            return res.status(401).json({ message: "group id not allowed" });
+        }
+
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(token, UID);
+        await validate_authority_admin(UID);
+
+        let result = await query(sql, [group_name, READ_A, WRITE_A, EXECUTE_A, group_id]);
+        return res.status(200).json({ message: result });
     } catch (error) {
         next(error);
     }
 });
+
+router.post('/modifiy_group_sys', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let group_id = req.body.group_id;
+    let group_name = req.body.group_name;
+    let READ_A = req.body.READ_A;
+    let WRITE_A = req.body.WRITE_A;
+    let EXECUTE_A = req.body.EXECUTE_A;
+    let BASIC_CONTROL_A = req.body.BASIC_CONTROL_A;
+    let Full_Control_A = req.body.Full_Control_A;
+
+    let sql = `
+        UPDATE user_group
+        SET
+            group_name = ?,
+            READ_A = ?,
+            WRITE_A = ?,
+            EXECUTE_A = ?,
+            BASIC_CONTROL_A = ?,
+            Full_Control_A = ?
+        WHERE
+            group_id = ?;
+    `;
+    try {
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(token, UID);
+        await validate_authority_root(UID);
+
+        let result = await query(sql, [group_name, READ_A, WRITE_A, EXECUTE_A,BASIC_CONTROL_A,Full_Control_A, group_id]);
+        return res.status(200).json({ message: result });
+    } catch (error) {
+        next(error);
+    }
+});
+
+
+
 
 router.post('/delete', async (req, res, next) => {
     // delete user to group
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let User_ID = req.body.user_id;
+    let Group_ID = req.body.group_id;
     try {
-        // let sql = 'delete from user_group where id = ?';
+        if (Group_ID <= 127) {
+            return res.status(401).json({ message: "group id not allowed" });
+        }
+        validateInput_is_null_or_empty(UID, token);
+        validateToken(token, UID);
+        validate_authority_admin(UID);
+        let sql = 'delete from user_access_info where UID = ? and group_id = ?';
+        let result = await query(sql, [User_ID, Group_ID]);
+        return res.status(200).json({ message: result });
+
     } catch (error) {
+        return res.status(401).json({ message: error.message });
+        next(error);
+    }
+});
+
+router.post('/delete_sys', async (req, res, next) => {
+    // delete user to group
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let User_ID = req.body.user_id;
+    let Group_ID = req.body.group_id;
+    try {
+        validateInput_is_null_or_empty(UID, token);
+        validateToken(token, UID);
+        validate_authority_root(UID);
+        let sql = 'delete from user_access_info where UID = ? and group_id = ?';
+        let result = await query(sql, [User_ID, Group_ID]);
+        return res.status(200).json({ message: result });
+
+    } catch (error) {
+        return res.status(401).json({ message: error.message });
         next(error);
     }
 });
 
 router.post('/delete_group', async (req, res, next) => {
-    // delete group
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let group_id = req.body.group_id;
+    let sql = `
+        delete from user_group where group_id = ?;
+    `;
     try {
-        // let sql = 'delete from user_group where id = ?';
+        if (group_id <= 127) {
+            return res.status(401).json({ message: "group id not allowed" });
+        }
+        validateInput_is_null_or_empty(UID, token);
+        validateToken(token, UID);
+        validate_authority_admin(UID);
+        let result = await query(sql, group_id);
+        return res.status(200).json({ message: result });
     } catch (error) {
         next(error);
     }
 });
 
+router.post('/delete_group_sys', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let group_id = req.body.group_id;
+    let sql = `
+        delete from user_group where group_id = ?;
+    `;
+    try {
+        if (group_id <= 127) {
+            return res.status(401).json({ message: "group id not allowed" });
+        }
+        validateInput_is_null_or_empty(UID, token);
+        validateToken(token, UID);
+        validate_authority_root(UID);
+        let result = await query(sql, group_id);
+        return res.status(200).json({ message: result });
+    } catch (error) {
+        next(error);
+    }
+});
 
+router.get('list_menber', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let group_id = req.body.group_id;
+    let sql = `
+        select UID from user_access_info where group_id = ?;
+    `;
+    try {
+        if (group_id <= 127) {
+            return res.status(401).json({ message: "group id not allowed" });
+        }
+        validateInput_is_null_or_empty(UID, token);
+        validateToken(token, UID);
+        validate_authority_admin(UID);
+        let result = await query(sql, group_id);
+        return res.status(200).json({ message: result });
+    } catch (error) {
+        next(error);
+        return res.status(401).json({ message: error.message });
+    }
+});
+router.get('list_menber_sys', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let group_id = req.body.group_id;
+    let sql = `
+        select UID from user_access_info where group_id = ?;
+    `;
+    try {
+        validateInput_is_null_or_empty(UID, token);
+        validateToken(token, UID);
+        validate_authority_root(UID);
+        let result = await query(sql, group_id);
+        return res.status(200).json({ message: result });
+    } catch (error) {
+        next(error);
+        return res.status(401).json({ message: error.message });
+    }
+});
 module.exports = router;
