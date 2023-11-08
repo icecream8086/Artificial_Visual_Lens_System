@@ -7,7 +7,8 @@ const store = createStore({
     return {
       token: null,
       uid: null,
-      is_admin: false
+      is_admin: false,
+      pub_key:null,
     }
   },
   mutations: {
@@ -19,6 +20,9 @@ const store = createStore({
     },
     setIsAdmin(state, isAdmin) {
       state.is_admin = isAdmin
+    },
+    setPubKey(state, pub_key) {
+      state.pub_key = pub_key
     }
   },
   actions: {
@@ -30,6 +34,9 @@ const store = createStore({
     },
     updateIsAdmin({ commit }, isAdmin) {
       commit('setIsAdmin', isAdmin)
+    },
+    updatePubKey({ commit }, pub_key) {
+      commit('setPubKey', pub_key)
     }
   },
   getters: {
@@ -41,6 +48,9 @@ const store = createStore({
     },
     getIsAdmin(state) {
       return state.is_admin
+    },
+    getPubKey(state) {
+      return state.pub_key
     }
   }
 })
