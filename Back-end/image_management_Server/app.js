@@ -18,6 +18,8 @@ const { publicKey, privateKey } = generateKeyPair();
 global.keyPair = { publicKey, privateKey };
 // console.log(publicKey+'\n'+privateKey+'\n');
 // view engine setup
+const publicPath = './File_Stream/File_Block';
+global.publicPath = publicPath;
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(logger('dev'));

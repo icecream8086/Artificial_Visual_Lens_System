@@ -1,15 +1,26 @@
 // @ts-nocheck
 const os = require('os');
 const si = require('systeminformation');
+const osu = require('os-utils');
+
+function cpuUsage() {
+  return new Promise((resolve) => {
+    osu.cpuUsage((v) => {
+      resolve(v * 100);
+    });
+  });
+}
+
 
 async function cpu_statu_info(logable = false) {
   const cpuInfo = await si.cpu();
   const memInfo = await si.mem();
   const cpuTemp = await si.cpuTemperature();
 
-  const cpuPercent = await si.currentLoad().then(data => data.currentload);
-  const memoryPercent = memInfo.used / memInfo.total * 100;
-  const coresPercent = await si.currentLoad().then(data => data.cpus.map(cpu => cpu.load));
+  const cpuPercent = await cpuUsage();
+  const actualUsedMemory = memInfo.used - memInfo.buffcache;
+  const memoryPercent = actualUsedMemory / memInfo.total * 100;
+  const coresPercent = await si.currentLoad().then(data => data.cpus.map(cpu => cpu.load)).catch(() => [0]);
   const cpuFreq = cpuInfo.speed;
 
   if (logable==true) {
