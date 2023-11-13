@@ -3,24 +3,31 @@
     <div class="chart-container">
       <div ref="chart" class="chart"></div>
     </div>
-    <p>path /home</p>
-    <p>type xfs</p>
+    <el-text class="mx-4"><p>DiskName: {{ chartData.diskName }}</p></el-text>
+    <el-text class="mx-4"><p>Path: {{ chartData.mountPoint }}</p></el-text>
+    <el-text class="mx-4"><p>FileSystem Type: {{ chartData.fstype }}</p></el-text>
+    <el-text class="mx-4"><p>TotalSize: {{ chartData.totalSize }}</p></el-text>
+    <el-text class="mx-4"><p>freeSize: {{ chartData.freeSize }}</p></el-text>
+    <el-text class="mx-4"><p>usedSize: {{ chartData.usedSize }}</p></el-text>
+
+
   </el-card>
 </template>
   
-  <script>
+<script>
 import * as echarts from "echarts";
+import axios from 'axios';
 
 export default {
   data() {
     return {
       chartData: {
-        diskName: "home",
-        mountPoint: "/home",
-        fstype: "xfs",
-        totalSize: 61,
-        freeSize: 14,
-        usedSize: 47,
+        diskName: "Unknown ...",
+        mountPoint: "Unknown ...",
+        fstype: "Unknown ...",
+        totalSize: 1,
+        freeSize: 1,
+        usedSize: 1,
       },
       chart: null,
     };
@@ -28,6 +35,24 @@ export default {
   mounted() {
     this.chart = echarts.init(this.$refs.chart);
     this.initChart();
+
+    setInterval(() => {
+      axios.get('/api' + '/api/host/diskInfo').then(res => {
+        this.diskName=res.data.diskName;
+        this.mountPoint=res.data.mountPoint;
+        this.fstype=res.data.fstype;
+        this.totalSize=res.data.totalSize;
+        this.freeSize=res.data.freeSize;
+        this.usedSize=res.data.usedSize;
+
+        this.chartData = res.data;
+        this.initChart();
+      })
+        .catch(err => {
+          console.log(err);
+
+        })
+    }, 100);
   },
   methods: {
     initChart() {
@@ -68,7 +93,7 @@ export default {
 };
 </script>
   
-  <style scoped>
+<style scoped>
 .chart-container {
   width: 400px;
   height: 400px;
@@ -80,7 +105,7 @@ export default {
   height: 100%;
 }
 </style>
-  <style scoped>
+<style scoped>
 .text {
   font-size: 14px;
 }

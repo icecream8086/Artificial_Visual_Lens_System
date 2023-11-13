@@ -1,10 +1,10 @@
 <template>
     <el-row>
         <el-col :span="12">
-           <diskInfo_panel class="box-card—blue" style="width: auto;"></diskInfo_panel>
+           <diskInfo_panel class="box-card—ok" style="width: auto;"></diskInfo_panel>
         </el-col>
         <el-col :span="12">
-            <hostinfo_panel class="box-card—blue" style="width: auto;"></hostinfo_panel>
+            <hostinfo_panel class="box-card—ok" style="width: auto;"></hostinfo_panel>
         </el-col>
     </el-row>
 </template>
@@ -36,8 +36,14 @@ export default {
 </script>
 
 <style>
-.box-card—blue {
+.box-card—ok {
     border: 1px solid #00e5ff;
+}
+.box-card—error {
+    border: 1px solid #ff0000;
+}
+.box-card—warning {
+    border: 1px solid #fbff00;
 }
 </style>
   

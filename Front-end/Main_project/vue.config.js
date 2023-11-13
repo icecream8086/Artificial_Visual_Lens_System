@@ -7,13 +7,14 @@
 // // vue.config.js
 
 const { defineConfig } = require('@vue/cli-service')
+const config = require('./config');
 
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://10.21.78.46:3000',
+        target: config.apiTarget,
         changeOrigin: true,
         ws: true,
         secure: true,
