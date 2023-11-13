@@ -1,14 +1,14 @@
 <template>
-    <el-card class="box-card">
-      <div class="chart-container">
-    <div ref="chart" class="chart"></div>
-  </div>
-</el-card>
-
+  <el-card class="box-card">
+    <div class="chart-container">
+      <div ref="chart" class="chart"></div>
+    </div>
+  </el-card>
 </template>
 
 <script>
 import * as echarts from 'echarts';
+import axios from 'axios';
 
 export default {
   data() {
@@ -31,6 +31,19 @@ export default {
     this.chart = echarts.init(this.$refs.chart);
     this.initChart();
     this.startUpdatingData();
+    axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
+      this.chartData.cpuPercent = res.data.cpuPercent;
+      this.chartData.memoryPercent = res.data.memoryPercent;
+      this.chartData.coresPercent = res.data.coresPercent;
+      this.chartData.cpuFreq = res.data.cpuFreq;
+      this.chartData.cpuTemp = res.data.cpuTemp;
+      
+      console.log(this.chartData);
+
+    })
+      .catch(err => {
+        console.log(err);
+      })
   },
   beforeUnmount() {
     clearInterval(this.timer);
@@ -42,8 +55,8 @@ export default {
           text: 'System Monitoring',
           left: 'center',
           textStyle: {
-    color: '#409EFF' // 设置文本颜色为白色
-  },
+            color: '#409EFF' // 设置文本颜色为白色
+          },
         },
         tooltip: {
           trigger: 'axis'
@@ -52,8 +65,8 @@ export default {
           data: ['CPU Percent', 'Memory Percent'],
           top: 'bottom',
           textStyle: {
-    color: 'aqua' // 设置文本颜色为白色
-  },
+            color: 'aqua' // 设置文本颜色为白色
+          },
         },
         xAxis: {
           type: 'category',
@@ -93,11 +106,11 @@ export default {
       }, 1000);
     },
     updateChartData() {
-      const cpuPercent = Math.random() * 100;
-      const memoryPercent = Math.random() * 100;
+      // const cpuPercent = Math.random() * 100;
+      // const memoryPercent = Math.random() * 100;
 
-      this.chartData.cpuPercent = cpuPercent.toFixed(2);
-      this.chartData.memoryPercent = memoryPercent.toFixed(2);
+      // this.chartData.cpuPercent = cpuPercent.toFixed(2);
+      // this.chartData.memoryPercent = memoryPercent.toFixed(2);
 
       const xAxisData = new Date().toLocaleTimeString();
       const series1Data = parseFloat(this.chartData.cpuPercent);

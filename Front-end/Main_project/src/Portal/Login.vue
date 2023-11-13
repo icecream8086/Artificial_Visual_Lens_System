@@ -15,7 +15,7 @@
               <p>token</p>
             </div>
             <div>
-              <el-input type="text" id="username" placeholder="Enter token" />
+              <el-input type="text" id="username" v-model="token" placeholder="Enter token" />
             </div>
             <el-collapse-item title="forget passowrd">
               <span>foget password ?(按钮)</span>
@@ -32,6 +32,8 @@
 <script setup>
 import { ArrowRightBold } from '@element-plus/icons-vue'
 import { publicEncrypt, privateDecrypt } from 'crypto';
+import Cookies from "js-cookie";
+
 </script>
 <script>
 import { useDark } from "@vueuse/core";
@@ -42,7 +44,7 @@ export default {
     return {
       token: "",
       username: "Avatar@mail.com",
-      password: "32036005d1f6ed59803ba3e13c80993e",
+      password: "MzIwMzYwMDVkMWY2ZWQ1OTgwM2JhM2UxM2M4MDk5M2U=",
       pub_key: "",
       pri_key: "",
     };
@@ -72,28 +74,37 @@ export default {
       return window.matchMedia("(prefers-color-scheme: dark)").matches;
     },
     login() {
-      // Login
-      // this.$router.push("/dashboard");
-      // this.$store.dispatch('updateToken', this.token);
-      // let encryptedPassword = this.password ? md5(this.password) : null;
-      // 32036005d1f6ed59803ba3e13c80993e ->
-      // MzIwMzYwMDVkMWY2ZWQ1OTgwM2JhM2UxM2M4MDk5M2U=
-      console.log(this.username + '\n' + this.password + '\n' + this.pub_key + '\n' + this.pri_key);
+      if (this.username == "" || this.password == "") {
+        //check token is valid
+        if (this.token == "") {
+          alert("please input username and password");
+          return;
+        }
+        //if token is valid, then navigate to home page
+        document.body.className = "";
+        this.$router.push("/dashboard");
+      }
       this.password = this.encrypt(this.password, this.pub_key);
-      console.log(this.username + '\n' + this.password + '\n');
-
-
+      // ! 本地密码需要先转换为MD5,随后转换为base64，再进行加密
       axios.post('/api' + '/api/auth/login', {
         usernameOrEmail: this.username,
         password: this.password,
         flag: 'rsa',
       }).then(res => {
-        console.log(res);
-        this.$store.dispatch('updateToken', res.data.token);
-        // this.$router.push("/dashboard");
+        // console.log(res);
+        // this.$store.dispatch('updateToken', res.data.token);
+        //将token塞进coookie
+        Cookies.set('token', res.data.token);
+        Cookies.set('UID', res.data.UID);
+        document.body.className = "";
+        // console.log(Cookies.get('token'));
+        // console.log(Cookies.get('UID'));
+        this.$router.push("/dashboard");
+
       })
         .catch(err => {
           console.log(err);
+          document.body.className = "";
           this.$router.push("/host/Error");
         })
 

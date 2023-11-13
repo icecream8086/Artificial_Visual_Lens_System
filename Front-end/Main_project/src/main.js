@@ -8,6 +8,7 @@ import router from './router';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import * as echarts from 'echarts';
 import store from './store';
+import Cookies from 'js-cookie';
 
 
 const app = createApp(App)
@@ -17,6 +18,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 app.use(router);
 app.use(store);
 app.use(ElementPlus);
+app.use(Cookies);
 app.use(echarts);
 app.config.productionTip = false;
 app.config.globalProperties.$echarts = echarts;

@@ -10,7 +10,7 @@
         <div class="common-layout">
           <el-container>
             <el-header height="160px">
-              <el-image style="position: relative; width: 100%; height: 100%" :src="url" :fit="bg_layout" />
+              <!-- <el-image style="position: relative; width: 100%; height: 100%" :src="url" :fit="bg_layout" /> -->
               <!-- <span
                 >I sit at my window this morning where the world like a
                 passer-by stops for a moment, nods to me and goes.</span
@@ -53,18 +53,17 @@
                   </el-aside>
                   <el-main>
                     <div class="">
-                      <el-avatar :size="120"
-                        src="http://192.168.1.100:3000/api/user/get_Avatar/33"
-                        @error="errorHandler">
+                      <el-avatar :size="120" :src=url @error="errorHandler">
                       </el-avatar>
-                      <p>{{ "username" }}</p>
+                      <p><el-text class="mx-1"> {{ username }}</el-text></p>
+
 
                     </div>
                     <p>{{ "Organizations info" }}</p>
                     <p>{{ "Individuals info" }}</p>
                     <template>
-  <el-skeleton :rows="5" animated />
-</template>
+                      <el-skeleton :rows="5" animated />
+                    </template>
 
                   </el-main>
                 </el-container>
@@ -78,25 +77,25 @@
 </template>
 
 <style lang="scss">
-  .whoami_el-row {
-    // 每个行之间就会有一个 20px 的底部间距
-    margin-bottom: 20px;
-  }
+.whoami_el-row {
+  // 每个行之间就会有一个 20px 的底部间距
+  margin-bottom: 20px;
+}
 
-  .whoami_el-row:last-child {
-    margin-bottom: 0;
-  }
+.whoami_el-row:last-child {
+  margin-bottom: 0;
+}
 
-  .whoami_el-col {
-    // .el-col 类被设置了 border-radius: 4px 这样每个列的边框都会有 4px 的圆角。
-    border-radius: 2px;
-  }
+.whoami_el-col {
+  // .el-col 类被设置了 border-radius: 4px 这样每个列的边框都会有 4px 的圆角。
+  border-radius: 2px;
+}
 
-  .whoami_grid-content {
-    // .grid-content 类被设置了 border-radius: 4px; 和 min-height: 36px;，这样每个格子的内容区域会有 4px 的圆角，并且最小高度为 36px。
-    border-radius: 4px;
-    min-height: 18px;
-  }
+.whoami_grid-content {
+  // .grid-content 类被设置了 border-radius: 4px; 和 min-height: 36px;，这样每个格子的内容区域会有 4px 的圆角，并且最小高度为 36px。
+  border-radius: 4px;
+  min-height: 18px;
+}
 </style>
 
 <script setup>
@@ -105,21 +104,33 @@ import { Position, Link } from "@element-plus/icons-vue";
 </script>
 
 <script>
-  import router from "@/router";
-  export default {
-    name: "AboutMyself",
-    data() {
-      return {
-        url: "http://192.168.1.100:8080/s/yto52XqMeZn8HyT/download/v2-2f96d251ac71a6da5c142beffd52e256.jpg",
-        bg_layout: "scale-down",
-      };
+import router from "@/router";
+export default {
+  name: "AboutMyself",
+  data() {
+    return {
+      url: "http://192.168.1.100:8080/s/yto52XqMeZn8HyT/download/v2-2f96d251ac71a6da5c142beffd52e256.jpg",
+      bg_layout: "scale-down",
+      username: "username",
+    };
+  },
+  mounted() {
+    this.loadAvatar();
+  },
+  methods: {
+    goBack() {
+      console.log("go back");
+      //go back to dashboard
+      router.push({ name: "dashboard" });
     },
-    methods: {
-      goBack() {
-        console.log("go back");
-        //go back to dashboard
-        router.push({ name: "dashboard" });
-      },
-    },
-  };
+    loadAvatar() {
+      this.url=localStorage.getItem("avatarUrl");
+      let data= localStorage.getItem("basic_info");
+      let basic_info=JSON.parse(data);
+      this.username=basic_info.username;
+      
+    }
+  },
+};
+
 </script>
