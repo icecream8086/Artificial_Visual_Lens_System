@@ -1,6 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const query = require('../datasource/mysql_connection_promise');
+const { flushdb } = require('../datasource/redis_connection_promise');
 
 /**
  * Creates directories at the specified paths.
@@ -25,12 +26,6 @@ async function create_dir(...dir_paths) {
         }
     }
 }
-// useage:
-//   const paths = ['/path/to/dir1', '/path/to/dir2', '/path/to/dir3'];
-//   paths.forEach(async (path) => {
-//     await create_dir(path);
-//   });
-
 /**
  * Renames a directory from the source path to the target path.
  * @async
@@ -163,6 +158,25 @@ async function get_file_list(dir_path) {
     }
 }
 
+async function check_sha256_exists(sha_256) {
+    try {
+        const result = await query({
+            sql: `
+            SELECT sha256
+            FROM Files
+            WHERE sha256 = ?;
+            `,
+            values: [sha_256],
+        });
+        if (result.length > 0) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        throw error;
+    }
+}
+
 /**
  * Registers a file in the database.
  * @async
@@ -178,6 +192,9 @@ async function register_file(sha_256, file_name, file_path) {
         if (sha_256 === '') {
             throw new Error('sha256 is empty');
         }
+        //check if sql is correct
+
+        
         const result = await query({
             sql: `
             INSERT INTO Files (sha256, FileName, Path)
@@ -786,12 +803,16 @@ module.exports = {
     get_folder_list,
     cut_file,
     cut_folder,
+    
     // file access
+    check_sha256_exists,
     register_file,
     get_file_path,
     unregister_file,
+
     get_file_sha256,
     get_file_name,
+    
     modify_file_permission,
     get_file_permission,
 

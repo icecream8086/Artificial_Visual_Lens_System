@@ -12,17 +12,27 @@ const redis = require('../../lib/datasource/redis_connection_promise');
 const validateToken = require('../../lib/logic_module/check_user');
 const getImageHash = require('../../lib/hash/sha_256');
 const { checkFileType } = require('../../lib/life_cycle/checkFileType');
-const getFileAttributes = require('../../lib/life_cycle/FileAttributes');
-const {bytesToMB } = require('../../lib/datasource/other');
+const {getFileAttributes} = require('../../lib/life_cycle/FileAttributes');
+const { bytesToMB } = require('../../lib/datasource/other');
+const { getExifData } = require('../../lib/life_cycle/image_exif');
+const { register_file,check_sha256_exists,modify_file_permission,modify_file_info,modify_source_file } = require('../../lib/file_system/file');
+const { getGroupInfo } = require('../../lib/logic_module/group');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
+const { has } = require('lodash');
+const { group } = require('console');
 
 
 // 配置multer
 const storage_demo = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './File_Stream/File_Block'); // 设置文件保存的路径
+    let UID = req.headers.uid;
+    // let additionalPath = req.body.additionalPath; // 从请求体中获取额外的路径
+    let additionalPath = "additionalPath";
+    let newPath = `./File_Stream/File_Block/${UID}/${additionalPath}`; // 在UID后面追加新的路径
+    fs.mkdirSync(newPath, { recursive: true });
+    cb(null, newPath); // 重设文件保存的路径
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname); // 设置文件保存时的文件名
@@ -32,46 +42,64 @@ const storage_demo = multer.diskStorage({
 const upload = multer({ storage: storage_demo });
 
 
-router.post('/uploadFile', upload.single('files'), async (req, res, next) => {
-
-  // let UID = req.headers.uid;
-  // let token = req.headers.token;
-  sql='';
+router.post('/uploadFile', async (req, res, next) => {
+  let UID = req.headers.uid;
+  let token = req.headers.token;
+  let hash = '';
   try {
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
 
-    let type_isimage = await checkFileType(req.file?.path);
+    const upload = multer({ storage: storage_demo }).single('files');
+    upload(req, res, async function (err) {
+      if (err instanceof multer.MulterError) {
+        return res.status(500).json(err);
+      } else if (err) {
+        return res.status(500).json(err);
+      }
 
-    if (type_isimage) {
-      let hash = await getImageHash(req.file?.path);
-      console.log(hash);
+      //check file type
+      let type_isimage = await checkFileType(req.file?.path);
+      if (type_isimage) {
+         hash = await getImageHash(req.file?.path);
+      } else {
+        fs.unlink(req.file.path, (err) => {
+          if (err) throw err;
+        });
+        return res.status(401).json({ message: 'File type is not supported.' });
+      }
+
+      // {
+      //   fieldname: 'files',
+      //   originalname: 'v2-5b2740391dd55b498270f56343922d88_r.jpg',
+      //   encoding: '7bit',
+      //   mimetype: 'image/jpeg',
+      //   destination: './File_Stream/File_Block/3/additionalPath',
+      //   filename: 'v2-5b2740391dd55b498270f56343922d88_r.jpg',
+      //   path: 'File_Stream/File_Block/3/additionalPath/v2-5b2740391dd55b498270f56343922d88_r.jpg',
+      //   size: 131421
+      // }
+
+      let originalname = req.file?.originalname;      
+      let path = req.file?.path;
+      //image attributes
+      let imageobj=  await getFileAttributes(path);
+      let exifObj = await getExifData(path);
+      let group_id = await getGroupInfo(UID);
+      group_id = group_id[0].group_id;
+      if (await check_sha256_exists(hash)) {
+        return res.status(409).json({ message: 'File already exists.' });
+      }
+
+      await register_file(hash,originalname,path);
+      await modify_file_info(hash,imageobj.format,imageobj.size,imageobj.mode,imageobj.mod_time,imageobj.access_time,imageobj.create_time,imageobj.file_size,imageobj.disk_usage,imageobj.path,UID);
+      await modify_file_permission(hash,UID,group_id,permission=2,Priority=1);
+      await modify_source_file(hash,UID,exifObj.capture_date,exifObj.program_name,exifObj.acquire_date,exifObj.copy_right);
       
-    } else {
-      fs.unlink(req.file.path, (err) => {
-        if (err) throw err;
-      });
-      return res.status(401).json({ message: 'File type is not supported.' });
-    }
+      return res.status(200).json({ result: 'File uploaded successfully.' });
 
-
-    return res.status(200).json({ req: req.file });
-    // size == byte
-    //   {
-    //     "req": {
-    //         "fieldname": "files",
-    //         "originalname": "Clash.for.Windows.Setup.0.20.35.exe",
-    //         "encoding": "7bit",
-    //         "mimetype": "application/x-msdos-program",
-    //         "destination": "./File_Stream/File_Block",
-    //         "filename": "Clash.for.Windows.Setup.0.20.35.exe",
-    //         "path": "File_Stream/File_Block/Clash.for.Windows.Setup.0.20.35.exe",
-    //         "size": 87163934
-    //     }
-    // }
-
+    });
   } catch (err) {
     return res.status(401).json({ message: err.message });
-    console.error('Error during banned_users:', err);
     next(err);
   }
 });
@@ -80,7 +108,7 @@ router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, 
 
   // let UID = req.headers.uid;
   // let token = req.headers.token;
-  sql='';
+  sql = '';
   try {
     // await validateToken(token, UID);
 
@@ -88,8 +116,6 @@ router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, 
 
     if (type_isimage) {
       let hash = await getImageHash(req.file?.path);
-      console.log(hash);
-      
     } else {
       fs.unlink(req.file.path, (err) => {
         if (err) throw err;
@@ -121,7 +147,7 @@ router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, 
 });
 
 router.post('/downloadFile/:filename', async (req, res, next) => {
-  try{
+  try {
     const filename = req.params.filename;
     const file = path.join('File_Stream', 'File_Block', filename);
     res.download(file, (err) => {
@@ -130,8 +156,8 @@ router.post('/downloadFile/:filename', async (req, res, next) => {
         res.status(404).send('File not found');
       }
     });
-  
-  }catch(err){
+
+  } catch (err) {
     return res.status(401).json({ message: err.message });
   }
 });
@@ -139,7 +165,7 @@ router.post('/downloadFile/:filename', async (req, res, next) => {
 router.post('/downloadFile_share/:uuid/:filename', async (req, res, next) => {
   try {
     const uuid = req.params.uuid;
-    const filename = req.params.filename;    
+    const filename = req.params.filename;
     const file = path.join(__dirname, '..', 'File_Stream', 'File_Block', uuid, filename);
     res.download(file, (err) => {
       if (err) {
@@ -190,20 +216,20 @@ router.post('/deleteFile', async (req, res, next) => {
   const fs = require('fs');
   const path = require('path');
 
-router.post('/deleteFile', async (req, res, next) => {
-  const filename = req.body.filename;
-  const file = path.join('File_Stream', 'File_Block', filename);
+  router.post('/deleteFile', async (req, res, next) => {
+    const filename = req.body.filename;
+    const file = path.join('File_Stream', 'File_Block', filename);
 
-  fs.unlink(file, (err) => {
-    if (err) {
-      console.error('Error during file deletion:', err);
-      res.status(404).send('File not found');
-    } else {
-      console.log('File deleted successfully');
-      res.send('File deleted successfully');
-    }
+    fs.unlink(file, (err) => {
+      if (err) {
+        console.error('Error during file deletion:', err);
+        res.status(404).send('File not found');
+      } else {
+        console.log('File deleted successfully');
+        res.send('File deleted successfully');
+      }
+    });
   });
-});
 });
 
 
