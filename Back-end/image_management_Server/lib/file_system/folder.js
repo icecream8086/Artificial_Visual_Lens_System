@@ -1,8 +1,8 @@
 const fs = require('fs').promises;
 const path = require('path');
 const query = require('../datasource/mysql_connection_promise');
-const { create_dir, check_dir_not_exists, check_dir_exists,rename_dir,delete_dir } = require('./file');
-
+const { create_dir, check_dir_not_exists, check_dir_exists, rename_dir, delete_dir } = require('./file');
+const { get_str_sha256 } = require('../hash/str_sha256');
 /**
  * Creates a new folder with the given folder name and path, and inserts its details into the Folders table in the database.
  * @param {string} sha256 - The sha256 hash of the folder.
@@ -368,6 +368,65 @@ async function get_documents_folder(sha256) {
 }
 
 
+
+async function register_folder(sha_256, file_path) {
+    //examle dir ="File_Stream/File_Block/3/additionalPath/Login background image.jfif"
+    //ignore dir="File_Stream/File_Block/3"
+    //ignore file name = "Login background image.jfif"
+
+    // CREATE TABLE `Folders` (
+    //     `sha256` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    //     `FolderID` bigint NOT NULL AUTO_INCREMENT,
+    //     `FolderName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    //     `Path` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+    //     `dataset_zone` tinyint(1) NOT NULL DEFAULT '0',
+    //     PRIMARY KEY (`sha256`),
+    //     UNIQUE KEY `Folders_UN` (`FolderID`)
+    //   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+    // todo : split file_path to dir and file name
+    // todo : check if dir exists, if not, create dir, if yes, ignore
+    // todo : store dir to keymap
+    // todo : sync keymap to database
+
+    // todo : split file_path to dir and file name
+
+    //examle dir ="File_Stream/File_Block/3/additionalPath/Login background image.jfif"
+    //ignore dir="File_Stream/File_Block/3"
+    //ignore file name = "Login background image.jfif"
+
+    let paths = file_path.split('/');
+    let path_head = paths.slice(0, 3);
+    path_head = path_head.join('/');
+    paths = paths.slice(3, -1);
+    
+    let dict_kv_folder_absolute = {};
+    let dict_kv_folder_relatives = {};
+    let fullPath = "";
+    for (let path of paths) {
+        fullPath += "/" + path;
+        if (!dict_kv_folder_absolute[path]) {
+            dict_kv_folder_absolute[path] = path_head + fullPath;
+            dict_kv_folder_relatives[path] = fullPath;
+        }
+    }
+    let promises_get_sha = Object.entries(dict_kv_folder_absolute).map(async ([key, value]) => {
+        let sha256 = await get_str_sha256(value);
+        return [key, sha256];
+    });
+    let newDictEntries = await Promise.all(promises_get_sha);
+    let dict_kv_sha256 = Object.fromEntries(newDictEntries);
+    console.log(dict_kv_folder_absolute);
+    console.log(dict_kv_folder_relatives);
+    return dict_kv_sha256;
+
+    // todo : sync keymap to database
+
+
+
+}
+
+
 module.exports = {
     createFolder,
     Remove_Folder,
@@ -381,6 +440,7 @@ module.exports = {
     link_info_folder,
     get_link_info_folder,
     modify_documents_folder,
-    get_documents_folder
+    get_documents_folder,
+    register_folder
 
 }

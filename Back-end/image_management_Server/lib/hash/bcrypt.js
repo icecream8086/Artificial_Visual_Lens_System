@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 
-function generateSecurePassword(passwordLength = 10,saltRounds = 10) {
+function generateSecurePassword(passwordLength = 10, saltRounds = 10) {
   return new Promise((resolve, reject) => {
     bcrypt.genSalt(saltRounds, (err, salt) => {
       if (err) {
@@ -18,7 +18,7 @@ function generateSecurePassword(passwordLength = 10,saltRounds = 10) {
   });
 }
 
- function generateRandomString(passwordLength=10) {
+function generateRandomString(passwordLength = 10) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let randomString = '';
   for (let i = 0; i < passwordLength; i++) {
