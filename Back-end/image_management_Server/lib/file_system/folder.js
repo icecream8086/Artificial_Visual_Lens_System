@@ -1,8 +1,10 @@
+// @ts-nocheck
 const fs = require('fs').promises;
 const path = require('path');
 const query = require('../datasource/mysql_connection_promise');
 const { create_dir, check_dir_not_exists, check_dir_exists, rename_dir, delete_dir } = require('./file');
 const { get_str_sha256 } = require('../hash/str_sha256');
+const { reject, result } = require('lodash');
 /**
  * Creates a new folder with the given folder name and path, and inserts its details into the Folders table in the database.
  * @param {string} sha256 - The sha256 hash of the folder.
@@ -368,62 +370,117 @@ async function get_documents_folder(sha256) {
 }
 
 
+/**
+ * Checks if the given SHA256 values exist in the folders.
+ * @param {Object} dict_kv_sha256 - The key-value pairs of file names and their corresponding SHA256 values.
+ * @returns {Object} - The key-value pairs of file names and their corresponding SHA256 values that do not exist in the folders.
+ * @throws {Error} - If an error occurs during the process.
+ */
+async function check_folder_sha256_exists(dict_kv_sha256) {
+    try {
+        let values = Object.values(dict_kv_sha256);
+        if (values.length === 0) {
+            return {};
+        }
+        //临时视图,上传list中的sha256
 
-async function register_folder(sha_256, file_path) {
-    //examle dir ="File_Stream/File_Block/3/additionalPath/Login background image.jfif"
-    //ignore dir="File_Stream/File_Block/3"
-    //ignore file name = "Login background image.jfif"
+        let viewName = `View_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+        let valuesSql = values.map(value => `SELECT '${value}' AS sha256`).join(' UNION ALL ');
 
-    // CREATE TABLE `Folders` (
-    //     `sha256` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-    //     `FolderID` bigint NOT NULL AUTO_INCREMENT,
-    //     `FolderName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-    //     `Path` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-    //     `dataset_zone` tinyint(1) NOT NULL DEFAULT '0',
-    //     PRIMARY KEY (`sha256`),
-    //     UNIQUE KEY `Folders_UN` (`FolderID`)
-    //   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+        let createSql = `CREATE VIEW ${viewName} AS ${valuesSql}`;
+        await query(createSql);
 
-    // todo : split file_path to dir and file name
-    // todo : check if dir exists, if not, create dir, if yes, ignore
-    // todo : store dir to keymap
-    // todo : sync keymap to database
+        let selectSql = `SELECT V.sha256 FROM ${viewName} V LEFT JOIN Folders F ON F.sha256 = V.sha256 WHERE F.sha256 IS NULL`;
+        let result = await query(selectSql);
 
-    // todo : split file_path to dir and file name
+        let dropSql = `DROP VIEW ${viewName}`;
+        await query(dropSql);
+        let notExistInFolders = {};
+        let resultSet = new Set(result.map(item => item.sha256));
+        for (let key in dict_kv_sha256) {
+            if (resultSet.has(dict_kv_sha256[key])) {
+                notExistInFolders[key] = dict_kv_sha256[key];
+            }
+        }
+        return notExistInFolders;
 
-    //examle dir ="File_Stream/File_Block/3/additionalPath/Login background image.jfif"
-    //ignore dir="File_Stream/File_Block/3"
-    //ignore file name = "Login background image.jfif"
+    } catch (err) {
+        reject(err);
+    }
+}
 
+
+/**
+ * Splits the folder information from the given file path.
+ * @param {string} file_path - The file path to split.
+ * @returns {Promise<Object>} - A promise that resolves to an object containing the folder information.
+ */
+async function split_folder_info( file_path) {
     let paths = file_path.split('/');
     let path_head = paths.slice(0, 3);
     path_head = path_head.join('/');
     paths = paths.slice(3, -1);
-    
+    let result={};
     let dict_kv_folder_absolute = {};
-    let dict_kv_folder_relatives = {};
     let fullPath = "";
+
     for (let path of paths) {
         fullPath += "/" + path;
         if (!dict_kv_folder_absolute[path]) {
             dict_kv_folder_absolute[path] = path_head + fullPath;
-            dict_kv_folder_relatives[path] = fullPath;
         }
     }
     let promises_get_sha = Object.entries(dict_kv_folder_absolute).map(async ([key, value]) => {
         let sha256 = await get_str_sha256(value);
         return [key, sha256];
     });
-    let newDictEntries = await Promise.all(promises_get_sha);
-    let dict_kv_sha256 = Object.fromEntries(newDictEntries);
-    console.log(dict_kv_folder_absolute);
-    console.log(dict_kv_folder_relatives);
-    return dict_kv_sha256;
+    try {
+    
+        let newDictEntries = await Promise.all(promises_get_sha);
+        let dict_kv_sha256 = Object.fromEntries(newDictEntries);
+        let difference= await check_folder_sha256_exists(dict_kv_sha256);
+        for (let key in difference){
+           if(key in dict_kv_folder_absolute){
+               result[key]=dict_kv_folder_absolute[key];
+           }
+        }
+        dict_kv_folder_absolute = result;
+        result={};
+        for(let key in difference){
+            if(key in dict_kv_sha256){
+                result[key]=[dict_kv_folder_absolute[key],dict_kv_sha256[key]];
+            }
+        }        
+        return result;
+    }
+    catch (err) {
+        reject(err);
+    }
+}
 
-    // todo : sync keymap to database
-
-
-
+async function register_folder(file_path,UID,GroupID,permission,Priority) {
+    /*权限默认继承自父级文件夹 */
+  
+    let reg_sql=`INSERT INTO Folders (sha256,FolderName,Path) VALUES (?,?,?)`;
+    let mod_sql=`UPDATE Folder_Permission SET UID=?,GroupID=?,PermissionID=?,Priority=? WHERE sha256=?`;
+    if (result.length === 0) {
+       reject(new Error('Folder does not exist'));
+    }
+    if(UID===undefined||GroupID===undefined){
+        reject(new Error('UID or GroupID cannot be empty'));
+    }
+    try {
+        for(let key in file_path){
+            let path=file_path[key][0];
+            let sha256=file_path[key][1];
+            let folderName=key;
+            await query(reg_sql,[sha256,folderName,path]);
+            await query(mod_sql,[UID,GroupID,permission,Priority,sha256]);
+        }
+    }
+    catch (err) {
+        reject(err);
+    }
 }
 
 
@@ -441,6 +498,8 @@ module.exports = {
     get_link_info_folder,
     modify_documents_folder,
     get_documents_folder,
+    split_folder_info,
+    check_folder_sha256_exists,
     register_folder
 
 }

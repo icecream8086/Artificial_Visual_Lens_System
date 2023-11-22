@@ -16,6 +16,7 @@ const {getFileAttributes} = require('../../lib/life_cycle/FileAttributes');
 const { bytesToMB } = require('../../lib/datasource/other');
 const { getExifData } = require('../../lib/life_cycle/image_exif');
 const { register_file,check_sha256_exists,modify_file_permission,modify_file_info,modify_source_file } = require('../../lib/file_system/file');
+const { register_folder,check_folder_sha256_exists,split_folder_info } = require('../../lib/file_system/folder');
 const { getGroupInfo } = require('../../lib/logic_module/group');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
@@ -67,18 +68,6 @@ router.post('/uploadFile', async (req, res, next) => {
         });
         return res.status(401).json({ message: 'File type is not supported.' });
       }
-
-      // {
-      //   fieldname: 'files',
-      //   originalname: 'v2-5b2740391dd55b498270f56343922d88_r.jpg',
-      //   encoding: '7bit',
-      //   mimetype: 'image/jpeg',
-      //   destination: './File_Stream/File_Block/3/additionalPath',
-      //   filename: 'v2-5b2740391dd55b498270f56343922d88_r.jpg',
-      //   path: 'File_Stream/File_Block/3/additionalPath/v2-5b2740391dd55b498270f56343922d88_r.jpg',
-      //   size: 131421
-      // }
-
       let originalname = req.file?.originalname;      
       let path = req.file?.path;
       //image attributes
@@ -94,7 +83,8 @@ router.post('/uploadFile', async (req, res, next) => {
       await modify_file_info(hash,imageobj.format,imageobj.size,imageobj.mode,imageobj.mod_time,imageobj.access_time,imageobj.create_time,imageobj.file_size,imageobj.disk_usage,imageobj.path,UID);
       await modify_file_permission(hash,UID,group_id,permission=2,Priority=1);
       await modify_source_file(hash,UID,exifObj.capture_date,exifObj.program_name,exifObj.acquire_date,exifObj.copy_right);
-      
+      let path_result=await split_folder_info(path);
+      await register_folder(path_result,UID,group_id,permission=2,Priority=1);
       return res.status(200).json({ result: 'File uploaded successfully.' });
 
     });
