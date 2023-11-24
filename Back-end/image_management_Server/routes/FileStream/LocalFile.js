@@ -94,6 +94,40 @@ router.post('/uploadFile', async (req, res, next) => {
   }
 });
 
+router.post('/list_any', async (req, res, next) => {
+  let UID = req.headers.uid;
+  let token = req.headers.token;
+  let path = req.body.path;
+  try {
+    await validateToken(token, UID);
+
+    /**
+     *  return:obj ↓
+     */
+    // {
+    //   "currentPath": "/path/to/currentFolder",
+    //   "contents": [
+    //     {
+    //       "type": "file",
+    //       "name": "exampleFile.txt",
+    //       "path": "/path/to/currentFolder/exampleFile.txt"
+    //     },
+    //     {
+    //       "type": "folder",
+    //       "name": "subFolder",
+    //       "path": "/path/to/currentFolder/subFolder"
+    //     }
+    //   ]
+    // }
+  } catch (err) {
+    return res.status(401).json({ message: err.message });
+    next(err);
+  }
+}
+);
+
+
+
 router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, next) => {
 
   // let UID = req.headers.uid;
