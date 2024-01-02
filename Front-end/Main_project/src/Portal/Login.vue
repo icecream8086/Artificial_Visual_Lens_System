@@ -11,6 +11,10 @@
       <div class="demo-collapse">
         <el-collapse v-model="activeNames" @change="handleChange">
           <el-collapse-item title="Other">
+            <el-radio-group v-model="radio1" class="ml-4">
+              <el-radio label="1" size="large">None</el-radio>
+              <el-radio label="2" size="large">rsa-encrypt</el-radio>
+            </el-radio-group>
             <div>
               <p>token</p>
             </div>
@@ -30,9 +34,11 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { ArrowRightBold } from '@element-plus/icons-vue'
 import { publicEncrypt, privateDecrypt } from 'crypto';
 import Cookies from "js-cookie";
+const radio1 = ref('1')
 
 </script>
 <script>

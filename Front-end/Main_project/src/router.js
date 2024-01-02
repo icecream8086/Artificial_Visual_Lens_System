@@ -34,6 +34,7 @@ import add_image from '@/components/sub_components/add_image.vue';
 import image_preview from '@/components/sub_components/image_preview.vue';
 import manual from '@/Portal/manual.vue';
 import manual_page from '@/components/manual_page.vue'
+import MessageBox from '@/components/MessageBox.vue';
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -253,7 +254,13 @@ const routes = [
     component:manual_page,
     name:'manual_page',
     meta :{title:'manual_page'}
-  }
+  },
+  {
+    path:'/local_api/MessageBox',
+    component:MessageBox,
+    name:'MessageBox',
+    meta :{title:'MessageBox'}
+  },
 
 ];
 
