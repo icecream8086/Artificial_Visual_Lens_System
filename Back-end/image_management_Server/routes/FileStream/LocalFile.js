@@ -119,6 +119,10 @@ router.post('/list_any', async (req, res, next) => {
     //     }
     //   ]
     // }
+
+    // step1: add currentPath
+    // step2: add file list
+    // step3: add folder list
   } catch (err) {
     return res.status(401).json({ message: err.message });
     next(err);
