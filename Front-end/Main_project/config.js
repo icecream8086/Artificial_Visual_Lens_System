@@ -1,3 +1,3 @@
 module.exports = {
-    apiTarget: 'http://10.21.156.135:3000',
+    apiTarget: 'http://192.168.1.100:3000',
 };

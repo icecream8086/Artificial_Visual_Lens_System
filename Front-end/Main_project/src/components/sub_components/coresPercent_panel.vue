@@ -1,135 +1,112 @@
 <template>
-  <el-card class="box-card">
-    <el-row>
-      <el-col :span="16">
-        <div ref="chart" style="height: 400px"></div>
-      </el-col>
-      <el-col :span="8" style="height: auto; width: auto;">
-        <p><el-text class="mx-3">CPU Core percentage: </el-text></p>
-        <div class="text-container">
-          <el-text class="mx-2 wda" v-for="(item, index) in arrs" :key="index" style="overflow: hidden;">
-            {{ item.name }}
-          </el-text>
-        </div>
-
-      </el-col>
-    </el-row>
-  </el-card>
+  <div ref="chart" style="width: 100%; height: 400px;"></div>
 </template>
-  
+
 <script>
+import { onMounted, ref } from 'vue';
 import * as echarts from 'echarts';
-import axios from 'axios';
+
 export default {
-  data() {
-    return {
-      // coresPercent: '1.36, 1.20, 1.06, 0.99, 1.06, 1.10, 0.84, 1.03, 1.01, 1.02, 1.06, 0.97',
-      coresPercent: '1, 1, 1, 1, 1, 1',
-      arrs: [],
+  setup() {
+    const chart = ref(null);
 
-    };
-  },
-  methods: {
-    convertToDictionary(str) {
-      const arr = str.split(',').map(item => item.trim());
-      const dictionary = arr.reduce((result, item, index) => {
-        result[index] = { index: index, name: item };
-        return result;
-      }, {});
-      return dictionary;
-    },
+    onMounted(() => {
+      const myChart = echarts.init(chart.value);
+    // 假设这是你的 CPU 占用率数据
+    const cpuData = [
+    { cpu: 'CPU1', day: '周一', usage: 10 },
+    { cpu: 'CPU1', day: '周二', usage: 20 },
+    { cpu: 'CPU1', day: '周三', usage: 30},
+    { cpu: 'CPU1', day: '周四', usage: 40},
+    { cpu: 'CPU1', day: '周五', usage: 50},
+    { cpu: 'CPU1', day: '周六', usage: 60},
+    { cpu: 'CPU1', day: '周日', usage: 70},
+    // ...
+    { cpu: 'CPU2', day: '周一', usage: 70 },
+    { cpu: 'CPU2', day: '周二', usage: 60 },
+    { cpu: 'CPU2', day: '周三', usage: 50},
+    { cpu: 'CPU2', day: '周四', usage: 40},
+    { cpu: 'CPU2', day: '周五', usage: 30},
+    { cpu: 'CPU2', day: '周六', usage: 20},
+    { cpu: 'CPU2', day: '周日', usage: 10},
 
+    { cpu: 'CPU3', day: '周一', usage: 10 },
+    { cpu: 'CPU3', day: '周二', usage: 20 },
+    { cpu: 'CPU3', day: '周三', usage: 30},
+    { cpu: 'CPU3', day: '周四', usage: 40},
+    { cpu: 'CPU3', day: '周五', usage: 50},
+    { cpu: 'CPU3', day: '周六', usage: 60},
+    { cpu: 'CPU3', day: '周日', usage: 70},
 
-  },
-  mounted() {
-    const chart = echarts.init(this.$refs.chart);
-    const option = {
-      radar: {
-        indicator: this.coresPercent.split(',').map((_, i) => ({
-          name: `Core ${i + 1}`,
-          max: 2,
-        })),
-        axisLine: {
-          lineStyle: {
-            color: 'green',
-            width: 2,
-            type: 'dashed',
-          },
+    { cpu: 'CPU4', day: '周一', usage: 70 },
+    { cpu: 'CPU4', day: '周二', usage: 60 },
+    { cpu: 'CPU4', day: '周三', usage: 50},
+    { cpu: 'CPU4', day: '周四', usage: 40},
+    { cpu: 'CPU4', day: '周五', usage: 30},
+    { cpu: 'CPU4', day: '周六', usage: 20},
+    { cpu: 'CPU4', day: '周日', usage: 10},
+    // ...
+    // 请确保每个 CPU 在每一天都有数据
+  ];
+  const data = cpuData.map(item => {
+    return [
+      ['周一', '周二', '周三', '周四', '周五', '周六', '周日'].indexOf(item.day),
+      ['CPU1', 'CPU2', 'CPU3', 'CPU4'].indexOf(item.cpu),
+      item.usage
+    ];
+  });
+
+      const option = {
+        tooltip: {
+          position: 'top'
         },
-        splitLine: {
-          lineStyle: {
-            color: 'red',
-          },
+        grid: {
+          height: '50%',
+          y: '10%'
         },
-        name: {
-          textStyle: {
-            color: 'pink',
-          },
+        xAxis: {
+          type: 'category',
+          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
         },
-        splitArea: {
-          areaStyle: {
-            color: ['yellow', 'gray'],
-          },
+        yAxis: {
+          type: 'category',
+          data: ['CPU1', 'CPU2', 'CPU3', 'CPU4']
         },
-      },
-      series: [{
-        type: 'radar',
-        itemStyle: {
-          color: 'aqua',
-          type: 'dashed',
-        },
-        symbol: 'none',
-        data: [{ value: this.coresPercent.split(',').map(Number) }],
-        //get number of cores from the coresPercent string
-      }],
-    };
-
-    chart.setOption(option);
-
-    setInterval(() => {
-      axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
-        this.coresPercent = res.data.coresPercent;
-      })
-        .catch(err => {
-          console.log(err);
-        })
-
-      console.log(this.coresPercent);
-      this.arrs = this.convertToDictionary(this.coresPercent);
-      console.log(this.arrs);
-      const data = this.coresPercent.split(',').map(num => (parseFloat(num) / 100).toFixed(2)).join(',');
-      this.coresPercent = data;
-      chart.setOption({
-        radar: {
-          indicator: data.split(',').map((_, i) => ({
-            name: `Core ${i + 1}`,
-            max: 2,
-          })),
+        visualMap: {
+          min: 0,
+          max: 100,
+          calculable: true,
+          orient: 'horizontal',
+          left: 'center',
+          bottom: '15%',
+          inRange: {
+            // color: ['#121122', '#1d4877', '#4482c3', '#7ad7f0']
+            color: ['#7ad7f0', '#4482c3', '#1d4877','#121122']
+          }
+          
         },
         series: [{
-          type: 'radar',
-          data: [{ value: data.split(',').map(Number) }],
-        }],
-      });
-    }, 1000);
+          name: 'CPU 使用率',
+          type: 'heatmap',
+          data: data,
+          label: {
+            show: true
+          },
+          itemStyle: {
+            emphasis: {
+              shadowBlur: 10,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }]
+      };
 
+      myChart.setOption(option);
+    });
 
-  },
+    return {
+      chart
+    };
+  }
 };
 </script>
-<style>
-.wda {
-  color: aqua;
-}
-
-.text-container {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.text-container .mx-2 {
-  flex-basis: calc(33.33% - 4px);
-  /* 计算每个元素的宽度，减去margin的宽度 */
-  margin: 2px;
-}
-</style>
