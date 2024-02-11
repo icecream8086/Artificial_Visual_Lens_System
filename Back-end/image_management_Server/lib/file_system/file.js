@@ -788,6 +788,29 @@ async function cut_folder(source, target_dir) {
     }
 }
 
+/**
+ * 读取文件夹下所有的图片文件数量
+ * */
+async function countImages(dir) {
+    let count = 0;
+    const files = await fs.readdir(dir);
+
+    for (const file of files) {
+        const filePath = path.join(dir, file);
+        const stats = await fs.stat(filePath);
+
+        if (stats.isDirectory()) {
+            count += await countImages(filePath);
+        } else if (stats.isFile()) {
+            const ext = path.extname(file).toLowerCase();
+            if (ext === '.jpg' || ext === '.jpeg' || ext === '.png') {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
 module.exports = {
     create_dir,
     check_dir_exists,
@@ -830,4 +853,5 @@ module.exports = {
     
     modify_source_file,
     get_source_file,
+    countImages
 };
