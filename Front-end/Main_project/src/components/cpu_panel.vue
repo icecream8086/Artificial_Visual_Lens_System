@@ -1,120 +1,105 @@
 <template>
+  <!-- doc: 内存状态面板 -->
   <el-card class="box-card">
     <div class="chart-container">
-      <div ref="chart" class="chart"></div>
+      <el-row>
+        <el-col :span="6"></el-col>
+        <el-col :span="18"><p>主机内存消耗状态</p></el-col>
+      </el-row>
+      <div ref="chart" class="chart">
+        <div>
+          <el-progress type="dashboard" :percentage="percentages" :color="colors" :width="255"/>
+          <div>
+          </div>
+        </div>
+      </div>
     </div>
   </el-card>
 </template>
 
-<script>
-import { onMounted, ref, onUnmounted, watch } from 'vue';
-import * as echarts from 'echarts';
+<script setup>
 
-export default {
-  props: {
-    isRunning: {
-      type: Boolean,
-      default: true
-    }
-  },
-  setup(props) {
-    const chart = ref(null);
-    let myChart = null;
-    let data = [120, 132, 101, 134, 90, 230, 210];
-    let timer = null;
 
-    onMounted(() => {
-      myChart = echarts.init(chart.value);
+const colors = [
+  { color: '#f56c6c', percentage: 20 },
+  { color: '#e6a23c', percentage: 40 },
+  { color: '#5cb87a', percentage: 60 },
+  { color: '#1989fa', percentage: 80 },
+  { color: '#6f7ad3', percentage: 100 },
+]
 
-      const option = {
-        title: {
-          text: 'ECharts 折线图'
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          data: ['销量']
-        },
-        grid: {
-          left: '3%',
-          right: '4%',
-          bottom: '3%',
-          containLabel: true
-        },
-        toolbox: {
-          feature: {
-            saveAsImage: {}
-          }
-        },
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-        },
-        yAxis: {
-          type: 'value',
-          min: 0,
-          max: 1000 ,
-          axisLabel: {
-    formatter: '{value} '
-  }
-        },
-        series: [
-          {
-            name: '销量',
-            type: 'line',
-            stack: '总量',
-            data: data
-          }
-        ]
-      };
 
-      myChart.setOption(option);
 
-      if (props.isRunning) {
-        timer = setInterval(() => {
-          data.shift();
-          data.push(Math.round(Math.random() * 1000));
-          myChart.setOption({
-            series: [{
-              data: data
-            }]
-          });
-        }, 2000);
-      }
-    });
-
-    watch(() => props.isRunning, (newVal) => {
-      if (!newVal && timer) {
-        clearInterval(timer);
-        timer = null;
-      } else if (newVal && !timer) {
-        timer = setInterval(() => {
-          data.shift();
-          data.push(Math.round(Math.random() * 1000));
-          myChart.setOption({
-            series: [{
-              data: data
-            }]
-          });
-        }, 2000);
-      }
-    });
-
-    onUnmounted(() => {
-      if (timer) {
-        clearInterval(timer);
-      }
-    });
-
-    return {
-      chart
-    };
-  }
-};
 </script>
 
+<script>
+import { PausableInterval } from '@/lib/Interval2.js';
+import axios from 'axios';
+
+export default {
+  name: 'Memory_panel',
+  data() {
+    return {
+      pausableInterval: false,
+      percentages: 0,
+    }
+  },
+  watch: {
+    percentage: function (val) {
+      this.percentages = val;
+    },
+    paused: function (val) {
+      if (val) {
+        this.pauseInterval();
+      } else {
+        this.startInterval();
+      }
+    }
+  },
+  methods: {
+    startInterval() {
+      this.pausableInterval = new PausableInterval(() => {
+        axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
+          // console.log(res);
+          // {
+          //     "cpuPercent": "0.25",
+          //     "memoryPercent": "8.01",
+          //     "coresPercent": "3.44, 3.83, 3.18, 3.27, 3.12, 2.96, 2.90, 3.01, 3.10, 3.28, 3.56, 2.94",
+          //     "cpuFreq": 3.7,
+          //     "cpuTemp": "24.00"
+          // }
+          this.percentages = parseFloat(res.data.memoryPercent);
+
+
+        }).catch(err => {
+          console.log(err);
+        });
+        // console.log('interval loop...');
+      }, 1000);
+    },
+    pauseInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.pause();
+      }
+    },
+    clearInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.clear();
+      }
+    },
+  },
+  mounted() {
+    this.startInterval();
+  },
+  props: {
+    paused: {
+      type: Boolean,
+      default: true,
+    },
+  },
+
+}
+</script>
 <style scoped>
 .chart-container {
   width: 600px;

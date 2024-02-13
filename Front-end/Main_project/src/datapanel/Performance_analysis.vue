@@ -2,10 +2,10 @@
 
     <el-row>
         <el-col :span="12" >
-            <cpu_panel class="box-card—blue" :movable="false"></cpu_panel>
+            <cpu_panel class="box-card—blue" :paused="Movable"></cpu_panel>
         </el-col>
         <el-col :span="12">
-            <coresPercent_panel  class="box-card—blue" ref="coresPercentPanel" :movable="Movable"></coresPercent_panel>
+            <coresPercent_panel  class="box-card—blue" :paused="Movable"></coresPercent_panel>
         </el-col>
         <el-col :span="12">
             <health_card  :healthy="true" :title="'CPU performance'"></health_card>
@@ -32,28 +32,18 @@ export default {
     name: 'Performance_analysis', // 修改为多个单词的组件名
     data() {
         return {
-            Movable: false,
+            Movable: true,
         }
     },
     methods: {
-        reRenderComponent() {
-      // 在模板中添加一个空格
-      this.width += ' ';
-    },
+
   },
   watch: {
-    focce_refersh: {
-      handler() {
-        this.reRenderComponent();
-      },
-      deep: true,
-    },
     movable: function (val) {
       this.Movable = val;
     }
   },
   props: {
-    focce_refersh: Boolean,
     movable: {
       type: Boolean,
       default: true,
@@ -65,10 +55,6 @@ export default {
         health_card,
     },
     mounted() {
-    this.$nextTick(() => {
-      const coresPercentPanel = this.$refs.coresPercentPanel.$el;
-      coresPercentPanel.setAttribute('style', 'width: auto;');
-    });
     
   },
 }

@@ -25,8 +25,9 @@ export default {
     },
     props: {
         movable: {
+            // change here to control the datarequest from the parent component
             type: Boolean,
-            default: true,
+            default: false,
         },
     },
     watch: {

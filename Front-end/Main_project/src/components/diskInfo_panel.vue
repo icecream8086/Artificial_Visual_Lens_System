@@ -70,7 +70,7 @@ export default {
   props: {
     movable: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   },
 

@@ -1,112 +1,162 @@
 <template>
-  <div ref="chart" style="width: 100%; height: 400px;"></div>
+  <!-- doc: cpu核心状态面板 -->
+  <el-card class="box-card">
+    <div class="chart-container">
+      <div ref="chart" class="chart">
+        <div class="chart-container">
+          <el-row>
+            <el-col :span="2"></el-col>
+            <el-col :span="12">
+              <div>
+                <el-progress type="dashboard" :percentage="Cpu_Percent" :width="250">
+                  <template #default="{ percentage }">
+                    <span class="percentage-value">{{ percentage }}%</span>
+                    <span class="percentage-label"></span>
+                  </template>
+                </el-progress>
+              </div>
+            </el-col>
+            <el-col :span="10">
+              <el-scrollbar :height="255">
+                <el-divider></el-divider>
+                <!-- cpu 每个核心的使用率 -->
+                <!-- <div>
+                  <cpu_progressbar :core_id="0" :percentages="1.2"></cpu_progressbar>
+                </div> -->
+                <div v-for="(item, index) in coresPercent" :key="index">
+                  <cpu_progressbar :core_id="index" :percentages="item"></cpu_progressbar>
+                </div>
+                <el-divider></el-divider>
+              </el-scrollbar>
+            </el-col>
+          </el-row>
+          <el-divider></el-divider>
+          <el-row>
+            <el-col :span="8">
+              <div>
+                CPU Temp {{ Cpu_Temp }}°C
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div>
+                CPU Freq {{ Cpu_Freq }}GHz
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div>
+                 {{ Cpu_Name }}
+              </div>
+            </el-col>
+          </el-row>
+          <p>&nbsp;</p>
+        </div>
+      </div>
+    </div>
+  </el-card>
 </template>
 
 <script>
-import { onMounted, ref } from 'vue';
-import * as echarts from 'echarts';
 
+import { PausableInterval } from '@/lib/Interval2.js';
+import axios from 'axios';
+import cpu_progressbar from '@/components/sub_components/coresPercent_panel/cpu_progressbar.vue';
 export default {
-  setup() {
-    const chart = ref(null);
-
-    onMounted(() => {
-      const myChart = echarts.init(chart.value);
-    // 假设这是你的 CPU 占用率数据
-    const cpuData = [
-    { cpu: 'CPU1', day: '周一', usage: 10 },
-    { cpu: 'CPU1', day: '周二', usage: 20 },
-    { cpu: 'CPU1', day: '周三', usage: 30},
-    { cpu: 'CPU1', day: '周四', usage: 40},
-    { cpu: 'CPU1', day: '周五', usage: 50},
-    { cpu: 'CPU1', day: '周六', usage: 60},
-    { cpu: 'CPU1', day: '周日', usage: 70},
-    // ...
-    { cpu: 'CPU2', day: '周一', usage: 70 },
-    { cpu: 'CPU2', day: '周二', usage: 60 },
-    { cpu: 'CPU2', day: '周三', usage: 50},
-    { cpu: 'CPU2', day: '周四', usage: 40},
-    { cpu: 'CPU2', day: '周五', usage: 30},
-    { cpu: 'CPU2', day: '周六', usage: 20},
-    { cpu: 'CPU2', day: '周日', usage: 10},
-
-    { cpu: 'CPU3', day: '周一', usage: 10 },
-    { cpu: 'CPU3', day: '周二', usage: 20 },
-    { cpu: 'CPU3', day: '周三', usage: 30},
-    { cpu: 'CPU3', day: '周四', usage: 40},
-    { cpu: 'CPU3', day: '周五', usage: 50},
-    { cpu: 'CPU3', day: '周六', usage: 60},
-    { cpu: 'CPU3', day: '周日', usage: 70},
-
-    { cpu: 'CPU4', day: '周一', usage: 70 },
-    { cpu: 'CPU4', day: '周二', usage: 60 },
-    { cpu: 'CPU4', day: '周三', usage: 50},
-    { cpu: 'CPU4', day: '周四', usage: 40},
-    { cpu: 'CPU4', day: '周五', usage: 30},
-    { cpu: 'CPU4', day: '周六', usage: 20},
-    { cpu: 'CPU4', day: '周日', usage: 10},
-    // ...
-    // 请确保每个 CPU 在每一天都有数据
-  ];
-  const data = cpuData.map(item => {
-    return [
-      ['周一', '周二', '周三', '周四', '周五', '周六', '周日'].indexOf(item.day),
-      ['CPU1', 'CPU2', 'CPU3', 'CPU4'].indexOf(item.cpu),
-      item.usage
-    ];
-  });
-
-      const option = {
-        tooltip: {
-          position: 'top'
-        },
-        grid: {
-          height: '50%',
-          y: '10%'
-        },
-        xAxis: {
-          type: 'category',
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-        },
-        yAxis: {
-          type: 'category',
-          data: ['CPU1', 'CPU2', 'CPU3', 'CPU4']
-        },
-        visualMap: {
-          min: 0,
-          max: 100,
-          calculable: true,
-          orient: 'horizontal',
-          left: 'center',
-          bottom: '15%',
-          inRange: {
-            // color: ['#121122', '#1d4877', '#4482c3', '#7ad7f0']
-            color: ['#7ad7f0', '#4482c3', '#1d4877','#121122']
-          }
-          
-        },
-        series: [{
-          name: 'CPU 使用率',
-          type: 'heatmap',
-          data: data,
-          label: {
-            show: true
-          },
-          itemStyle: {
-            emphasis: {
-              shadowBlur: 10,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-          }
-        }]
-      };
-
-      myChart.setOption(option);
-    });
-
+  name: 'coresPercent_panel', // 修改为多个单词的组件名
+  data() {
     return {
-      chart
-    };
-  }
-};
+      pausableInterval: false,
+      Cpu_Temp: 0.0,
+      Cpu_Freq: 0.0,
+      Cpu_Name: 'cpu',
+      Cpu_Percent: 0.0,
+      coresPercent: [],
+    }
+  },
+  methods: {
+    startInterval() {
+      this.pausableInterval = new PausableInterval(() => {
+        axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
+          // console.log(res);
+          // {
+          //     "cpuPercent": "0.25",
+          //     "memoryPercent": "8.01",
+          //     "coresPercent": "3.44, 3.83, 3.18, 3.27, 3.12, 2.96, 2.90, 3.01, 3.10, 3.28, 3.56, 2.94",
+          //     "cpuFreq": 3.7,
+          //     "cpuTemp": "24.00"
+          // }
+          this.Cpu_Temp = parseFloat(res.data.cpuTemp);
+          this.Cpu_Freq = parseFloat(res.data.cpuFreq);
+          this.Cpu_Percent = parseFloat(res.data.cpuPercent);
+          this.Cpu_Name = res.data.cpuBrand;
+          this.coresPercent = res.data.coresPercent.split(',').map(item => {
+            return parseFloat(item);
+          });
+        }).catch(err => {
+          console.log(err);
+        });
+        // console.log('interval loop...');
+      }, 1000);
+    },
+    pauseInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.pause();
+      }
+    },
+    clearInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.clear();
+      }
+    },
+  },
+  props: {
+    paused: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  watch: {
+    paused: function (val) {
+      if (val) {
+        this.pauseInterval();
+      } else {
+        this.startInterval();
+      }
+    }
+  },
+
+  components: {
+    cpu_progressbar
+  },
+  mounted() {
+    this.startInterval();
+  },
+}
 </script>
+
+<style scoped>
+.chart-container {
+  width: 600px;
+  height: 400px;
+  margin: 0 auto;
+}
+
+.chart {
+  width: 100%;
+  height: 100%;
+}
+</style>
+
+
+<style scoped>
+.text {
+  font-size: 14px;
+}
+
+.item {
+  padding: 18px 0;
+}
+
+.box-card {
+  width: auto;
+}
+</style>
