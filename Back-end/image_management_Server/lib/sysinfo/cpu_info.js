@@ -23,6 +23,7 @@ async function cpu_statu_info(logable = false) {
   const coresPercent = await si.currentLoad().then(data => data.cpus.map(cpu => cpu.load)).catch(() => [0]);
   const cpuFreq = cpuInfo.speed;
   const cpuBrand = cpuInfo.brand; // 获取CPU名称
+    // append vram info
 
   if (logable==true) {
     console.log("—————— DEBUG LOG ——————");

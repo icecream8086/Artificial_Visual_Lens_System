@@ -1,6 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const query = require('../datasource/mysql_connection_promise');
+const util = require('util');
 const { flushdb } = require('../datasource/redis_connection_promise');
 
 /**
@@ -811,6 +812,23 @@ async function countImages(dir) {
 
     return count;
 }
+
+/***
+ * 获取文件夹下第一个图片文件,作用于文件夹封面
+ */
+async function getFirstImage(folderPath) {
+    const files = await fs.readdir(folderPath);
+    const imageTypes = ['.jpg', '.png'];
+
+    for (let file of files) {
+        const extension = path.extname(file).toLowerCase();
+        if (imageTypes.includes(extension)) {
+            return file;
+        }
+    }
+
+    return null;
+}
 module.exports = {
     create_dir,
     check_dir_exists,
@@ -853,5 +871,6 @@ module.exports = {
     
     modify_source_file,
     get_source_file,
-    countImages
+    countImages,
+    getFirstImage
 };
