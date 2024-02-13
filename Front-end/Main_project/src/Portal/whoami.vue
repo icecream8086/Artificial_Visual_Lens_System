@@ -9,7 +9,7 @@
       <el-main>
         <div class="common-layout">
           <el-container>
-            <el-header height="160px">
+            <el-header height="80px">
               <!-- <el-image style="position: relative; width: 100%; height: 100%" :src="url" :fit="bg_layout" /> -->
               <!-- <span
                 >I sit at my window this morning where the world like a
@@ -55,12 +55,10 @@
                     <div class="">
                       <el-avatar :size="120" :src=url @error="errorHandler">
                       </el-avatar>
-                      <p><el-text class="mx-1"> {{ username }}</el-text></p>
-
-
                     </div>
-                    <p>{{ "Organizations info" }}</p>
-                    <p>{{ "Individuals info" }}</p>
+                    <div>
+                      <info_dashboard></info_dashboard>
+                    </div>
                     <template>
                       <el-skeleton :rows="5" animated />
                     </template>
@@ -105,6 +103,7 @@ import { Position, Link } from "@element-plus/icons-vue";
 
 <script>
 import router from "@/router";
+import info_dashboard from "@/datapanel/info_dashboard.vue";
 export default {
   name: "AboutMyself",
   data() {
@@ -116,6 +115,9 @@ export default {
   },
   mounted() {
     this.loadAvatar();
+  },
+  components: {
+    info_dashboard,
   },
   methods: {
     goBack() {
