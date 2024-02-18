@@ -1,6 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 const query = require('../datasource/mysql_connection_promise');
+const util = require('util');
 const { flushdb } = require('../datasource/redis_connection_promise');
 
 /**
@@ -788,6 +789,46 @@ async function cut_folder(source, target_dir) {
     }
 }
 
+/**
+ * 读取文件夹下所有的图片文件数量
+ * */
+async function countImages(dir) {
+    let count = 0;
+    const files = await fs.readdir(dir);
+
+    for (const file of files) {
+        const filePath = path.join(dir, file);
+        const stats = await fs.stat(filePath);
+
+        if (stats.isDirectory()) {
+            count += await countImages(filePath);
+        } else if (stats.isFile()) {
+            const ext = path.extname(file).toLowerCase();
+            if (ext === '.jpg' || ext === '.jpeg' || ext === '.png') {
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
+/***
+ * 获取文件夹下第一个图片文件,作用于文件夹封面
+ */
+async function getFirstImage(folderPath) {
+    const files = await fs.readdir(folderPath);
+    const imageTypes = ['.jpg', '.png'];
+
+    for (let file of files) {
+        const extension = path.extname(file).toLowerCase();
+        if (imageTypes.includes(extension)) {
+            return file;
+        }
+    }
+
+    return null;
+}
 module.exports = {
     create_dir,
     check_dir_exists,
@@ -830,4 +871,6 @@ module.exports = {
     
     modify_source_file,
     get_source_file,
+    countImages,
+    getFirstImage
 };

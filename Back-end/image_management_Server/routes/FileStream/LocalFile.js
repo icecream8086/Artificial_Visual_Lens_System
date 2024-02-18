@@ -15,13 +15,13 @@ const { checkFileType } = require('../../lib/life_cycle/checkFileType');
 const {getFileAttributes} = require('../../lib/life_cycle/FileAttributes');
 const { bytesToMB } = require('../../lib/datasource/other');
 const { getExifData } = require('../../lib/life_cycle/image_exif');
-const { register_file,check_sha256_exists,modify_file_permission,modify_file_info,modify_source_file } = require('../../lib/file_system/file');
+const { register_file,check_sha256_exists,modify_file_permission,modify_file_info,modify_source_file,get_file_path } = require('../../lib/file_system/file');
 const { register_folder,check_folder_sha256_exists,split_folder_info } = require('../../lib/file_system/folder');
 const { getGroupInfo } = require('../../lib/logic_module/group');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
-const { has } = require('lodash');
+const { has, reject } = require('lodash');
 const { group } = require('console');
 
 
@@ -29,8 +29,10 @@ const { group } = require('console');
 const storage_demo = multer.diskStorage({
   destination: function (req, file, cb) {
     let UID = req.headers.uid;
-    // let additionalPath = req.body.additionalPath; // 从请求体中获取额外的路径
-    let additionalPath = "additionalPath";
+    let additionalPath = req.headers.path;
+    if(additionalPath==undefined){
+      reject('additionalPath is undefined');
+    }
     let newPath = `./File_Stream/File_Block/${UID}/${additionalPath}`; // 在UID后面追加新的路径
     fs.mkdirSync(newPath, { recursive: true });
     cb(null, newPath); // 重设文件保存的路径
@@ -41,7 +43,6 @@ const storage_demo = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage_demo });
-
 
 router.post('/uploadFile', async (req, res, next) => {
   let UID = req.headers.uid;
@@ -76,7 +77,10 @@ router.post('/uploadFile', async (req, res, next) => {
       let group_id = await getGroupInfo(UID);
       group_id = group_id[0].group_id;
       if (await check_sha256_exists(hash)) {
-        return res.status(409).json({ message: 'File already exists.' });
+        let path = await get_file_path(hash);
+        paths=path[0].Path;
+        let newStr = paths.replace("File_Stream/File_Block/", "");
+        return res.status(409).json({ message: 'File already exists.' ,path:newStr});
       }
 
       await register_file(hash,originalname,path);
@@ -93,6 +97,26 @@ router.post('/uploadFile', async (req, res, next) => {
     next(err);
   }
 });
+
+router.post('/list_any', async (req, res, next) => {
+  let UID = req.headers.uid;
+  let token = req.headers.token;
+  let path = req.body.path;
+  try {
+    await validateToken(token, UID);
+
+
+    // step1: add currentPath
+    // step2: add file list
+    // step3: add folder list
+  } catch (err) {
+    return res.status(401).json({ message: err.message });
+    next(err);
+  }
+}
+);
+
+
 
 router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, next) => {
 

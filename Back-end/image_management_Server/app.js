@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/api/auth');
+var permissionRouter = require('./routes/api/permission');
 var user_info_Router = require('./routes/api/user_info');
 var host_info_Router = require('./routes/api/host');
 var file_stream_router = require('./routes/FileStream/LocalFile');
@@ -39,7 +40,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', user_info_Router);
 app.use('/api/host', host_info_Router);
 app.use('/api/file', file_stream_router);
-
+app.use('/api/permission', permissionRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
