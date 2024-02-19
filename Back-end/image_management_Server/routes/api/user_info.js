@@ -6,7 +6,7 @@ const redis = require('../../lib/datasource/redis_connection_promise');
 const validateToken = require('../../lib/logic_module/check_user');
 const {validateInput_booleam} = require('../../lib/logic_module/checkBoolean');
 const {validate_authority_admin,validate_authority_root,validate_authority_modify,validate_authority_write,validate_authority_Read} = require('../../lib/logic_module/check_authority'); // authority check
-
+const { error_control } = require('../../lib/life_cycle/error_control');
 
 const fs = require('fs');
 const multer = require('multer');
@@ -95,7 +95,7 @@ router.get('/get_Avatar/:id', async (req, res) => {
     try {
         res.sendFile(id + '.png', { root: './File_Stream/Avatar' });
     } catch (err) {
-        return res.status(404).json({ message: 'get_Avatar error' });
+        error_control(err, res, req);
     }
 });
 
@@ -229,8 +229,7 @@ router.post('/modify_user_info', async (req, res, next) => {
             });
 
     } catch (err) {
-        console.error('Error during modify_user_info:', err);
-        return res.status(401).json({ message: err.message });
+        error_control(err, res, req);
     }
 });
 
@@ -270,7 +269,7 @@ router.get('/get_account_statu', async (req, res, next) => {
 
 
     } catch (err) {
-        return res.status(401).json({ message: err.message });
+        error_control(err, res, req);
     }
 });
 
@@ -301,7 +300,7 @@ router.post('/modify_account_statu', async (req, res, next) => {
 
         return res.status(200).json({ message: 'modify_account_statu successfuly' });
     } catch (err) {
-        return res.status(401).json({ message: err.message });
+        error_control(err, res, req);
     }
 });
 
@@ -318,9 +317,8 @@ router.get('/user_is_banned', async (req, res, next) => {
         // result.results.is_banned = result.results.is_banned == 1 ? true : false;
         return res.status(200).json({ result });
     } catch (err) {
-        return res.status(401).json({ message: err.message });
-        console.error('Error during banned_users:', err);
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
@@ -346,9 +344,8 @@ router.post('/Modify_banned_users', async (req, res, next) => {
         await query(sql);
         return res.status(200).json({ message: 'Modify Banned statu successfuly' });
     } catch (err) {
-        return res.status(401).json({ message: err.message });
-        console.error('Error during banned_users:', err);
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
@@ -369,9 +366,8 @@ router.get('/get_save_auth', async (req, res, next) => {
         const result = await query(sql, [User_ID]);
         return res.status(200).json({ result });
     } catch (err) {
-        return res.status(401).json({ message: err.message });
-        console.error('Error during safe_auth:', err);
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
@@ -394,9 +390,8 @@ router.post('/modify_save_auth', async (req, res, next) => {
         const result = await query(sql, [save_auth, User_ID]);
         return res.status(200).json({ result });
     } catch (err) {
-        return res.status(401).json({ message: err.message });
-        console.error('Error during safe_auth:', err);
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
@@ -418,9 +413,8 @@ router.post('/delete_account', async (req, res, next) => {
         const result = await query(sql, [User_ID]);
         return res.status(200).json({ result });
     } catch (err) {
-        return res.status(401).json({ message: err.message });
-        console.error('Error during delete_account:', err);
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 module.exports = router;

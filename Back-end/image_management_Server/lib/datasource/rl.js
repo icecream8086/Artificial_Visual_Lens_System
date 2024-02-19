@@ -6,6 +6,7 @@
  */
 const fs = require('fs');
 const readline = require('readline');
+const { error_control } = require('../life_cycle/error_control');
 
 async function readTextFileByLine(filePath) {
   try {
@@ -20,7 +21,7 @@ async function readTextFileByLine(filePath) {
       // 在这里可以对每一行的内容进行处理或者保存到数组等
     }
   } catch (err) {
-    console.error('Failed to read text file:', err);
+    error_control(err);
   }
 }
 

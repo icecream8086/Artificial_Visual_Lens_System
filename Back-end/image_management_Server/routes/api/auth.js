@@ -14,6 +14,7 @@ const { Store_token } = require('../../lib/logic_module/Load_Store_token'); // t
 const validateToken = require('../../lib/logic_module/check_user');
 const { validate_authority_root, validate_authority_admin } = require('../../lib/logic_module/check_authority');
 const { decrypt }=require('../../lib/hash/rsa_pwd');
+const { error_control } = require('../../lib/life_cycle/error_control');
 /**
  * POST request to sign up a new user.
  * @name POST/api/auth/signup
@@ -134,8 +135,7 @@ router.post('/login', async (req, res, next) => {
     }
   } catch (err) {
     // return res.status(401).json({ message: err.message });
-    console.error('Error during login:', err);
-    next(err);
+    error_control(err, res, req);
   }
 });
 
@@ -191,9 +191,7 @@ router.post('/change_password', async (req, res, next) => {
     return res.json({ message: 'Password changed successfully.', result: updateResult });
 
   } catch (err) {
-    return res.status(401).json({ message: err.message });
-    console.error('Error during change password:', err);
-    next(err);
+    error_control(err, res, req);
   }
 });
 
@@ -226,8 +224,8 @@ router.post('/reset_password', async (req, res, next) => {
     return res.json({ message: 'Password reset successfully.' });
 
   } catch (err) {
-    console.error('Error during reset password:', err);
-    next(err);
+    error_control(err, res, req);
+
   }
 
 });
@@ -261,9 +259,8 @@ router.post('/flush_token', async (req, res, next) => {
     return res.json({ message: 'flush token successfully.' ,token:tokens});
   }
   catch (err) {
-    return res.status(401).json({ message: err.message });
-    console.error('Error during flush token:', err);
-    next(err);
+    error_control(err, res, req);
+
   }
 });
 
@@ -282,9 +279,8 @@ router.post('/create_token', async (req, res, next) => {
     
     return res.json({ user_uid:user_uid, user_token: tokens,effective_time:effective_time, message: 'create token successfully.' });
   } catch (err) {
-    return res.status(401).json({ message: err.message });
-    console.error('Error during get token:', err);
-    return next(err);
+    error_control(err, res, req);
+
   }
 });
 

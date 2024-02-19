@@ -93,8 +93,8 @@ router.post('/uploadFile', async (req, res, next) => {
 
     });
   } catch (err) {
-    return res.status(401).json({ message: err.message });
-    next(err);
+    error_control(err, res, req);
+
   }
 });
 
@@ -110,8 +110,8 @@ router.post('/list_any', async (req, res, next) => {
     // step2: add file list
     // step3: add folder list
   } catch (err) {
-    return res.status(401).json({ message: err.message });
-    next(err);
+    error_control(err, res, req);
+
   }
 }
 );
@@ -154,9 +154,8 @@ router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, 
     // }
 
   } catch (err) {
-    return res.status(401).json({ message: err.message });
-    console.error('Error during banned_users:', err);
-    next(err);
+    error_control(err, res, req);
+
   }
 });
 
@@ -172,7 +171,8 @@ router.post('/downloadFile/:filename', async (req, res, next) => {
     });
 
   } catch (err) {
-    return res.status(401).json({ message: err.message });
+    error_control(err, res, req);
+
   }
 });
 
@@ -190,7 +190,8 @@ router.post('/downloadFile_share/:uuid/:filename', async (req, res, next) => {
       }
     });
   } catch (err) {
-    return res.status(401).json({ message: err.message });
+    error_control(err, res, req);
+
   }
 });
 
@@ -222,7 +223,8 @@ router.post('/create_share', async (req, res, next) => {
 
     res.send({ uuid, files });
   } catch (err) {
-    return res.status(401).json({ message: err.message });
+    error_control(err, res, req);
+
   }
 });
 
@@ -263,7 +265,8 @@ router.post('/deleteFile_share', async (req, res, next) => {
       res.status(404).send('File not found');
     }
   } catch (err) {
-    return res.status(401).json({ message: err.message });
+    error_control(err, res, req);
+
   }
 });
 

@@ -12,7 +12,7 @@ function validateToken(token, UID) {
       if (token === undefined || UID === undefined) {
         reject(new Error('Token or UID is undefined.'));
       }
-      // redis.select(0)
+
       redis.get(token)
         .then((reply) => {
           if (reply !== UID) {

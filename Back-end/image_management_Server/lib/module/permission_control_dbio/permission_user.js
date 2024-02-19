@@ -47,7 +47,26 @@ async function addUserToGroup(user, group) {
 async function removeUserFromGroup(user, group) {
     await dag.subtractUserRoles(user, group);
 }
+async function select_user(name,mode="select") {
+    if (mode === "select") {
+        let sql = 'SELECT name,roles FROM dag_users WHERE name = ?';
+        let result = await query(sql, [name]);
+        return result;
+    }else if (mode === "list") {
+        let sql="SELECT name,roles FROM dag_users";
+        let result = await query(sql);
+        return result;
+    }
+}
 
+async function removeUser(name) {
+    await dag.removeUser(name);
+}
+async function checkPermissionUser(userName,permission) {
+    const permissions = JSON.parse(permission);
+    let result= await dag.checkUserPermissions(userName,permissions);
+    return result;
+}
 // 添加用户组
 
 module.exports = {
@@ -55,7 +74,11 @@ module.exports = {
     updateUser,
     addUserToGroup,
     removeUserFromGroup,
-    appendPermissionUser
+    appendPermissionUser,
+    select_user,
+    removeUser,
+    checkPermissionUser
+
 };
 
 

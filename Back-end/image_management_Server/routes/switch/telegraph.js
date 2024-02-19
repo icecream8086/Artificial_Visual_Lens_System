@@ -4,6 +4,7 @@ const router = express.Router();
 const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
 const redis = require('../../lib/datasource/redis_connection_promise');
 const { MessageQueue } = require('../../lib/logic_module/message_service');
+import { error_control } from '../../lib/life_cycle/error_control';
 import { validateInput_is_null_or_empty } from '../../lib/logic_module/checkBoolean';
 const validateToken = require('../../lib/logic_module/check_user');
 
@@ -40,7 +41,7 @@ router.post('/telegraph/publish', async (req, res, next) => {
         await messageQueue.publish(queueName, message, UID?.toString(), group_id);
         res.json({ status: 'publish success' });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
+        error_control(err, res, req);
     }
 });
 router.get('/telegraph/consume', async (req, res, next) => {
@@ -60,8 +61,8 @@ router.get('/telegraph/consume', async (req, res, next) => {
             res.json({ status: 'success', message: message });
         });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 router.post('/telegraph/set_timeout', async (req, res, next) => {
@@ -83,8 +84,8 @@ router.post('/telegraph/set_timeout', async (req, res, next) => {
         }, timeout);
         res.json({ status: 'success' });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
@@ -110,8 +111,8 @@ router.get('/telegraph/get_frequency', async (req, res, next) => {
         }
         res.json({ status: 'success', frequency: result[0].frequency });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
@@ -135,8 +136,8 @@ router.post('/telegraph/set_frequency', async (req, res, next) => {
         await query(sql, [UID, group_id, frequency]);
         res.json({ status: 'success' });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
