@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('api-server:server');
 var http = require('http');
+const WebSocketServer = require('../routes/ws');
 
 /**
  * Get port from environment and store in Express.
@@ -20,7 +21,11 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
-
+WebSocketServer.init_ws(server).then(() => {
+  console.log('WebSocket server started');
+}).catch(err => {
+  console.error('WebSocket server failed to start:', err);
+});
 /**
  * Listen on provided port, on all network interfaces.
  */

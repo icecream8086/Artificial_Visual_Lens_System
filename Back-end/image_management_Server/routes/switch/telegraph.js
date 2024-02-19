@@ -1,18 +1,18 @@
+// @ts-nocheck
 //通知功能
 const express = require('express');
 const router = express.Router();
-const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
-const redis = require('../../lib/datasource/redis_connection_promise');
-const { MessageQueue } = require('../../lib/logic_module/message_service');
-import { error_control } from '../../lib/life_cycle/error_control';
-import { validateInput_is_null_or_empty } from '../../lib/logic_module/checkBoolean';
+const query = require('../../lib/datasource/mysql_connection_promise');  // Database connection
+require('../../lib/logic_module/check_authority'); // authority check
 const validateToken = require('../../lib/logic_module/check_user');
-
+const { error_control } = require('../../lib/life_cycle/error_control');
+const { MessageQueue } = require('../../lib/logic_module/message_service');
+const { validateInput_is_null_or_empty } = require('../../lib/logic_module/checkBoolean');
 const messageQueue = new MessageQueue();
+const WebSocketServer = require('../ws');
 //table my_frequency
-router.post('/telegraph/publish', async (req, res, next) => {
+router.post('/publish', async (req, res) => {
     let UID = req.headers.uid;
-    let token = req.headers.token;
     /**
      * Handles the request to switch to a new queue.
      * @param {Object} req - The request object.
@@ -30,23 +30,28 @@ router.post('/telegraph/publish', async (req, res, next) => {
     let message = req.body.message;
     let sql='select shutup from Silenced_user where UID=?';
     try {
-        await validateInput_is_null_or_empty(UID, token);
-        await validateToken(UID, token);
+        // await validateInput_is_null_or_empty(UID, token);
+        // await validateToken(UID, token);
+        // ws.sendMessage('route2', 'myMessage');
+
         await query(sql, [UID]).then((result) => {
-            if (result[0].shutup == 1) {
+            if(result.length==0){
+                return;
+            }
+            else if 
+            (result[0].shutup == 1) {
                 throw new Error('you are in the blacklist');
             }
         }
-        );
+    );
         await messageQueue.publish(queueName, message, UID?.toString(), group_id);
         res.json({ status: 'publish success' });
     } catch (err) {
         error_control(err, res, req);
     }
 });
-router.get('/telegraph/consume', async (req, res, next) => {
+router.get('/consume', async (req, res) => {
     let UID = req.headers.uid;
-    let token = req.headers.token;
     /**
      * Handles the request to switch to a new queue.
      * @param {Object} req - The request object.
@@ -55,17 +60,15 @@ router.get('/telegraph/consume', async (req, res, next) => {
     let queueName = req.body.queueName;
     let group_id = req.query.group_id;
     try {
-        await validateInput_is_null_or_empty(UID, token);
-        await validateToken(UID, token);
-        messageQueue.consume(queueName, UID?.toString(), group_id?.toString(), (message) => {
-            res.json({ status: 'success', message: message });
-        });
+        // await validateInput_is_null_or_empty(UID, token);
+        // await validateToken(UID, token);
+
     } catch (err) {
         error_control(err, res, req);
 
     }
 });
-router.post('/telegraph/set_timeout', async (req, res, next) => {
+router.post('/set_timeout', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     /**
@@ -76,8 +79,8 @@ router.post('/telegraph/set_timeout', async (req, res, next) => {
     let queueName = req.body.queueName;
     let timeout = req.body.timeout;
     try {
-        await validateInput_is_null_or_empty(UID, token);
-        await validateToken(UID, token);
+        // await validateInput_is_null_or_empty(UID, token);
+        // await validateToken(UID, token);
         timeout = Number(timeout);
         setTimeout(() => {
             messageQueue.clear(queueName);
@@ -89,14 +92,16 @@ router.post('/telegraph/set_timeout', async (req, res, next) => {
     }
 });
 
-router.get('/telegraph/get_frequency', async (req, res, next) => {
+
+
+router.get('/get_frequency', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     let group_id = req.body.group_id;
     try {
         //修改频道名称实现匹配
-        await validateInput_is_null_or_empty(UID, token);
-        await validateToken(UID, token);
+        // await validateInput_is_null_or_empty(UID, token);
+        // await validateToken(UID, token);
         /**
          * Retrieves the frequency from the database for a given UID or Group_ID.
          *
@@ -116,14 +121,14 @@ router.get('/telegraph/get_frequency', async (req, res, next) => {
     }
 });
 
-router.post('/telegraph/set_frequency', async (req, res, next) => {
+router.post('/telegraph/set_frequency', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     let group_id = req.body.group_id;
     let frequency = req.body.frequency;
     try {
-        await validateInput_is_null_or_empty(UID, token);
-        await validateToken(UID, token);
+        // await validateInput_is_null_or_empty(UID, token);
+        // await validateToken(UID, token);
         /**
          * Inserts a new frequency record into the my_frequency table.
          *
@@ -140,5 +145,4 @@ router.post('/telegraph/set_frequency', async (req, res, next) => {
 
     }
 });
-
 module.exports = router;

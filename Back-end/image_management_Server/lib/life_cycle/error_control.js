@@ -11,6 +11,9 @@ async function error_control(err, res, req,console_log=false,log=false,log_path=
     if (err.message === 'Token or UID is undefined.') {
         return res.status(400).send(JSON.stringify({ message: err.message}));
     }
+    if(err.message === 'Invalid input type. Input must be a meanful value.'){
+        return res.status(400).send(JSON.stringify({ message: err.message}));
+    }
     if (err.message === "Token does not match UID. Please login again.") {
         return res.status(401).send(JSON.stringify({ message: err.message}));
     }
