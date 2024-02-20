@@ -8,24 +8,24 @@
 const redis=require('../datasource/redis_connection_promise');
 
 function validateToken(token, UID) {
-    return new Promise((resolve, reject) => {
-      if (token === undefined || UID === undefined) {
-        reject(new Error('Token or UID is undefined.'));
-      }
+  return new Promise((resolve) => {
+    if (token === undefined || UID === undefined) {
+      resolve(false);
+    }
 
-      redis.get(token)
-        .then((reply) => {
-          if (reply !== UID) {
-            reject(new Error('Token does not match UID. Please login again.'));
-          } else {
-            resolve();
-          }
-        })
-        .catch(() => {
-          reject(new Error('Redis error.'));
-        });
-    });
-  }
+    redis.get(token)
+      .then((reply) => {
+        if (reply !== UID) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      })
+      .catch(() => {
+        resolve(false);
+      });
+  });
+}
 
   async function async_validateToken(token, UID) {
     try {

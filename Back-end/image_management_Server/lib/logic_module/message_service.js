@@ -8,7 +8,7 @@ class MessageQueue {
     this.timer = null;
   }
 
-  async publish(queueName, message, uid = null, groupId = null) {
+  async publish(queueName, message, uid = null, groupId = null,debug = false) {
     try {
       const messageId = await this.redis.incr('messageId');
       const messageObj = {
@@ -18,7 +18,9 @@ class MessageQueue {
         message,
       };
       await this.redis.zadd(queueName, messageId, JSON.stringify(messageObj));
-      console.log(`Message published to ${queueName}:`, messageObj);
+      if (debug) {
+        console.log(`Message published to ${queueName}:`, messageObj);
+      }
       WebSocketServer.sendMessage(`/telegraph/consume/${queueName}`, messageObj);
 
     } catch (error) {

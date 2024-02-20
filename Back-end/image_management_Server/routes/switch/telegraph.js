@@ -13,6 +13,7 @@ const WebSocketServer = require('../ws');
 //table my_frequency
 router.post('/publish', async (req, res) => {
     let UID = req.headers.uid;
+    let token = req.headers.token;
     /**
      * Handles the request to switch to a new queue.
      * @param {Object} req - The request object.
@@ -30,9 +31,8 @@ router.post('/publish', async (req, res) => {
     let message = req.body.message;
     let sql='select shutup from Silenced_user where UID=?';
     try {
-        // await validateInput_is_null_or_empty(UID, token);
-        // await validateToken(UID, token);
-        // ws.sendMessage('route2', 'myMessage');
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(token,UID );
 
         await query(sql, [UID]).then((result) => {
             if(result.length==0){
@@ -50,24 +50,7 @@ router.post('/publish', async (req, res) => {
         error_control(err, res, req);
     }
 });
-router.get('/consume', async (req, res) => {
-    let UID = req.headers.uid;
-    /**
-     * Handles the request to switch to a new queue.
-     * @param {Object} req - The request object.
-     * @param {string} req.body.queueName - The name of the new queue.
-     */
-    let queueName = req.body.queueName;
-    let group_id = req.query.group_id;
-    try {
-        // await validateInput_is_null_or_empty(UID, token);
-        // await validateToken(UID, token);
 
-    } catch (err) {
-        error_control(err, res, req);
-
-    }
-});
 router.post('/set_timeout', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
@@ -79,8 +62,8 @@ router.post('/set_timeout', async (req, res) => {
     let queueName = req.body.queueName;
     let timeout = req.body.timeout;
     try {
-        // await validateInput_is_null_or_empty(UID, token);
-        // await validateToken(UID, token);
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(UID, token);
         timeout = Number(timeout);
         setTimeout(() => {
             messageQueue.clear(queueName);
@@ -100,8 +83,8 @@ router.get('/get_frequency', async (req, res) => {
     let group_id = req.body.group_id;
     try {
         //修改频道名称实现匹配
-        // await validateInput_is_null_or_empty(UID, token);
-        // await validateToken(UID, token);
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(UID, token);
         /**
          * Retrieves the frequency from the database for a given UID or Group_ID.
          *
@@ -127,8 +110,8 @@ router.post('/telegraph/set_frequency', async (req, res) => {
     let group_id = req.body.group_id;
     let frequency = req.body.frequency;
     try {
-        // await validateInput_is_null_or_empty(UID, token);
-        // await validateToken(UID, token);
+        await validateInput_is_null_or_empty(UID, token);
+        await validateToken(UID, token);
         /**
          * Inserts a new frequency record into the my_frequency table.
          *
