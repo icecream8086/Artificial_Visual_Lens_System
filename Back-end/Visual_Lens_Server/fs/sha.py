@@ -9,7 +9,7 @@ def get_sha256(file):
         print(e)
     return e
 
-def get_sha256(path):
+def get_sha256_path(path):
     try:
         file = open(path, "rb")
         sha256_hash = hashlib.sha256(file.read()).hexdigest()

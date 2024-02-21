@@ -7,15 +7,15 @@ from transformers import CLIPProcessor, CLIPModel
 import torch
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
-model = CLIPModel.from_pretrained("./clip-vit-large-patch14")
-processor = CLIPProcessor.from_pretrained("./clip-vit-large-patch14")
+model = CLIPModel.from_pretrained("./lib/clip-vit-large-patch14")
+processor = CLIPProcessor.from_pretrained("./lib/clip-vit-large-patch14")
 
 # clip function
 
 def get_image_label(file_path, text):
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = CLIPModel.from_pretrained("./clip-vit-large-patch14")
-    processor = CLIPProcessor.from_pretrained("./clip-vit-large-patch14")
+    model = CLIPModel.from_pretrained("./lib/clip-vit-large-patch14")
+    processor = CLIPProcessor.from_pretrained("./lib/clip-vit-large-patch14")
 
     model.to(device)
     image = Image.open(file_path)
@@ -36,9 +36,9 @@ def get_image_label(file_path, text):
     }
     return json
 
-# example_
-file_path = "./a.png"
-text=["cat ","bear" ,"weapon","air craft"]
-jsons = get_image_label(file_path, text)
-print(jsons) # we can then take the max of these label probabilities
+# # example_
+# file_path = "./a.png"
+# text=["cat ","bear" ,"weapon","air craft"]
+# jsons = get_image_label(file_path, text)
+# print(jsons) # we can then take the max of these label probabilities
 

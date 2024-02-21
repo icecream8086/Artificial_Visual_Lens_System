@@ -1,6 +1,6 @@
 import torch
 from torchvision import datasets
-from CNN_lib.dataset_sample import create_transform
+from lib.CNN_lib.dataset_sample import create_transform
 
 def data_split(path='dataset',transform=create_transform(),train_rate=0.6,test_rate=0.2):
     train_set = datasets.ImageFolder(path, transform=transform)

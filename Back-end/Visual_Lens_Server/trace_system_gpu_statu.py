@@ -6,15 +6,16 @@ def monitor_gpu():
     output, _ = process.communicate()
 
     gpu_info = output.decode().strip().split("\n")
-    gpu_usage = [{"GPU Utilization": float(info.split(",")[0]),
-                  "Memory Usage": float(info.split(",")[1]),
-                  "GPU Temperature": float(info.split(",")[2])} for info in gpu_info]
+    gpu_usage = [{"GPU_Utilization": float(info.split(",")[0]),
+                  "Memory_Usage": float(info.split(",")[1]),
+                  "GPU_Temperature": float(info.split(",")[2])} for info in gpu_info]
 
     return gpu_usage
 
-gpu_usage = monitor_gpu()
-for i, usage in enumerate(gpu_usage):
-    print(f"GPU {i+1} 使用情况:")
-    print(f"    GPU 利用率: {usage['GPU Utilization']}%")
-    print(f"    内存使用量: {usage['Memory Usage']} MB")
-    print(f"    GPU 温度: {usage['GPU Temperature']}°C")
+print(monitor_gpu())
+# gpu_usage = monitor_gpu()
+# for i, usage in enumerate(gpu_usage):
+#     print(f"GPU {i+1} 使用情况:")
+#     print(f"    GPU 利用率: {usage['GPU Utilization']}%")
+#     print(f"    内存使用量: {usage['Memory Usage']} MB")
+#     print(f"    GPU 温度: {usage['GPU Temperature']}°C")
