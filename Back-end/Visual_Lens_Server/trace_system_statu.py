@@ -13,31 +13,21 @@ def monitor_cpu_memory(interval):
         cores_percent = psutil.cpu_percent(interval=interval, percpu=True)
         cpu_freq = psutil.cpu_freq()
         cpu_temp = psutil.sensors_temperatures()["coretemp"][0].current
-        print(f"CPU使用率: {cpu_percent}%")
-        print(f"内存使用率: {memory_percent}%")
-        print(f"核心使用率: {cores_percent}")
-        print(f"CPU频率: {cpu_freq.current}MHz")
-        print(f"CPU温度: {cpu_temp}°C")
         time.sleep(interval)
+        return cpu_percent, memory_percent, cores_percent, cpu_freq, cpu_temp
 
 def monitor_os_info():
     # 获取主机名
     hostname = socket.gethostname()
     os_name = platform.system()
     os_release = platform.release()
-
     # 获取服务器当前时间
     current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
     # 获取程序运行时长
     start_time = time.time()
     end_time = time.time()
     run_time = end_time - start_time
-
-    print("主机名：", hostname)
-    print("操作系统名：", os_name,os_release)
-    print("服务器当前时间：", current_time)
-    print("程序运行时长：", run_time, "秒")
+    return hostname, os_name, os_release, current_time, run_time
 
 
 def disk_info():
@@ -52,11 +42,9 @@ def disk_info():
     for disk_name in disk_list:
         # 获取磁盘的挂载目录
         mount_point = os.path.join('/', disk_name)
-
         # 如果挂载目录不是特定路径，跳过该磁盘
         if mount_point != program_path:
             continue
-
         # 获取磁盘使用情况
         usage = psutil.disk_usage(mount_point)
         total_size = usage.total // (1024**3)  # 转换为GB

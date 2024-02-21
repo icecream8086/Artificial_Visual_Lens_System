@@ -1,0 +1,11 @@
+{
+    "file1.txt": "file1.txt content",
+    "file2.txt": "file2.txt content",
+    "meta_data": {
+        "send_server_info": "Send Server XYZ",
+        "receive_server_info": "Receive Server XYZ",
+        "folder_info": "Folder ABC",
+        "time_info": "1708427501",
+        "length": 123
+    }
+}

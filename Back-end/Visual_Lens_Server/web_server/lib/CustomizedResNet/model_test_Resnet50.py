@@ -4,10 +4,11 @@ The script first loads the dataset and splits it into training, validation, and 
 The script adjusts the size of the fully connected layer of the model to match the number of classes in the custom dataset.
 Finally, the script evaluates the model's performance on the validation and test sets and prints the average loss and accuracy for each set.
 """
+from os import path
 import torch
 import torch.nn as nn
-from CNN_lib.net_model import ResNet_50_Customize
-from CNN_lib.data_split import data_split
+from lib.CNN_lib.net_model import ResNet_50_Customize
+from lib.CNN_lib.data_split import data_split
 from tqdm import tqdm
 
 
@@ -82,11 +83,13 @@ def evaluate_model(model_path, test_loader, val_loader):
             return output_data
 
 
-# 加载数据集
-test_loader, val_loader = data_split()
+# # 加载数据集
+# # (path: str = 'dataset', transform: Compose = transform, train_rate: float = 0.6, test_rate: float = 0.2) -> tuple[Unknown, Unknown]
+# path = './dataset'
+# test_loader, val_loader = data_split()
 
-# 指定模型路径
-model_path = 'ResNet-0602.pth'
+# # 指定模型路径
+# model_path = 'ResNet-0602.pth'
 
-#  evaluate_model
-print(evaluate_model(model_path, test_loader, val_loader))
+# #  evaluate_model
+# print(evaluate_model(model_path, test_loader, val_loader))
