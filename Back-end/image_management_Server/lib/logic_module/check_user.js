@@ -8,40 +8,47 @@
 const redis=require('../datasource/redis_connection_promise');
 
 function validateToken(token, UID) {
-  return new Promise((resolve) => {
-    if (token === undefined || UID === undefined) {
-      resolve(false);
-    }
-
-    redis.get(token)
-      .then((reply) => {
-        if (reply !== UID) {
-          resolve(false);
-        } else {
-          resolve(true);
-        }
-      })
-      .catch(() => {
-        resolve(false);
-      });
-  });
-}
-
-  async function async_validateToken(token, UID) {
-    try {
-      const reply = await redis.get(token);
-      if (reply !== UID) {
-        throw new Error('Token does not match UID. Please login again.');
+    return new Promise((resolve, reject) => {
+      if (token === undefined || UID === undefined) {
+        reject(new Error('Token or UID is undefined.'));
       }
-      // 验证通过
-      return;
-    } catch (err) {
-      throw new Error('Redis error.');
-    }
+
+      redis.get(token)
+        .then((reply) => {
+          if (reply !== UID) {
+            reject(new Error('Token does not match UID. Please login again.'));
+          } else {
+            resolve();
+          }
+        })
+        .catch(() => {
+          reject(new Error('Redis error.'));
+        });
+    });
+  }
+
+  function validateToken_tf(token, UID) {
+    return new Promise((resolve) => {
+      if (token === undefined || UID === undefined) {
+        resolve(false);
+      }
+  
+      redis.get(token)
+        .then((reply) => {
+          if (reply !== UID) {
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        })
+        .catch(() => {
+          resolve(false);
+        });
+    });
   }
   
   
-module.exports=validateToken;
+module.exports={validateToken,validateToken_tf};
 
 
 // //useage

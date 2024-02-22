@@ -9,7 +9,7 @@ const router = express.Router();
 const path = require('path');
 const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
 const redis = require('../../lib/datasource/redis_connection_promise');
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 const getImageHash = require('../../lib/hash/sha_256');
 const { checkFileType } = require('../../lib/life_cycle/checkFileType');
 const {getFileAttributes} = require('../../lib/life_cycle/FileAttributes');
@@ -23,12 +23,13 @@ const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const { has, reject } = require('lodash');
 const { group } = require('console');
-
+const { error_control } = require('../../lib/life_cycle/error_control');
+const { delete_file } = require('../../lib/file_system/file');
 
 // 配置multer
 const storage_demo = multer.diskStorage({
   destination: function (req, file, cb) {
-    let UID = req.headers.uid;
+    const UID = req.headers.uid;
     let additionalPath = req.headers.path;
     if(additionalPath==undefined){
       reject('additionalPath is undefined');
@@ -45,12 +46,12 @@ const storage_demo = multer.diskStorage({
 const upload = multer({ storage: storage_demo });
 
 router.post('/uploadFile', async (req, res, next) => {
-  let UID = req.headers.uid;
-  let token = req.headers.token;
+
   let hash = '';
   try {
-    await validateToken(token, UID);
-
+    const UID=req.headers.uid;
+    const token = req.headers.token;
+    // await validateToken(token, UID);
     const upload = multer({ storage: storage_demo }).single('files');
     upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
@@ -162,15 +163,27 @@ router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, 
 router.post('/downloadFile/:filename', async (req, res, next) => {
   try {
     const filename = req.params.filename;
-    const file = path.join('File_Stream', 'File_Block', filename);
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    // await validateToken(token, UID);
+    let extend_path = req.body.extend_path;
+    if(filename==undefined){
+      reject('file is undefined');
+    }
+    if(extend_path==undefined){
+      extend_path='';
+    }
+    const file = path.join('File_Stream', 'File_Block', UID,extend_path,filename);
     res.download(file, (err) => {
       if (err) {
         console.error('Error during download:', err);
-        res.status(404).send('File not found');
+        let error =json = { message: 'File not found',"error":err };
+        res.status(404).send(error);
       }
     });
 
   } catch (err) {
+    throw err;
     error_control(err, res, req);
 
   }
@@ -228,48 +241,75 @@ router.post('/create_share', async (req, res, next) => {
   }
 });
 
+
 router.post('/deleteFile', async (req, res, next) => {
-  const fs = require('fs');
-  const path = require('path');
-
-  router.post('/deleteFile', async (req, res, next) => {
-    const filename = req.body.filename;
-    const file = path.join('File_Stream', 'File_Block', filename);
-
+  try {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let filename = req.body.file_name;
+    let extend_path = req.body.path;
+    // await validateToken(token, UID);
+    if (filename == undefined) {
+      return res.status(400).json({ message: 'Filename is undefined.' });
+    }
+    if(extend_path==undefined){
+      extend_path='';
+    }
+    // 对文件名进行编码
+    // filename = encodeURIComponent(filename); // 不进行编码
+    const file = path.join('File_Stream', 'File_Block',UID, extend_path,filename);
     fs.unlink(file, (err) => {
       if (err) {
         console.error('Error during file deletion:', err);
-        res.status(404).send('File not found');
+        res.status(404).send({ message: 'File not found,please chekck path or file name' });
       } else {
-        console.log('File deleted successfully');
-        res.send('File deleted successfully');
+        delete_file(filename).then(() => {
+          res.send({ message: 'File deleted successfully' });
+        }).catch((err) => {
+            error_control(err, res, req);
+        }
+        );
       }
     });
-  });
-});
-
-
-
-router.post('/deleteFile_share', async (req, res, next) => {
-  const fileDir = path.join(__dirname, 'File_Stream', 'File_Block');
-  try {
-    const uuid = req.body.uuid;
-    const folderPath = path.join(fileDir, uuid);
-
-    if (fs.existsSync(folderPath)) {
-      // Delete folder
-      fs.rmdirSync(folderPath);
-
-      res.send(`File deleted successfully`);
-    } else {
-      res.status(404).send('File not found');
-    }
   } catch (err) {
     error_control(err, res, req);
-
   }
 });
 
+router.get('/listFiles', async (req, res, next) => {
+  try {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let extend_path = req.headers.path;
+    if(extend_path==undefined){
+      extend_path='';
+    }
+    // await validateToken(token, UID);
+    let fileDir = path.join('File_Stream', 'File_Block',UID,extend_path);
+
+    let entries = fs.readdirSync(fileDir);
+    let files = entries.filter(entry => {
+      let entryPath = path.join(fileDir, entry);
+      return fs.statSync(entryPath).isFile();
+    });
+
+    res.send(files);
+  } catch (err) {
+    error_control(err, res, req);
+  }
+});
+
+
+router.post('/listfolder', async (req, res, next) => {
+  try {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+
+  } catch (err) {
+    error_control(err, res, req);
+  }
+}
+);
 // CREATE TABLE file_share_ownership (
 //   id INT NOT NULL AUTO_INCREMENT,
 //   uuid VARCHAR(255) NOT NULL,

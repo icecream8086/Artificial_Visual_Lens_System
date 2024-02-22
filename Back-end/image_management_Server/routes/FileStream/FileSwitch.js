@@ -4,7 +4,7 @@ const router = express.Router();
 const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
 const redis = require('../../lib/datasource/redis_connection_promise');
 import { validateInput_is_null_or_empty } from '../../lib/logic_module/checkBoolean';
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 import {
     validate_authority_admin,
     validate_authority_root,

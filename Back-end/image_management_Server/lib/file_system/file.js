@@ -101,13 +101,16 @@ async function copy_file(source, target) {
 
 /**
  * Deletes one or more files from the file system.
- * @param {...string} file_paths - The path(s) of the file(s) to be deleted.
+ * @param {string} file_name - The path(s) of the file(s) to be deleted.
  * @throws {Error} If any error occurs while deleting the file(s).
  */
-async function delete_file(...file_paths) {
+async function delete_file(file_name) {
     try {
-        for (const file_path of file_paths) {
-            await fs.unlink(file_path);
+        let sql = 'DELETE FROM Files WHERE FileName = ?';
+        let values = [file_name];
+        let result=await query({ sql, values });
+        if(result.affectedRows==0){
+            throw new Error('No such file Name in the database');
         }
     } catch (error) {
         throw error;

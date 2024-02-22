@@ -415,12 +415,12 @@ async function check_folder_sha256_exists(dict_kv_sha256) {
  * @param {string} file_path - The file path to split.
  * @returns {Promise<Object>} - A promise that resolves to an object containing the folder information.
  */
-async function split_folder_info( file_path) {
+async function split_folder_info(file_path) {
     let paths = file_path.split('/');
     let path_head = paths.slice(0, 3);
     path_head = path_head.join('/');
     paths = paths.slice(3, -1);
-    let result={};
+    let result = {};
     let dict_kv_folder_absolute = {};
     let fullPath = "";
 
@@ -435,22 +435,22 @@ async function split_folder_info( file_path) {
         return [key, sha256];
     });
     try {
-    
+
         let newDictEntries = await Promise.all(promises_get_sha);
         let dict_kv_sha256 = Object.fromEntries(newDictEntries);
-        let difference= await check_folder_sha256_exists(dict_kv_sha256);
-        for (let key in difference){
-           if(key in dict_kv_folder_absolute){
-               result[key]=dict_kv_folder_absolute[key];
-           }
+        let difference = await check_folder_sha256_exists(dict_kv_sha256);
+        for (let key in difference) {
+            if (key in dict_kv_folder_absolute) {
+                result[key] = dict_kv_folder_absolute[key];
+            }
         }
         dict_kv_folder_absolute = result;
-        result={};
-        for(let key in difference){
-            if(key in dict_kv_sha256){
-                result[key]=[dict_kv_folder_absolute[key],dict_kv_sha256[key]];
+        result = {};
+        for (let key in difference) {
+            if (key in dict_kv_sha256) {
+                result[key] = [dict_kv_folder_absolute[key], dict_kv_sha256[key]];
             }
-        }        
+        }
         return result;
     }
     catch (err) {
@@ -458,24 +458,24 @@ async function split_folder_info( file_path) {
     }
 }
 
-async function register_folder(file_path,UID,GroupID,permission,Priority) {
+async function register_folder(file_path, UID, GroupID, permission, Priority) {
     /*权限默认继承自父级文件夹 */
-  
-    let reg_sql=`INSERT INTO Folders (sha256,FolderName,Path) VALUES (?,?,?)`;
-    let mod_sql=`UPDATE Folder_Permission SET UID=?,GroupID=?,PermissionID=?,Priority=? WHERE sha256=?`;
+
+    let reg_sql = `INSERT INTO Folders (sha256,FolderName,Path) VALUES (?,?,?)`;
+    let mod_sql = `UPDATE Folder_Permission SET UID=?,GroupID=?,PermissionID=?,Priority=? WHERE sha256=?`;
     if (result.length === 0) {
-       reject(new Error('Folder does not exist'));
+        reject(new Error('Folder does not exist'));
     }
-    if(UID===undefined||GroupID===undefined){
+    if (UID === undefined || GroupID === undefined) {
         reject(new Error('UID or GroupID cannot be empty'));
     }
     try {
-        for(let key in file_path){
-            let path=file_path[key][0];
-            let sha256=file_path[key][1];
-            let folderName=key;
-            await query(reg_sql,[sha256,folderName,path]);
-            await query(mod_sql,[UID,GroupID,permission,Priority,sha256]);
+        for (let key in file_path) {
+            let path = file_path[key][0];
+            let sha256 = file_path[key][1];
+            let folderName = key;
+            await query(reg_sql, [sha256, folderName, path]);
+            await query(mod_sql, [UID, GroupID, permission, Priority, sha256]);
         }
     }
     catch (err) {
@@ -484,6 +484,60 @@ async function register_folder(file_path,UID,GroupID,permission,Priority) {
 }
 
 
+async function all_owner_folder(uid) {
+    let result1 = await list_shared_foloder(uid);
+    let result2 = await self_folder(uid);
+    let result3 = await all_group_folder(uid);
+    let result_set=result1.concat(result2).concat(result3);
+    for (let i = 0; i < result_set.length; i++) {
+        result_set[i] = result_set[i].sha256;
+    }
+    let uniqueArr = [...new Set(result_set)];
+    return uniqueArr;
+}
+
+async function all_group_folder(group_id) {
+    group_id = "group_" + group_id;
+    try {
+        let sql = `SELECT sha256
+        FROM File_share
+        WHERE JSON_CONTAINS(folder_guest_r, ?)
+        OR JSON_CONTAINS(folder_guest_rw, ?)
+        OR JSON_CONTAINS(folder_guest_rwd, ?)`;
+        let result = await query(sql, [JSON.stringify(group_id), JSON.stringify(group_id), JSON.stringify(group_id)]);
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+async function list_shared_foloder(uid) {
+    uid = "user_" + uid;
+    try {
+        let sql = `SELECT sha256
+        FROM File_share
+        WHERE JSON_CONTAINS(folder_guest_r, ?)
+        OR JSON_CONTAINS(folder_guest_rw, ?)
+        OR JSON_CONTAINS(folder_guest_rwd, ?)`;
+        let result = await query(sql, [JSON.stringify(uid), JSON.stringify(uid), JSON.stringify(uid)]);
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+async function self_folder(uid) {
+    try {
+        let sql = `SELECT sha256 FROM Folder_Permission WHERE UID = ?`;
+        let result = await query(sql, [uid]);
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
+}
 module.exports = {
     createFolder,
     Remove_Folder,
@@ -500,6 +554,9 @@ module.exports = {
     get_documents_folder,
     split_folder_info,
     check_folder_sha256_exists,
-    register_folder
+    register_folder,
+    self_folder,
+    list_shared_foloder,
+    all_owner_folder
 
 }

@@ -7,7 +7,7 @@ const query = require('../../lib/datasource/mysql_connection_promise');  // Data
 const redis = require('../../lib/datasource/redis_connection_promise'); // Redis connection
 const { get_file_name, check_dir_not_exists } = require('../../lib/file_system/file');
 const { validateInput_is_null_or_empty } = require('../../lib/logic_module/checkBoolean');
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 const { delete_file, get_file_path, get_documents_file, get_source_file, modify_source_file } = require('../../lib/file_system/file');
 const { get, result } = require('lodash');
 

@@ -1,8 +1,7 @@
 // @ts-nocheck
 const WebSocket = require('ws');
-const validateToken = require('../lib/logic_module/check_user');
+const {validateToken_tf} = require('../lib/logic_module/check_user');
 const { spawn } = require('child_process');
-const { error_control } = require('../lib/life_cycle/error_control');
 
 class WebSocketServer {
     static wss;
@@ -13,7 +12,8 @@ class WebSocketServer {
             server,
             verifyClient: async (info, done) => {
                 try {
-                    const isValid = await validateToken(info.req.headers.token, info.req.headers.uid);
+                    const isValid = await validateToken_tf(info.req.headers.token, info.req.headers.uid);
+                    console.log('isValid', isValid);
                     info.req.valid = isValid;
                 } catch (error) {
                     info.req.error = error;

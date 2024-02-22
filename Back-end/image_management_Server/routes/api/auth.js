@@ -11,7 +11,7 @@ const query = require('../../lib/datasource/mysql_connection_promise');  // Data
 const redis = require('../../lib/datasource/redis_connection_promise'); // Redis connection
 require('../../lib/logic_module/check_authority'); // authority check
 const { Store_token } = require('../../lib/logic_module/Load_Store_token'); // token load and store
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 const { validate_authority_root, validate_authority_admin } = require('../../lib/logic_module/check_authority');
 const { decrypt }=require('../../lib/hash/rsa_pwd');
 const { error_control } = require('../../lib/life_cycle/error_control');

@@ -1,4 +1,4 @@
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 const { createPermissionGroup,
     setDependency,
     getPermissionGroup,

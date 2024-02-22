@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const query = require('../../lib/datasource/mysql_connection_promise');  // Database connection
 require('../../lib/logic_module/check_authority'); // authority check
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 const { error_control } = require('../../lib/life_cycle/error_control');
 const { MessageQueue } = require('../../lib/logic_module/message_service');
 const { validateInput_is_null_or_empty } = require('../../lib/logic_module/checkBoolean');
