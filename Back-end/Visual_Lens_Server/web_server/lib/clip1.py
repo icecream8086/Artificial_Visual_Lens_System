@@ -1,14 +1,6 @@
 from PIL import Image
-import requests
-
-from transformers import CLIPProcessor, CLIPModel
-
 from transformers import CLIPProcessor, CLIPModel
 import torch
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model = CLIPModel.from_pretrained("./lib/clip-vit-large-patch14")
-processor = CLIPProcessor.from_pretrained("./lib/clip-vit-large-patch14")
 
 # clip function
 

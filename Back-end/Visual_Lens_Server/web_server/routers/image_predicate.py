@@ -6,6 +6,8 @@ from flask import request
 from flask import Blueprint, g, jsonify,request
 from celery_tasks import test_model_delay,task_cancel_delay,task_start_delay,task_resume_delay# type: ignore
 from flask import Blueprint, g, jsonify,request
+import os
+from werkzeug.utils import secure_filename
 
 
 
@@ -51,20 +53,20 @@ def clip_predicate():
         if 'image' not in request.files:
             return jsonify({'error': 'No image part in the request'}), 400
         file = request.files['image']
-        text_dictionary = ["cat ","bear" ,"weapon","air craft"]
-        if 'image' not in request.files:
-            return jsonify({'error': 'No image part in the request'}), 400
+        text_dictionary = request.form['text_dictionary'].split(',')
         
         if file.filename == '':
             return jsonify({'error': 'No selected image'}), 400
         if file and allowed_file(file.filename):
-            # TODO: Process the image file and generate result_json
-            result=task_resume_delay.delay(file, text_dictionary)
+            filename = secure_filename(file.filename) # type: ignore
+            file_path = os.path.join('catch', filename)
+            file.save(file_path)
+            result = task_resume_delay.delay(file_path, text_dictionary)
             task_id = result.id
             result_json = {'message': 'Task is still running, please check back later', 'task_id': task_id}
             return result_json, 200
-
-  
+        else:
+            return jsonify({'error': 'Invalid file type'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
