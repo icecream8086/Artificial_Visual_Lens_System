@@ -85,10 +85,10 @@
       </div></el-tab-pane
     >
     <el-tab-pane label="批量封禁">Config</el-tab-pane>
-    <el-tab-pane label="批量删除用户">Role</el-tab-pane>
     <el-tab-pane label="批量禁止密码登录">Role</el-tab-pane>
-    <el-tab-pane label="批量修改用户组">Task</el-tab-pane>
-    <el-tab-pane label="高级搜索">Task</el-tab-pane>
+    <el-tab-pane label="修改用户组权限">Role</el-tab-pane>
+    <el-tab-pane label="修改用户权限">Task</el-tab-pane>
+    <el-tab-pane label="权限组依赖关系视图">Task</el-tab-pane>
   </el-tabs>
 </template>
 

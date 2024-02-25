@@ -1,6 +1,6 @@
 <template>
-
-    <el-row>
+    <el-scrollbar :height="600">
+        <el-row>
         <el-col :span="12" >
             <cpu_panel class="box-card—blue" :paused="Movable"></cpu_panel>
         </el-col>
@@ -20,6 +20,7 @@
             <health_card :healthy="true" :title="'Memory performance'"></health_card>
         </el-col>
     </el-row>
+    </el-scrollbar>
 </template>
   
   

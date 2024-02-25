@@ -1,34 +1,23 @@
 <template>
-    <div class="">
-        <el-image :src="preview_image" :zoom-rate="1.2" :preview-src-list="iamge_list"
-            :initial-index="4" fit="cover" />
+    <div class="image-preview">
+        <el-image  :src="preview_image" :zoom-rate="1.2" :preview-src-list="image_list"
+            :initial-index="4" fit="contain" />
     </div>
 </template>
-  
+
 <script setup>
-// const url =
-//     'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg'
-// const srcList = [
-//     'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',
-//     'https://fuss10.elemecdn.com/1/34/19aa98b1fcb2781c4fba33d850549jpeg.jpeg',
-//     'https://fuss10.elemecdn.com/0/6f/e35ff375812e6b0020b6b4e8f9583jpeg.jpeg',
-//     'https://fuss10.elemecdn.com/9/bb/e27858e973f5d7d3904835f46abbdjpeg.jpeg',
-//     'https://fuss10.elemecdn.com/d/e6/c4d93a3805b3ce3f323f7974e6f78jpeg.jpeg',
-//     'https://fuss10.elemecdn.com/3/28/bbf893f792f03a54408b3b7a7ebf0jpeg.jpeg',
-//     'https://fuss10.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6fjpeg.jpeg',
-// ]
 </script>
+
 <script>
-/**
- * A Vue component that displays a preview of an image.
- *
- * @props {Array} iamge_list - The list of images to be displayed.
- * @props {String} preview_image - The image to be previewed.
- */
 export default {
     name: 'ImagePreview',
+    data() {
+        return {
+            image_lists: [],
+        }
+    },
     props: {
-        iamge_list: {
+        image_list: {
             type: Array,
             required: true
         },
@@ -37,5 +26,17 @@ export default {
             required: true
         }
     },
+    mounted() {
+        this.image_lists = this.image_list;
+    }
 }
 </script>
+
+<style scoped>
+.image-preview {
+    width: 120px;
+    height: 98px;
+    border: 1px solid #00ffd5;
+    overflow: hidden;
+}
+</style>

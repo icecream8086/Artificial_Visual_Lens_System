@@ -1,197 +1,30 @@
 <template>
-  <el-row>
-
-    <el-col :span="3">
+  <el-scrollbar :height="650">
+    <el-row>
+      <el-col :span=spans v-for="w in srcList" :key="w">
+        <div class="item_image_box">
+          <image_box :dataset_name="w.FolderName" :preview_image="w.preview_path" :paths="w.Path"></image_box>
+        </div>
+      </el-col>
+      <!-- <el-col :span="3">
       <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
+        <image_box :dataset_name="a" :preview_image="w"></image_box>
       </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <image_box :iamge_list="srcList" :preview_image="url"></image_box>
-      </div>
-    </el-col>
-    <el-col :span="3">
-      <div class="item_image_box">
-        <!-- url -->
-        
-      </div>
-    </el-col>
-
+    </el-col> -->
   </el-row>
+  </el-scrollbar>
 </template>
 <script>
+import axios from 'axios';
 import image_box from './sub_components/image_box.vue';
+
 export default {
   name: "image_conf",
   data() {
     return {
       size: 4,
-      url:
-        'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',
+      spans: 3,
       srcList: [
-        'https://fuss10.elemecdn.com/a/3f/3302e58f9a181d2509f3dc0fa68b0jpeg.jpeg',
-        'https://fuss10.elemecdn.com/1/34/19aa98b1fcb2781c4fba33d850549jpeg.jpeg',
-        'https://fuss10.elemecdn.com/0/6f/e35ff375812e6b0020b6b4e8f9583jpeg.jpeg',
-        'https://fuss10.elemecdn.com/9/bb/e27858e973f5d7d3904835f46abbdjpeg.jpeg',
-        'https://fuss10.elemecdn.com/d/e6/c4d93a3805b3ce3f323f7974e6f78jpeg.jpeg',
-        'https://fuss10.elemecdn.com/3/28/bbf893f792f03a54408b3b7a7ebf0jpeg.jpeg',
-        'https://fuss10.elemecdn.com/2/11/6535bcfb26e4c79b48ddde44f4b6fjpeg.jpeg',
       ]
     };
   },
@@ -199,6 +32,31 @@ export default {
     image_box,
   },
   props: {
+
+  },
+  watch: {
+    spans(val) {
+      this.spans = val;
+    }
+  },
+  mounted() {
+    axios.get('/api' + '/api/file/listfolder', {
+      headers: {
+        'UID': "3",
+        'token': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVSUQiOjEsImlhdCI6MTY5NDY1MzMyNSwiZXhwIjoxNjk0NjU2OTI1fQ.9NgYIxkig9NoEskEdBU5w1BNuFNLughCEK2RaVZAoGo",
+
+      }
+    }).then((res) => {
+      for (let i = 0; i < res.data.result.length; i++) {
+        this.srcList.push(res.data.result[i]);
+        
+      }
+
+    }).catch((err) => {
+      console.log(err);
+    });
+
+
 
   },
 };
@@ -210,13 +68,9 @@ export default {
 }
 
 .item_image_box {
-  padding: 12px 0;
+  padding: 3px 0;
   overflow-wrap: break-word;
 }
 
-.box-cards {
-  width: auto;
-  height: auto;
-}
 </style>
   

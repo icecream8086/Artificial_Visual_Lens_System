@@ -27,7 +27,7 @@ export default {
         movable: {
             // change here to control the datarequest from the parent component
             type: Boolean,
-            default: false,
+            default: true,
         },
     },
     watch: {

@@ -121,7 +121,6 @@ export default {
   },
   methods: {
     goBack() {
-      console.log("go back");
       //go back to dashboard
       router.push({ name: "dashboard" });
     },

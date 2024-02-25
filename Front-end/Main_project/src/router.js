@@ -35,6 +35,7 @@ import image_preview from '@/components/sub_components/image_preview.vue';
 import manual from '@/Portal/manual.vue';
 import manual_page from '@/components/manual_page.vue'
 import MessageBox from '@/components/MessageBox.vue';
+import watchfolder from '@/components/watchfolder.vue';
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -261,6 +262,12 @@ const routes = [
     name:'MessageBox',
     meta :{title:'MessageBox'}
   },
+  {
+    path: '/watchfolder/:message',
+    name: 'watchfolder',
+    component: watchfolder,
+    meta: { title: 'watchfolder' }
+  }
 
 ];
 
