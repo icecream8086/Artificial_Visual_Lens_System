@@ -36,6 +36,7 @@ import manual from '@/Portal/manual.vue';
 import manual_page from '@/components/manual_page.vue'
 import MessageBox from '@/components/MessageBox.vue';
 import watchfolder from '@/components/watchfolder.vue';
+import folder_attribute_dialog from '@/components/folders/folder_attribute_dialog.vue';
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -267,6 +268,12 @@ const routes = [
     name: 'watchfolder',
     component: watchfolder,
     meta: { title: 'watchfolder' }
+  },
+  {
+    path: '/local_api/folder_attribute_dialog',
+    name: 'folder_attribute_dialog',
+    component: folder_attribute_dialog,
+    meta: { title: 'folder_attribute_dialog' }
   }
 
 ];
