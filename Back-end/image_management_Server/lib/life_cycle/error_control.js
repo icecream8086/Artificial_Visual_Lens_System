@@ -17,6 +17,9 @@ async function error_control(err, res, req,console_log=false,log=false,log_path=
     if (err.message === "Token does not match UID. Please login again.") {
         return res.status(401).send(JSON.stringify({ message: err.message}));
     }
+    if (err.message === "Folder does not exist") {
+        return res.status(404).send(JSON.stringify({ message: err.message}));
+    }
     return res.status(500).send(JSON.stringify({ message: err.message}));
 }
 module.exports = {error_control};

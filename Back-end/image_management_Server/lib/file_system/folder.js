@@ -2,9 +2,15 @@
 const fs = require('fs').promises;
 const path = require('path');
 const query = require('../datasource/mysql_connection_promise');
-const { create_dir, check_dir_not_exists, check_dir_exists, rename_dir, delete_dir } = require('./file');
+const { create_dir, check_dir_not_exists, check_dir_exists, rename_dir, delete_dir, getFirstImage,sync_file } = require('./file');
 const { get_str_sha256 } = require('../hash/str_sha256');
 const { reject, result } = require('lodash');
+const { get_group_id } = require('./users');
+const { log } = require('console');
+
+
+
+
 /**
  * Creates a new folder with the given folder name and path, and inserts its details into the Folders table in the database.
  * @param {string} sha256 - The sha256 hash of the folder.
@@ -71,6 +77,17 @@ async function get_folder_path(sha256, path) {
     }
 }
 
+async function get_folder_psha(path) {
+    try {
+        let sql = `SELECT sha256 FROM Folders WHERE Path = ?`;
+        let params = [path];
+        let result = await query(sql, params);
+        return result;
+    } catch (err) {
+        throw err;
+    }
+}
+
 /**
  * Modifies a folder in the database with the given sha256 hash.
  * @async
@@ -120,14 +137,19 @@ async function modify_folder(sha256, folderName, Path, dataset_zone) {
  * @throws {Error} If an error occurs while removing the folder.
  * @returns {Promise} A Promise that resolves with the result of the removal operation.
  */
-async function Remove_Folder(FolderName, Path) {
+async function Remove_Folder(Path) {
     try {
         await check_dir_exists(Path);
+        let resulta = await get_folder_psha(Path);
+        resulta = resulta[0].sha256;
+        sql2 = `DELETE FROM Files WHERE sha256 = ?;`; //drop file info
+
+        sql1 = `DELETE FROM Folders WHERE sha256 = ?;`; //drop folder info
+        await query(sql2, [resulta]);
+        await query(sql1, [resulta]);
         await delete_dir(Path);
-        let sql = `DELETE FROM Folders WHERE FolderName = ? OR Path = ?`;
-        let params = [FolderName, Path];
-        let result = await query(sql, params);
-        return result;
+        //物理移除必须最后进行
+        return "ok";
     }
     catch (err) {
         throw err;
@@ -476,6 +498,14 @@ async function register_folder(file_path, UID, GroupID, permission, Priority) {
             let folderName = key;
             await query(reg_sql, [sha256, folderName, path]);
             await query(mod_sql, [UID, GroupID, permission, Priority, sha256]);
+            console.log(UID);
+            await add_permission_rwd(UID, "user", sha256).then(() => {
+
+            }
+            ).catch(err => {
+                console.log(err);
+            });
+
         }
     }
     catch (err) {
@@ -484,11 +514,11 @@ async function register_folder(file_path, UID, GroupID, permission, Priority) {
 }
 
 
-async function all_owner_folder(uid) {
+async function all_owner_folder_sha256(uid) {
     let result1 = await list_shared_foloder(uid);
     let result2 = await self_folder(uid);
     let result3 = await all_group_folder(uid);
-    let result_set=result1.concat(result2).concat(result3);
+    let result_set = result1.concat(result2).concat(result3);
     for (let i = 0; i < result_set.length; i++) {
         result_set[i] = result_set[i].sha256;
     }
@@ -538,6 +568,480 @@ async function self_folder(uid) {
         throw err;
     }
 }
+async function get_effective_folder(uid) {
+    try {
+        let result = await all_owner_folder_sha256(uid);
+        let sql = `SELECT FolderName,Path,dataset_zone,size FROM Folders WHERE sha256 IN (?)`;
+        let temp = await query(sql, [result]);
+        let result_set = [];
+        for (let i = 0; i < temp.length; i++) {
+            result_set.push(temp[i]);
+        }
+        let preview_path = [];
+        for (let i = 0; i < result_set.length; i++) {
+            let temp = await getFirstImage(result_set[i].Path);
+            preview_path.push(temp);
+        }
+        for (let i = 0; i < result_set.length; i++) {
+            result_set[i].preview_path = preview_path[i];
+        }
+
+        return result_set;
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function check_folder_permission_r(sha256, id, flag = "user") {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        } else if (flag === "group") {
+            id = "group_" + id;
+        }
+        let sql = `SELECT *
+      FROM Folder_Permission
+      WHERE (JSON_CONTAINS(folder_guest_r, ?)
+      OR JSON_CONTAINS(folder_guest_rw, ?)
+      OR JSON_CONTAINS(folder_guest_rwd, ?)) and sha256=?`;
+        let result = await query(sql, [JSON.stringify(id), JSON.stringify(id), JSON.stringify(id), sha256]);
+        if (result.length === 0) {
+            return false;
+        }
+        return true;
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function check_folder_permission_rw(sha256, id, flag = "user") {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        } else if (flag === "group") {
+            id = "group_" + id;
+        }
+        let sql = `SELECT *
+      FROM Folder_Permission
+      WHERE (
+       JSON_CONTAINS(folder_guest_rw, ?)
+      OR JSON_CONTAINS(folder_guest_rwd, ?)) and sha256=?`;
+        let result = await query(sql, [JSON.stringify(id), JSON.stringify(id), JSON.stringify(id), sha256]);
+        if (result.length === 0) {
+            return false;
+        }
+        return true;
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function check_folder_permission_rwd(sha256, id, flag = "user") {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        } else if (flag === "group") {
+            id = "group_" + id;
+        }
+        let sql = `SELECT *
+      FROM Folder_Permission
+      WHERE (
+    JSON_CONTAINS(folder_guest_rwd, ?)) and sha256=?`;
+        let result = await query(sql, [JSON.stringify(id), JSON.stringify(id), JSON.stringify(id), sha256]);
+        if (result.length === 0) {
+            return false;
+        }
+        return true;
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function list_file_name(Path) {
+    try {
+        let sql = `SELECT FileName,Path FROM Files WHERE Path=?`;
+        let result = await query(sql, [Path]);
+        result = result.map((item) => {
+            return item.FileName;
+        });
+        return result;
+    } catch (err) {
+        throw err;
+    }
+
+}
+
+
+async function check_visitor_permission(path, uid) {
+    try {
+        let psha = await get_folder_psha(path);
+        let group_id = await get_group_id(uid);
+        if (psha.length === 0 || psha[0].sha256 === undefined) {
+            throw new Error('Folder does not exist');
+        }
+        psha = psha[0].sha256;
+        group_id = group_id[0].group_id;
+        console.log(psha, group_id);
+
+        let user_r = await check_folder_permission_r(psha, uid, "user");
+        let user_rw = await check_folder_permission_rw(psha, uid, "user");
+        let user_rwd = await check_folder_permission_r(psha, uid, "user");
+        // console.log(group_id);
+        let group_r = await await check_folder_permission_r(psha, group_id, "group");
+        let group_rw = await await check_folder_permission_rw(psha, group_id, "group");
+        let group_rwd = await await check_folder_permission_rwd(psha, group_id, "group");
+        let result = { user_r: user_r, user_rw: user_rw, user_rwd: user_rwd, group_r: group_r, group_rw: group_rw, group_rwd: group_rwd }
+        return result;
+    } catch (err) {
+
+        throw err;
+    
+    }
+}
+
+async function folder_read(check_visitor_permission) {
+    try {
+        let permission_flag = false;
+
+        if (check_visitor_permission.user_r == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.user_rw == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.user_rwd == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_r == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_rw == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_rwd == true) {
+            permission_flag = true
+        }
+        return permission_flag;
+    } catch (err) {
+        throw err;
+    }
+}
+async function folder_write(check_visitor_permission) {
+    try {
+        let permission_flag = false;
+
+        if (check_visitor_permission.user_r == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.user_rw == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.user_rwd == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_r == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_rw == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_rwd == true) {
+            permission_flag = true
+        }
+        return permission_flag;
+    } catch (err) {
+        throw err;
+    }
+}
+async function folder_modify(path) {
+    try {
+        let permission_flag = false;
+
+        if (check_visitor_permission.user_r == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.user_rw == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.user_rwd == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_r == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_rw == true) {
+            permission_flag = true
+        } else if (check_visitor_permission.group_rwd == true) {
+            permission_flag = true
+        }
+        return permission_flag;
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function add_permission_rwd(id, flag = "user", sha256) {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        }
+        else if (flag === "group") {
+            id = "group_" + id;
+        }
+
+        // 首先，获取当前的folder_guest_rwd字段的值
+        let sql = `SELECT folder_guest_rwd FROM Folder_Permission WHERE sha256=?`;
+        let result = await query(sql, [sha256]);
+
+        let folder_guest_rwd = [];
+
+        // 如果查询结果为空，创建一个空的folder_guest_rwd数组
+        if (result.length === 0 || !result[0].folder_guest_rwd) {
+            folder_guest_rwd = [];
+        }
+        else {
+            // 否则，解析JSON字符串为数组
+            folder_guest_rwd = JSON.parse(result[0].folder_guest_rwd) || [];
+        }
+
+        // 检查id是否已经存在于数组中，如果不存在，才添加
+        if (!folder_guest_rwd.includes(id)) {
+            folder_guest_rwd.push(id);
+        }
+
+        // 将更新后的数组写回到数据库
+        sql = `UPDATE Folder_Permission SET folder_guest_rwd=? WHERE sha256=?`;
+        await query(sql, [JSON.stringify(folder_guest_rwd), sha256]);
+        return result;
+
+    }
+    catch (err) {
+        throw err;
+    }
+}
+async function del_permission_rwd(id, flag, sha256) {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        }
+        else if (flag === "group") {
+            id = "group_" + id;
+        }
+
+        // 首先，获取当前的folder_guest_rwd字段的值
+        let sql = `SELECT folder_guest_rwd FROM Folder_Permission WHERE sha256=?`;
+        let result = await query(sql, [sha256]);
+
+        let folder_guest_rwd = [];
+
+        if (result.length === 0) {
+            throw new Error('Folder does not exist');
+        }
+        else {
+            // 否则，解析JSON字符串为数组
+            folder_guest_rwd = JSON.parse(result[0].folder_guest_rwd) || [];
+        }
+
+        // 检查id是否已经存在于数组中，如果不存在，才添加
+        if (folder_guest_rwd.includes(id)) {
+            folder_guest_rwd.pop(id);
+        }
+
+        // 将更新后的数组写回到数据库
+        sql = `UPDATE Folder_Permission SET folder_guest_rwd=? WHERE sha256=?`;
+        await query(sql, [JSON.stringify(folder_guest_rwd), sha256]);
+        return result;
+
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+
+async function add_permission_rw(id, flag, sha256) {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        }
+        else if (flag === "group") {
+            id = "group_" + id;
+        }
+        let sql = `SELECT folder_guest_rw FROM Folder_Permission WHERE sha256=?`;
+        let result = await query(sql, [sha256]);
+
+        let folder_guest_rwd = [];
+
+        if (result.length === 0 || !result[0].folder_guest_rwd) {
+            folder_guest_rwd = [];
+        }
+        else {
+            // 否则，解析JSON字符串为数组
+            folder_guest_rwd = JSON.parse(result[0].folder_guest_rwd) || [];
+        }
+
+        // 检查id是否已经存在于数组中，如果不存在，才添加
+        if (!folder_guest_rwd.includes(id)) {
+            folder_guest_rwd.push(id);
+        }
+
+        // 将更新后的数组写回到数据库
+        sql = `UPDATE Folder_Permission SET folder_guest_rw=? WHERE sha256=?`;
+
+        await query(sql, [JSON.stringify(folder_guest_rwd), sha256]);
+
+    }
+    catch (err) {
+        throw err;
+    }
+}
+async function del_permission_rw(id, flag, sha256) {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        }
+        else if (flag === "group") {
+            id = "group_" + id;
+        }
+
+        // 首先，获取当前的folder_guest_rwd字段的值
+        let sql = `SELECT folder_guest_rw FROM Folder_Permission WHERE sha256=?`;
+        let result = await query(sql, [sha256]);
+
+        let folder_guest_rwd = [];
+
+        if (result.length === 0) {
+            throw new Error('Folder does not exist');
+        }
+        else {
+            folder_guest_rwd = JSON.parse(result[0].folder_guest_rwd) || [];
+        }
+        if (folder_guest_rwd.includes(id)) {
+            folder_guest_rwd.pop(id);
+        }
+
+        // 将更新后的数组写回到数据库
+        sql = `UPDATE Folder_Permission SET folder_guest_rw=? WHERE sha256=?`;
+        await query(sql, [JSON.stringify(folder_guest_rwd), sha256]);
+        return result;
+
+    }
+    catch (err) {
+        throw err;
+    }
+}
+async function add_permission_r(id, flag, sha256) {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        }
+        else if (flag === "group") {
+            id = "group_" + id;
+        }
+
+        // 首先，获取当前的folder_guest_rwd字段的值
+        let sql = `SELECT folder_guest_r FROM Folder_Permission WHERE sha256=?`;
+        let result = await query(sql, [sha256]);
+
+        let folder_guest_rwd = [];
+        if (result.length === 0 || !result[0].folder_guest_rwd) {
+            folder_guest_rwd = [];
+        }
+        else {
+            // 否则，解析JSON字符串为数组
+            folder_guest_rwd = JSON.parse(result[0].folder_guest_rwd) || [];
+        }
+
+        if (!folder_guest_rwd.includes(id)) {
+            folder_guest_rwd.push(id);
+        }
+
+        sql = `UPDATE Folder_Permission SET folder_guest_r=? WHERE sha256=?`;
+        await query(sql, [JSON.stringify(folder_guest_rwd), sha256])
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
+}
+async function del_permission_r(id, flag, sha256) {
+    try {
+        if (flag === "user") {
+            id = "user_" + id;
+        }
+        else if (flag === "group") {
+            id = "group_" + id;
+        }
+
+        // 首先，获取当前的folder_guest_rwd字段的值
+        let sql = `SELECT folder_guest_r FROM Folder_Permission WHERE sha256=?`;
+        let result = await query(sql, [sha256]);
+
+        let folder_guest_rwd = [];
+
+        if (result.length === 0) {
+            throw new Error('Folder does not exist');
+        }
+        else {
+            folder_guest_rwd = JSON.parse(result[0].folder_guest_rwd) || [];
+        }
+
+        // 检查id是否已经存在于数组中，如果不存在，才添加
+        if (folder_guest_rwd.includes(id)) {
+            folder_guest_rwd.pop(id);
+        }
+
+        // 将更新后的数组写回到数据库
+        sql = `UPDATE Folder_Permission SET folder_guest_r=? WHERE sha256=?`;
+        await query(sql, [JSON.stringify(folder_guest_rwd), sha256]);
+        return result;
+
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+
+async function select_all_owner(sha256) {
+
+    try {
+        let sql = `SELECT folder_guest_r,folder_guest_rw,folder_guest_rwd  FROM Folder_Permission WHERE sha256=?`;
+        let result = await query(sql, [sha256]);
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+async function del_folder(path) {
+    try {
+        await check_dir_exists(path);
+        let paths = path[0].Path;
+        await delete_dir(paths);
+        let sql = `DELETE FROM Folders WHERE Path = ?`;
+        let result = await query(sql, [path]);
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
+
+}
+
+async function get_folder_num(directory) {
+    try {
+        const files = await fs.readdir(directory);
+        return files.length;
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+async function sync_folder(pathStr, server_path, times=5000) {
+    try {
+        const files = await fs.readdir(pathStr);
+        const filePaths = files.map(file => path.join(pathStr, file));
+
+        for (let filePath of filePaths) {
+            await sync_file(filePath, server_path);
+            await new Promise(resolve => setTimeout(resolve, times));
+        }
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+
 module.exports = {
     createFolder,
     Remove_Folder,
@@ -557,6 +1061,25 @@ module.exports = {
     register_folder,
     self_folder,
     list_shared_foloder,
-    all_owner_folder
+    all_owner_folder_sha256,
+    get_effective_folder,
+    list_file_name,
+    check_visitor_permission,
+    get_folder_psha,
+    folder_read,
+    folder_write,
+    folder_modify,
 
+    add_permission_rwd,
+    del_permission_rwd,
+    add_permission_rw,
+    add_permission_r,
+    del_permission_rw,
+    del_permission_r,
+
+    select_all_owner,
+    get_folder_num,
+
+    sync_folder
+    
 }

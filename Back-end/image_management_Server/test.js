@@ -1,12 +1,12 @@
-const {all_owner_folder}=require('./lib/file_system/folder');
+const {sync_folder}=require('./lib/file_system/folder');
 
 function test(){
-    let result = all_owner_folder(3);
+    let result = sync_folder('File_Stream/Avatar/','jitm');
     result.then((res)=>{
         console.log(res)
     }
     ).catch((err)=>{
-        console.log(err)
+        throw err
     })
 }
 test()

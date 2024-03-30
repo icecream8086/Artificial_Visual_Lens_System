@@ -8,5 +8,5 @@ module.exports = {
      * The target API for the project.
      * @type {string}
      */
-    apiTarget: 'http://192.168.1.100:5000',
+    apiTarget: 'http://10.21.78.154:5000',
 };

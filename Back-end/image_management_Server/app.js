@@ -19,6 +19,7 @@ var app = express();
 const { publicKey, privateKey } = generateKeyPair();
 global.keyPair = { publicKey, privateKey };
 
+global.syncid = 0;
 // console.log(publicKey+'\n'+privateKey+'\n');
 // view engine setup
 const publicPath = './File_Stream/File_Block';

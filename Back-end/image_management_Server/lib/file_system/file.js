@@ -1,8 +1,14 @@
+// @ts-nocheck
 const fs = require('fs').promises;
+const fs2 = require('fs');
 const path = require('path');
 const query = require('../datasource/mysql_connection_promise');
 const util = require('util');
 const { flushdb } = require('../datasource/redis_connection_promise');
+
+const FormData = require('form-data');
+const { apiTarget } = require('../../lib/config');
+const axios = require('axios');
 
 /**
  * Creates directories at the specified paths.
@@ -821,7 +827,7 @@ async function countImages(dir) {
  */
 async function getFirstImage(folderPath) {
     const files = await fs.readdir(folderPath);
-    const imageTypes = ['.jpg', '.png'];
+    const imageTypes = ['.jpg', '.png', '.jpeg', '.gif', '.bmp', '.webp'];
 
     for (let file of files) {
         const extension = path.extname(file).toLowerCase();
@@ -832,6 +838,33 @@ async function getFirstImage(folderPath) {
 
     return null;
 }
+
+async function sync_file(file_path,server_path) {
+    try {
+        let formData = new FormData();
+        let file = fs2.createReadStream(file_path); // path 是你的文件路径
+
+        formData.append('file', file);
+        formData.append('path', server_path);
+        
+        axios.post(apiTarget + '/upload_image', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then(() => {
+
+        }).catch(error => {
+            console.error(error);
+        });
+
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
+
+
 module.exports = {
     create_dir,
     check_dir_exists,
@@ -875,5 +908,8 @@ module.exports = {
     modify_source_file,
     get_source_file,
     countImages,
-    getFirstImage
+    getFirstImage,
+
+    sync_file,
+    
 };
