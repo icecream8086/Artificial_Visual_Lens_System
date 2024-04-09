@@ -32,7 +32,7 @@ def upload_image():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-@iostream.route('/clear_data', methods=['GET']) # type: ignore    
+@iostream.route('/clear_data', methods=['POST']) # type: ignore    
 def clear_data():
     try:
         flag=request.form['flag']
@@ -88,7 +88,57 @@ def store_model():
         return jsonify({'message': 'Model stored successfully'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+ 
+@iostream.route('/del_dir', methods=['POST']) # type: ignore
+def del_dir():
+    try:
+        folder = request.form['dir']
+        if folder == '':
+            return jsonify({'error': 'No folder provided'}), 400
+
+        folder_path = os.path.join('data_dir', folder)
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+            return jsonify({'message': 'Folder deleted successfully'}), 200
+        else:
+            return jsonify({'message': 'Folder does not exist'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+ 
     
+    
+    
+def get_folder_details(folder_path):
+    total_size = 0
+    file_count = 0
+    for dirpath, dirnames, filenames in os.walk(folder_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            total_size += os.path.getsize(fp)
+            file_count += 1
+    # Convert size to MB
+    total_size = total_size / (1024 * 1024)
+    return total_size, file_count
+
+@iostream.route('/list_dir', methods=['GET']) # type: ignore
+def list_dir():
+    try:
+        data_dir = 'data_dir'
+        if os.path.exists(data_dir):
+            folders = []
+            for folder in os.listdir(data_dir):
+                folder_path = os.path.join(data_dir, folder)
+                size, file_count = get_folder_details(folder_path)
+                folders.append({
+                    'name': folder,
+                    'size': size,  # size is now in MB
+                    'file_count': file_count
+                })
+            return jsonify({'folders': folders}), 200
+        else:
+            return jsonify({'error': 'Data directory does not exist'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
         
 def save_image_data(data, path, filename):
     try:
