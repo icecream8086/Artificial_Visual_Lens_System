@@ -14,18 +14,13 @@ const WebSocketServer = require('../ws');
 router.post('/publish', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
+    let user = 'SELECT username FROM users WHERE UID = ?;';
+
     /**
      * Handles the request to switch to a new queue.
      * @param {Object} req - The request object.
      * @param {string} req.body.queueName - The name of the new queue.
      */
-    // CREATE TABLE `Silenced_user` (
-    //     `UID` int NOT NULL,
-    //     `shutup` tinyint(1) DEFAULT '0',
-    //     PRIMARY KEY (`UID`),
-    //     KEY `idx_uid` (`UID`) USING BTREE,
-    //     CONSTRAINT `banned_users_ibfk_1_copy_copy` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE
-    //   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Redis广播功能黑名单';
     let queueName = req.body.queueName;
     let group_id = req.body.group_id;
     let message = req.body.message;
@@ -44,7 +39,9 @@ router.post('/publish', async (req, res) => {
             }
         }
     );
-        await messageQueue.publish(queueName, message, UID?.toString(), group_id);
+        let name=await query(user,[UID]);
+        name=name[0].username;
+        await messageQueue.publish(queueName, message, name, group_id);
         res.json({ status: 'publish success' });
     } catch (err) {
         error_control(err, res, req);

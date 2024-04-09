@@ -8,14 +8,15 @@ class MessageQueue {
     this.timer = null;
   }
 
-  async publish(queueName, message, uid = null, groupId = null,debug = false) {
+  async publish(queueName, message, user_name = null, groupId = null, debug = false) {
     try {
       const messageId = await this.redis.incr('messageId');
       const messageObj = {
         id: messageId,
-        uid,
+        user_name,
         groupId,
         message,
+        timestamp: new Date().toISOString(), // 添加时间信息
       };
       await this.redis.zadd(queueName, messageId, JSON.stringify(messageObj));
       if (debug) {
@@ -24,7 +25,7 @@ class MessageQueue {
       WebSocketServer.sendMessage(`/telegraph/consume/${queueName}`, messageObj);
 
     } catch (error) {
-      throw new Error('Error while publishing message: \n'+error);
+      throw new Error('Error while publishing message: \n' + error);
     }
   }
 
@@ -32,8 +33,8 @@ class MessageQueue {
 
   stopConsume() {
     if (this.timer) {
-        clearInterval(this.timer);
-        this.timer = null;
+      clearInterval(this.timer);
+      this.timer = null;
     }
   }
 
@@ -42,7 +43,7 @@ class MessageQueue {
       await this.redis.del(queueName);
       console.log(`Cleared messages in ${queueName}`);
     } catch (error) {
-      throw new Error('Error while publishing message: \n'+error);
+      throw new Error('Error while publishing message: \n' + error);
     }
   }
 }

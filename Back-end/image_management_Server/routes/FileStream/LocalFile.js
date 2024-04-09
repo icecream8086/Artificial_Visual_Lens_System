@@ -432,7 +432,9 @@ router.post('/sync_folder', async (req, res, next) => {
     let token = req.headers.token;
     let path = req.body.path;
     // await validateToken(token, UID);
-
+    if(path == undefined){
+      return res.status(400).json({ message: 'Path is undefined.' });
+    }
     if (global.syncid !== 0) {
       return res.status(409).json({ message: 'Another task is running' });
     }
@@ -793,6 +795,66 @@ router.get('/clear_data', async (req, res, next) => {
 router.get('/list_dir', async (req, res, next) => {
   try {
     const response = await axios.get(apiTarget+'/list_dir');
+
+    res.json(response.data);
+  } catch (err) {
+    error_control(err, res, req);
+  }
+});
+
+
+///clear_data
+router.post('/clear_data', async (req, res, next) => {
+  try {
+    const form = new FormData();
+    form.append('flag', req.body.flag);
+    if (req.body.flag == undefined) {
+      throw new Error('flag is undefined');
+    }
+    const response = await axios.post(apiTarget+'/clear_data', form, {
+      headers: {
+        ...form.getHeaders()
+      }
+    });
+
+    res.json(response.data);
+  } catch (err) {
+    error_control(err, res, req);
+  }
+});
+///list_dir
+router.get('/list_dir', async (req, res, next) => {
+  try {
+    const response = await axios.get(apiTarget+'/list_dir');
+
+    res.json(response.data);
+  } catch (err) {
+    error_control(err, res, req);
+  }
+});
+///list_models
+router.get('/list_models', async (req, res, next) => {
+  try {
+    const response = await axios.get(apiTarget+'/list_models');
+
+    res.json(response.data);
+  } catch (err) {
+    error_control(err, res, req);
+  }
+});
+///del_model
+router.post('/del_model', async (req, res, next) => {
+  try {
+    const form = new FormData();
+    form.append('model', req.body.model);
+    if (req.body.model == undefined) {
+      throw new Error('model_name is undefined');
+    }
+    const response = await axios.post(apiTarget+'/del_model', form, {
+      headers: {
+        ...form.getHeaders()
+      }
+    });
 
     res.json(response.data);
   } catch (err) {
