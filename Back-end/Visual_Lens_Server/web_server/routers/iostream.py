@@ -106,7 +106,21 @@ def del_dir():
         return jsonify({'error': str(e)}), 500
  
     
-    
+@iostream.route('/del_model', methods=['POST']) # type: ignore
+def del_model():
+    try:
+        model = request.form['model']
+        if model == '':
+            return jsonify({'error': 'No model provided'}), 400
+
+        model_path = os.path.join('model', model)
+        if os.path.exists(model_path):
+            os.remove(model_path)
+            return jsonify({'message': 'Model deleted successfully'}), 200
+        else:
+            return jsonify({'message': 'Model does not exist'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
 def get_folder_details(folder_path):
     total_size = 0
@@ -137,6 +151,20 @@ def list_dir():
             return jsonify({'folders': folders}), 200
         else:
             return jsonify({'error': 'Data directory does not exist'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@iostream.route('/list_models', methods=['GET']) # type: ignore
+def list_model():
+    try:
+        model_dir = 'model'
+        if os.path.exists(model_dir):
+            models = []
+            for model in os.listdir(model_dir):
+                models.append(model)
+            return jsonify({'models': models}), 200
+        else:
+            return jsonify({'error': 'Model directory does not exist'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
         
