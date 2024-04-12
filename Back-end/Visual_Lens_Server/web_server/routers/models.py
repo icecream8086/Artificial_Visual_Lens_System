@@ -31,14 +31,33 @@ def test_models():
 @models.route('/train_models', methods=['post']) # type: ignore
 def test_models_get():
     try:
-        dataset_path= './dataset' if 'data_path' not in request.form else request.form['data_path']
-        module_name = './ResNet-0602.pth' if 'module_name' not in request.form else request.form['module_name']
-        train_rate = 0.6 if 'train_rate' not in request.form else float(request.form['train_rate'])
-        test_rate = 0.2 if 'test_rate' not in request.form else float(request.form['test_rate'])
-        lr = 0.001 if 'lr' not in request.form else float(request.form['lr'])
-        step_size = 10 if 'step_size' not in request.form else int(request.form['step_size'])
-        gamma = 0.1 if 'gamma' not in request.form else float(request.form['gamma'])
-        epochs = 36 if 'epochs' not in request.form else int(request.form['epochs'])
+        # 检查每个参数是否存在并且不为空
+        if 'data_path' not in request.form or not request.form['data_path']:
+            return jsonify({'error': 'data_path is required'}), 400
+        if 'module_name' not in request.form or not request.form['module_name']:
+            return jsonify({'error': 'module_name is required'}), 400
+        if 'train_rate' not in request.form or not request.form['train_rate']:
+            return jsonify({'error': 'train_rate is required'}), 400
+        if 'test_rate' not in request.form or not request.form['test_rate']:
+            return jsonify({'error': 'test_rate is required'}), 400
+        if 'lr' not in request.form or not request.form['lr']:
+            return jsonify({'error': 'lr is required'}), 400
+        if 'step_size' not in request.form or not request.form['step_size']:
+            return jsonify({'error': 'step_size is required'}), 400
+        if 'gamma' not in request.form or not request.form['gamma']:
+            return jsonify({'error': 'gamma is required'}), 400
+        if 'epochs' not in request.form or not request.form['epochs']:
+            return jsonify({'error': 'epochs is required'}), 400
+
+        # 如果所有参数都存在并且不为空，继续执行任务
+        dataset_path = request.form['data_path']
+        module_name = request.form['module_name']
+        train_rate = float(request.form['train_rate'])
+        test_rate = float(request.form['test_rate'])
+        lr = float(request.form['lr'])
+        step_size = int(request.form['step_size'])
+        gamma = float(request.form['gamma'])
+        epochs = int(request.form['epochs'])
 
         result = task_start_delay.delay(dataset_path, module_name, train_rate, test_rate, lr, step_size, gamma, epochs)  # 调用Celery任务
         task_id = result.id

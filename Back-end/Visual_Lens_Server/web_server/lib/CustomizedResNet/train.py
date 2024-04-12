@@ -62,7 +62,10 @@ class TrainAndTestModel:
         if self.future:
             return json.dumps({"status": "error", "message": "A task is already running."})
         self.future = self.executor.submit(self.train_and_test_model, dataset_path, module_name, train_rate, test_rate, lr, step_size, gamma, epochs)
-        return json.dumps({"status": "success", "message": "Task started."})
+        result = self.future.result()
+        # 等待任务完成并获取结果
+        self.cancel()
+        return json.dumps({"status": "success", "message": "Task completed.", "result": result})
 
     def cancel(self):
         if self.future:
@@ -84,9 +87,12 @@ class TrainAndTestModel:
         scheduler = StepLR(optimizer, step_size=step_size, gamma=gamma)  # 定义学习率调度器
         criterion = nn.CrossEntropyLoss()
 
+        train_progress = []
+        test_progress = []
+
         for epoch in range(1, epochs + 1):
             # 检查任务是否被取消
-            if self.future.cancelled():
+            if self.future.cancelled(): # type: ignore
                 break
 
             train_loss = self.train(model, device, train_loader, criterion, optimizer, epoch, train_bar)
@@ -94,32 +100,16 @@ class TrainAndTestModel:
             scheduler.step()  # 每个epoch结束后调用学习率调度器进行自我学习率调整
 
             # 打印训练和测试进度
-            train_progress = {'epoch': epoch, 'train_loss': train_loss}
-            # print(json.dumps(train_progress))
-            test_progress = {'val_loss': val_loss, 'correct': correct, 'total': len(val_loader.dataset), 'accuracy': accuracy}
-            # print(json.dumps(test_progress))
+            train_progress.append({'epoch': epoch, 'train_loss': train_loss})
+            test_progress.append({'val_loss': val_loss, 'correct': correct, 'total': len(val_loader.dataset), 'accuracy': accuracy})
 
-        train_bar.close()  # 停止和清除进度条
-        val_bar.close()
-        if not self.future.cancelled():
-            torch.save(model.state_dict(), module_name)
-        pass
+            train_bar.close()  # 停止和清除进度条
+            val_bar.close()
+            if not self.future.cancelled(): # type: ignore
+                torch.save(model.state_dict(), f"./model/{module_name}")
 
-# dataset_path = 'dataset'
-# module_name = 'ResNet-0602.pth'
-# train_rate = 0.6
-# test_rate = 0.2
-# lr = 0.001
-# step_size = 10
-# gamma = 0.1
-# epochs = 360
-
-# #global 
-# task = TrainAndTestModel()
-# # router 1
-# result= task.start(dataset_path, module_name, train_rate, test_rate, lr, step_size, gamma, epochs)
-# print(result)
-# # Later...
-# # router 2 (cancel task)
-# result2 = task.cancel()
-# print(result2)
+        # 返回训练和测试的结果
+        return {
+            'train_progress': train_progress,
+            'test_progress': test_progress
+        }
