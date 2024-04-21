@@ -53,7 +53,7 @@ export default {
     navigator_to_image_conf() {
       router.push({
         name: 'watchfolder',
-        params: { message: this.path }
+        params: { message: this.path ,name:this.names}
       });
     }
   },

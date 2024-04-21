@@ -143,6 +143,7 @@
 import {  ref } from "vue";
 import router from "@/router";
 import { useDark } from "@vueuse/core";
+const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
 
 import user_group from "@/Portal/User/user_group/user_group.vue";
 import Performance_analysis from "@/datapanel/Performance_analysis.vue";
@@ -151,7 +152,6 @@ import Analyze_Status from "@/datapanel/Analyze_Status.vue";
 import Step_recorder from "@/datapanel/Step_recorder.vue";
 import Host_Setting from "@/datapanel/Host_Setting.vue";
 import image_conf from "@/components/image_conf.vue";
-import Cookies from "js-cookie";
 import { apiTarget } from "../../config";
 import axios from 'axios';
 export default {
@@ -250,10 +250,11 @@ export default {
 
 /api/user/get_basic_info/{id}
       */
-      axios.get('/api' + '/api/user/get_basic_info/' + Cookies.get("UID"), {
+      const localStorageJSON = new LocalStorageJSON();
+      axios.get('/api' + '/api/user/get_basic_info/' + localStorageJSON.read('UID'), {
         headers: {
-          'UID': Cookies.get('UID'),
-          'token': Cookies.get('token'),
+          'UID': localStorageJSON.read('UID'),
+          'token': localStorageJSON.read('token'),
         }
       }).then(res => {
         this.whoami = res.data.results[0].full_name;
@@ -267,7 +268,8 @@ export default {
 
     },
     loadAvatar() {
-      let url = apiTarget + "/api/user/get_Avatar/" + Cookies.get("UID");
+      let url = apiTarget + "api/user/get_Avatar/" + localStorage.getItem('UID');
+      console.log(url);
       localStorage.setItem('avatarUrl', url);
       this.circleUrl = url;
       this.loadUserBasicInfo();

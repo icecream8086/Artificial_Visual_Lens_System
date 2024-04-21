@@ -17,6 +17,7 @@
 <script>
 import axios from 'axios';
 import image_box from './sub_components/image_box.vue';
+const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
 
 export default {
   name: "image_conf",
@@ -40,10 +41,13 @@ export default {
     }
   },
   mounted() {
+    const localStorageJSON = new LocalStorageJSON();
+      let tokens = localStorageJSON.read('token');
+      let UID = localStorageJSON.read('UID');
     axios.get('/api' + '/api/file/listfolder', {
       headers: {
-        'UID': "3",
-        'token': "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVSUQiOjEsImlhdCI6MTY5NDY1MzMyNSwiZXhwIjoxNjk0NjU2OTI1fQ.9NgYIxkig9NoEskEdBU5w1BNuFNLughCEK2RaVZAoGo",
+        'UID': UID,
+        'token': tokens,
 
       }
     }).then((res) => {

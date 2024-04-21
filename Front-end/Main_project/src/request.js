@@ -1,7 +1,7 @@
 import axios from 'axios';
-
+import { apiTarget } from '@/../config.js';
 const request = axios.create({
-  baseURL: 'http://192.168.1.100:3000',
+  baseURL: '' + apiTarget,
   timeout: 5000,
   withCredentials: true
 });

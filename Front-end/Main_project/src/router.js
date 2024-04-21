@@ -37,6 +37,10 @@ import manual_page from '@/components/manual_page.vue'
 import MessageBox from '@/components/MessageBox.vue';
 import watchfolder from '@/components/watchfolder.vue';
 import folder_attribute_dialog from '@/components/folders/folder_attribute_dialog.vue';
+import chat_channel_demo from '@/components/chat_channel/demo.vue';
+import train from '@/components/train_module/train.vue';
+
+
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -274,7 +278,20 @@ const routes = [
     name: 'folder_attribute_dialog',
     component: folder_attribute_dialog,
     meta: { title: 'folder_attribute_dialog' }
+  },
+  {
+    path: '/local_api/chat_channel_demo',
+    name: 'folder_attribute_dialog',
+    component: chat_channel_demo,
+    meta: { title: 'folder_attribute_dialog' }
+  },
+  {
+    path: '/local_api/train',
+    name: 'train',
+    component: train,
+    meta: { title: 'train' }
   }
+
 
 ];
 

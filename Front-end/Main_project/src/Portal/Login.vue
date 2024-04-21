@@ -34,14 +34,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { ArrowRightBold } from '@element-plus/icons-vue'
 import { publicEncrypt, privateDecrypt } from 'crypto';
-import Cookies from "js-cookie";
-const radio1 = ref('1')
 
 </script>
 <script>
+const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
 import { useDark } from "@vueuse/core";
 import axios from 'axios';
 export default {
@@ -62,12 +60,13 @@ export default {
       useDark().value = !useDark().value;
 
     },
-    encrypt(data, publicKey) {
 
+    encrypt(data, publicKey) {
       const bufferData = new Uint8Array([...atob(data)].map(char => char.charCodeAt(0)));
       const encrypted = publicEncrypt(publicKey, bufferData);
       return encrypted.toString('base64');
     },
+    
     decrypt(data, privateKey) {
       const bufferData = new Uint8Array([...atob(data)].map(char => char.charCodeAt(0)));
       console.log("bufferData \n" + bufferData);
@@ -91,17 +90,17 @@ export default {
         this.$router.push("/dashboard");
       }
       this.password = this.encrypt(this.password, this.pub_key);
+
       // ! 本地密码需要先转换为MD5,随后转换为base64，再进行加密
       axios.post('/api' + '/api/auth/login', {
         usernameOrEmail: this.username,
         password: this.password,
         flag: 'rsa',
       }).then(res => {
-        // console.log(res);
-        // this.$store.dispatch('updateToken', res.data.token);
-        //将token塞进coookie
-        Cookies.set('token', res.data.token);
-        Cookies.set('UID', res.data.UID);
+
+        const localStorageJSON = new LocalStorageJSON();
+        localStorageJSON.write('token', res.data.token);
+        localStorageJSON.write('UID', res.data.UID);
         document.body.className = "";
         // console.log(Cookies.get('token'));
         // console.log(Cookies.get('UID'));

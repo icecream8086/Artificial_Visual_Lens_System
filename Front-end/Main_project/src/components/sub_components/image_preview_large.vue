@@ -11,6 +11,7 @@
 
 <script>
 import axios from 'axios';
+const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
 export default {
     name: 'ImagePreview',
     methods: {
@@ -32,7 +33,8 @@ export default {
             url = cleanUrl(url); // 清洗URL
             let response;
             try {
-                response = await axios.get('/api' + url, { responseType: 'blob', headers: { uid: "3", token: "1" } });
+                const localStorageJSON = new LocalStorageJSON();
+                response = await axios.get('/api' + url, { responseType: 'blob', headers: { uid: localStorageJSON.read('UID'), token: localStorageJSON.read('token') } });
             } catch (err) {
                 console.log(err.message);
                 continue; // 如果请求失败，跳过当前的迭代
