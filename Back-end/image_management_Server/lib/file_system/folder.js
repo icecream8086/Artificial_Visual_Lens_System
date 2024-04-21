@@ -139,14 +139,15 @@ async function modify_folder(sha256, folderName, Path, dataset_zone) {
  */
 async function Remove_Folder(Path) {
     try {
+        
         await check_dir_exists(Path);
         let resulta = await get_folder_psha(Path);
         resulta = resulta[0].sha256;
-        sql2 = `DELETE FROM Files WHERE sha256 = ?;`; //drop file info
-
+        // await removeFilesFromDB(Path);
+        sql2=`DELETE FROM Files WHERE Path=?;`;
         sql1 = `DELETE FROM Folders WHERE sha256 = ?;`; //drop folder info
-        await query(sql2, [resulta]);
         await query(sql1, [resulta]);
+        await query(sql2,[Path]);
         await delete_dir(Path);
         //物理移除必须最后进行
         return "ok";
@@ -155,7 +156,20 @@ async function Remove_Folder(Path) {
         throw err;
     }
 }
+async function removeFilesFromDB(directoryPath) {
+    const files = await fs.readdir(directoryPath, { withFileTypes: true });
 
+    // 遍历所有文件
+    for (const file of files) {
+        const filePath = path.join(directoryPath, file.name);
+        if (file.isDirectory()) {
+            await removeFilesFromDB(filePath);
+        } else {
+            let sql = `DELETE FROM Files WHERE path = ?;`;
+            await query(sql, [filePath]);
+        }
+    }
+}
 /**
  * Modify folder permission for a given sha256 hash
  * @async

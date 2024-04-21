@@ -5,6 +5,10 @@
  */
 const express = require('express');
 const router = express.Router();
+const qs = require('qs'); // 导入qs库
+const WebSocketServer = require("../../routes/ws");
+// const rateLimit = require("express-rate-limit");
+
 const path = require('path');
 const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
 const redis = require('../../lib/datasource/redis_connection_promise');
@@ -16,7 +20,7 @@ const { bytesToMB } = require('../../lib/datasource/other');
 const { getExifData } = require('../../lib/life_cycle/image_exif');
 const { register_file, check_sha256_exists, modify_file_permission, modify_file_info, modify_source_file, get_file_path } = require('../../lib/file_system/file');
 const { register_folder, list_file_name, split_folder_info, select_all_owner, get_effective_folder, check_visitor_permission, folder_read, get_folder_psha, del_permission_rwd, add_permission_rwd
-  , add_permission_rw, add_permission_r, del_permission_rw, del_permission_r, folder_modify, Remove_Folder,sync_folder,
+  , add_permission_rw, add_permission_r, del_permission_rw, del_permission_r, folder_modify, Remove_Folder, sync_folder,
 } = require('../../lib/file_system/folder');
 const { getGroupInfo } = require('../../lib/logic_module/group');
 const fs = require('fs');
@@ -29,7 +33,7 @@ const { delete_file } = require('../../lib/file_system/file');
 const pathModule = require('path');
 const axios = require('axios');
 const FormData = require('form-data');
-const {apiTarget} = require('../../lib/config');
+const { apiTarget } = require('../../lib/config');
 
 // 配置multer
 const storage_demo = multer.diskStorage({
@@ -327,8 +331,14 @@ router.get('/listfolder', async (req, res, next) => {
   }
 });
 
+// const limiter = rateLimit({
+//   windowMs: 1, // 10毫秒
+//   max: 1, // 每10毫秒只能调用一次
+//   message: "Too many requests, please try again later."
+// });
 
-router.get('/watchfile/*/:filename', async (req, res, next) => {
+// router.get('/watchfile/*/:filename',limiter ,async (req, res, next) => {
+router.get('/watchfile/*/:filename' ,async (req, res, next) => {
   try {
     let UID = req.headers.uid;
     let token = req.headers.token;
@@ -427,12 +437,17 @@ router.post('/modify_folder_info', async (req, res, next) => {
 
 
 router.post('/sync_folder', async (req, res, next) => {
+  let UID = req.headers.uid;
+  let token = req.headers.token;
   try {
-    let UID = req.headers.uid;
-    let token = req.headers.token;
+
+    if (UID == undefined || token == undefined) {
+      return res.status(401).json({ message: 'UID or token is undefined.' });
+    }
+
     let path = req.body.path;
     // await validateToken(token, UID);
-    if(path == undefined){
+    if (path == undefined) {
       return res.status(400).json({ message: 'Path is undefined.' });
     }
     if (global.syncid !== 0) {
@@ -451,22 +466,35 @@ router.post('/sync_folder', async (req, res, next) => {
       try {
         // Sync folder
         let server_path = pathModule.basename(path);
-        await sync_folder(path,server_path);
+        await sync_folder(path, server_path);
 
         // Reset flag
         global.syncid = 0;
 
       } catch (err) {
         // Handle error
+        console.error(err);
         // Reset flag
         global.syncid = 0;
       }
     });
+    //ws
+    let sql = 'SELECT username FROM users WHERE UID = ?;';
+    let username = await query(sql, UID);
+    username = username[0].username;
+    messageObj = {
+      "user_name": username,
+      "timestamp": new Date().toISOString(),
+      "message": `sync folder ${path} is in progress`,
+    }
+    queueName = 'sync_folder';
+    WebSocketServer.sendMessage(`/publish/${queueName}`, messageObj);
+
   } catch (err) {
+    throw err;
     error_control(err, res, req);
   }
 });
-
 
 router.post('/watchfolder_permission', async (req, res, next) => {
   try {
@@ -588,7 +616,7 @@ router.post('/offical_resnet', upload3.single('image'), async (req, res, next) =
     const fileStream = fs.createReadStream(req.file.path);
     form.append('image', fileStream);
 
-    const response = await axios.post(apiTarget+ '/offical_resnet', form, {
+    const response = await axios.post(apiTarget + '/offical_resnet', form, {
       headers: {
         ...form.getHeaders()
       }
@@ -609,7 +637,7 @@ router.post('/customized_resnet', upload3.single('image'), async (req, res, next
     form.append('label_names', req.body.label_names);
     form.append('model_path', req.body.model_path);
 
-    const response = await axios.post(apiTarget+'/customized_resnet', form, {
+    const response = await axios.post(apiTarget + '/customized_resnet', form, {
       headers: {
         ...form.getHeaders()
       }
@@ -628,12 +656,13 @@ router.post('/clip_predicate', upload3.single('image'), async (req, res, next) =
     form.append('image', fileStream);
     form.append('text_dictionary', req.body.text_dictionary);
 
-    const response = await axios.post(apiTarget+'/clip_predicate', form, {
+    const response = await axios.post(apiTarget + '/clip_predicate', form, {
       headers: {
         ...form.getHeaders()
       }
     });
 
+    
     res.json(response.data);
   } catch (err) {
     error_control(err, res, req);
@@ -652,7 +681,7 @@ router.get('/task_info/:id', async (req, res, next) => {
 
 router.get('/load_model/:model_name', async (req, res, next) => {
   try {
-    const response = await axios.get(apiTarget+`/load_model/${req.params.model_name}`);
+    const response = await axios.get(apiTarget + `/load_model/${req.params.model_name}`);
     res.json(response.data);
   } catch (err) {
     error_control(err, res, req);
@@ -661,7 +690,7 @@ router.get('/load_model/:model_name', async (req, res, next) => {
 
 router.get('/list_models', async (req, res, next) => {
   try {
-    const response = await axios.get(apiTarget+'/list_models');
+    const response = await axios.get(apiTarget + '/list_models');
     res.json(response.data);
   } catch (err) {
     error_control(err, res, req);
@@ -674,7 +703,7 @@ router.post('/store_model', upload3.single('file'), async (req, res, next) => {
     const fileStream = fs.createReadStream(req.file.path);
     form.append('file', fileStream);
 
-    const response = await axios.post(apiTarget+'/store_model', form, {
+    const response = await axios.post(apiTarget + '/store_model', form, {
       headers: {
         ...form.getHeaders()
       }
@@ -696,7 +725,7 @@ router.post('/store_model', upload3.single('file'), async (req, res, next) => {
 
 router.post('/del_dir', async (req, res, next) => {
   try {
-    const response = await axios.post(apiTarget+'/del_dir', {
+    const response = await axios.post(apiTarget + '/del_dir', {
       dir: req.body.dir
     });
 
@@ -708,7 +737,7 @@ router.post('/del_dir', async (req, res, next) => {
 
 router.get('/list_dir', async (req, res, next) => {
   try {
-    const response = await axios.get(apiTarget+'/list_dir');
+    const response = await axios.get(apiTarget + '/list_dir');
 
     res.json(response.data);
   } catch (err) {
@@ -718,7 +747,13 @@ router.get('/list_dir', async (req, res, next) => {
 
 router.post('/test_models', async (req, res, next) => {
   try {
-    const response = await axios.post(apiTarget+'/test_models', {
+    let uid = req.headers.uid;
+    let token = req.headers.token;
+    // await validateToken(token, uid);
+    if (uid == undefined||token==undefined) {
+      return res.status(400).json({ message: 'UID or token is undefined.' });
+    }
+    const data = {
       data_set_path: req.body.data_set_path,
       model_path: req.body.model_path,
       train_rate: req.body.train_rate,
@@ -726,10 +761,29 @@ router.post('/test_models', async (req, res, next) => {
       resize: req.body.resize,
       center_crop: req.body.center_crop,
       mean: req.body.mean,
-      std: req.body.std
-    });
+      std: req.body.std,
+    };
 
+    const response = await axios.post(apiTarget + '/test_models', qs.stringify(data), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    });
+    //ws
+    let sql = 'SELECT username FROM users WHERE UID = ?;';
+    let username = await query(sql, uid);
+    username = username[0].username;
+    messageObj = {
+      "user_name": username,
+      "timestamp": new Date().toISOString(),
+      "message": `test model ${req.body.model_path} is in progress`,
+    }
+    queueName = 'test_models';
+    WebSocketServer.sendMessage(`/publish/${queueName}`, messageObj);
+
+    // Move this to the end of the try block
     res.json(response.data);
+
   } catch (err) {
     error_control(err, res, req);
   }
@@ -737,16 +791,35 @@ router.post('/test_models', async (req, res, next) => {
 
 router.post('/train_models', async (req, res, next) => {
   try {
-    const response = await axios.post(apiTarget+'/train_models', {
-      data_set_path: req.body.data_set_path,
-      model_path: req.body.model_path,
+    let uid = req.headers.uid;
+    let token = req.headers.token;
+    // await validateToken(token, uid);
+    const data = {
+      data_path: req.body.data_path,
+      module_name: req.body.module_name,
       train_rate: req.body.train_rate,
       test_rate: req.body.test_rate,
       lr: req.body.lr,
       step_size: req.body.step_size,
       gamma: req.body.gamma,
       epochs: req.body.epochs
+    };
+    const response = await axios.post(apiTarget + '/train_models', qs.stringify(data), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
     });
+    // ws
+    let sql = 'SELECT username FROM users WHERE UID = ?;';
+    let username = await query(sql, uid);
+    username = username[0].username;
+    messageObj = {
+      "user_name": username,
+      "timestamp": new Date().toISOString(),
+      "message": `train model ${req.body.model_path} is in progress`
+    }
+    queueName = 'train_models';
+    WebSocketServer.sendMessage(`/publish/${queueName}`, messageObj);
 
     res.json(response.data);
   } catch (err) {
@@ -756,7 +829,7 @@ router.post('/train_models', async (req, res, next) => {
 
 router.get('/cancel_models', async (req, res, next) => {
   try {
-    const response = await axios.get(apiTarget+'/cancel_models');
+    const response = await axios.get(apiTarget + '/cancel_models');
 
     res.json(response.data);
   } catch (err) {
@@ -769,7 +842,7 @@ router.post('/automatic_loader', async (req, res, next) => {
     const form = new FormData();
     form.append('folder_chain', req.body.folder_chain);
 
-    const response = await axios.post(apiTarget+'/automatic_loader', form, {
+    const response = await axios.post(apiTarget + '/automatic_loader', form, {
       headers: {
         ...form.getHeaders()
       }
@@ -781,26 +854,6 @@ router.post('/automatic_loader', async (req, res, next) => {
   }
 });
 
-router.get('/clear_data', async (req, res, next) => {
-  try {
-    // 改成post
-  } catch (err) {
-    error_control(err, res, req);
-  }
-});
-
-
-
-
-router.get('/list_dir', async (req, res, next) => {
-  try {
-    const response = await axios.get(apiTarget+'/list_dir');
-
-    res.json(response.data);
-  } catch (err) {
-    error_control(err, res, req);
-  }
-});
 
 
 ///clear_data
@@ -811,7 +864,7 @@ router.post('/clear_data', async (req, res, next) => {
     if (req.body.flag == undefined) {
       throw new Error('flag is undefined');
     }
-    const response = await axios.post(apiTarget+'/clear_data', form, {
+    const response = await axios.post(apiTarget + '/clear_data', form, {
       headers: {
         ...form.getHeaders()
       }
@@ -823,9 +876,13 @@ router.post('/clear_data', async (req, res, next) => {
   }
 });
 ///list_dir
-router.get('/list_dir', async (req, res, next) => {
+router.post('/list_dir', async (req, res, next) => {
   try {
-    const response = await axios.get(apiTarget+'/list_dir');
+    const form = new FormData();
+    form.append('flag', req.body.flag);
+    const response = await axios.post(apiTarget + '/list_dir' ,form,{      headers: {
+      ...form.getHeaders()
+    }});
 
     res.json(response.data);
   } catch (err) {
@@ -835,7 +892,7 @@ router.get('/list_dir', async (req, res, next) => {
 ///list_models
 router.get('/list_models', async (req, res, next) => {
   try {
-    const response = await axios.get(apiTarget+'/list_models');
+    const response = await axios.get(apiTarget + '/list_models');
 
     res.json(response.data);
   } catch (err) {
@@ -850,7 +907,7 @@ router.post('/del_model', async (req, res, next) => {
     if (req.body.model == undefined) {
       throw new Error('model_name is undefined');
     }
-    const response = await axios.post(apiTarget+'/del_model', form, {
+    const response = await axios.post(apiTarget + '/del_model', form, {
       headers: {
         ...form.getHeaders()
       }

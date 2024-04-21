@@ -847,7 +847,7 @@ async function sync_file(file_path,server_path) {
         formData.append('file', file);
         formData.append('path', server_path);
         
-        axios.post(apiTarget + '/upload_image', formData, {
+        return axios.post(apiTarget + '/upload_image', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -862,7 +862,6 @@ async function sync_file(file_path,server_path) {
         throw err;
     }
 }
-
 
 
 module.exports = {
