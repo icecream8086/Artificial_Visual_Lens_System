@@ -20,6 +20,8 @@ class TrainAndTestModel:
     def __init__(self):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self.future = None
+        self.cancelled = False  # 添加一个全局变量来存储取消任务的信号
+
 
     def train(self, model, device, train_loader, criterion, optimizer, epoch, train_bar):
         model.train()
@@ -62,18 +64,20 @@ class TrainAndTestModel:
         if self.future:
             return json.dumps({"status": "error", "message": "A task is already running."})
         self.future = self.executor.submit(self.train_and_test_model, dataset_path, module_name, train_rate, test_rate, lr, step_size, gamma, epochs)
-        result = self.future.result()
-        # 等待任务完成并获取结果
+        try:
+            result = self.future.result()  # 等待任务完成并获取结果
+        finally:
+            self.future = None  # 任务完成后，重置 self.future
         self.cancel()
         return json.dumps({"status": "success", "message": "Task completed.", "result": result})
 
     def cancel(self):
         if self.future:
-            self.future.cancel()
-            self.future = None
-            return json.dumps({"status": "success", "message": "Task cancelled."})
+            self.cancelled = True  # 设置取消任务的信号
+            return json.dumps({"status": "success", "message": "Task cancellation requested."})
         else:
             return json.dumps({"status": "error", "message": "No task to cancel."})
+
 
     def train_and_test_model(self, dataset_path, module_name, train_rate, test_rate, lr, step_size, gamma, epochs):
         val_loader, train_loader = data_split(path=dataset_path, transform=transform, train_rate=train_rate, test_rate=test_rate)
@@ -92,9 +96,8 @@ class TrainAndTestModel:
 
         for epoch in range(1, epochs + 1):
             # 检查任务是否被取消
-            if self.future.cancelled(): # type: ignore
+            if self.cancelled:
                 break
-
             train_loss = self.train(model, device, train_loader, criterion, optimizer, epoch, train_bar)
             val_loss, correct, accuracy = self.test(model, device, val_loader, criterion, val_bar)
             scheduler.step()  # 每个epoch结束后调用学习率调度器进行自我学习率调整
@@ -107,7 +110,12 @@ class TrainAndTestModel:
             val_bar.close()
             if not self.future.cancelled(): # type: ignore
                 torch.save(model.state_dict(), f"./model/{module_name}")
+        if self.cancelled:
+            self.cancelled = False  # 重置取消任务的信号
+            return json.dumps({"status": "cancelled", "message": "Task was cancelled."})
 
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         # 返回训练和测试的结果
         return {
             'train_progress': train_progress,

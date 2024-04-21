@@ -64,7 +64,18 @@ def automatic_loader():
             target_folder = os.path.join(dataset_dir, folder)
 
             if os.path.exists(source_folder):
-                shutil.copytree(source_folder, target_folder)
+                if not os.path.exists(target_folder):
+                    os.makedirs(target_folder)
+                for src_dir, dirs, files in os.walk(source_folder):
+                    dst_dir = src_dir.replace(source_folder, target_folder, 1)
+                    if not os.path.exists(dst_dir):
+                        os.makedirs(dst_dir)
+                    for file_ in files:
+                        src_file = os.path.join(src_dir, file_)
+                        dst_file = os.path.join(dst_dir, file_)
+                        if os.path.exists(dst_file):
+                            os.remove(dst_file)
+                        shutil.copy2(src_file, dst_dir)
             else:
                 errors.append(f'Folder {folder} does not exist in data_dir')
 
@@ -133,11 +144,14 @@ def get_folder_details(folder_path):
     # Convert size to MB
     total_size = total_size / (1024 * 1024)
     return total_size, file_count
-
-@iostream.route('/list_dir', methods=['GET']) # type: ignore
+@iostream.route('/list_dir', methods=['POST']) # type: ignore
 def list_dir():
     try:
-        data_dir = 'data_dir'
+        data_dir = request.form['flag']
+        
+        if data_dir != "dataset" and data_dir != "data_dir":
+            return jsonify({'error': 'Invalid variable'}), 400
+
         if os.path.exists(data_dir):
             folders = []
             for folder in os.listdir(data_dir):
@@ -153,7 +167,9 @@ def list_dir():
             return jsonify({'error': 'Data directory does not exist'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
     
+
 @iostream.route('/list_models', methods=['GET']) # type: ignore
 def list_model():
     try:
@@ -161,7 +177,9 @@ def list_model():
         if os.path.exists(model_dir):
             models = []
             for model in os.listdir(model_dir):
-                models.append(model)
+                model_path = os.path.join(model_dir, model)
+                model_size = os.path.getsize(model_path) / (1024 * 1024)  # 获取文件大小并转换为 MB
+                models.append({'name': model, 'size': model_size})
             return jsonify({'models': models}), 200
         else:
             return jsonify({'error': 'Model directory does not exist'}), 400

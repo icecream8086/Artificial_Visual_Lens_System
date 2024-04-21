@@ -64,6 +64,7 @@ def test_models_get():
         result_json = {'message': 'Task is still running, please check back later', 'task_id': task_id}
         return result_json, 200
     except Exception as e:
+        print(e)
         return jsonify({'error': str(e)}), 500
     
 @models.route('/cancel_models', methods=['get']) # type: ignore
