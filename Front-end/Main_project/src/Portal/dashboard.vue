@@ -18,10 +18,10 @@
               <el-avatar :size="50" :src="circleUrl" />
             </div>
           </el-menu-item>
-          <el-menu-item><el-icon>
+          <el-menu-item @click="navigateTo_train"><el-icon>
               <MessageBox />
             </el-icon>
-            消息
+            训练
           </el-menu-item>
 
           <el-sub-menu index="3">
@@ -266,6 +266,10 @@ export default {
 
         })
 
+    },
+    navigateTo_train() {
+      ///local_api/train
+      router.push({ name: "train" });
     },
     loadAvatar() {
       let url = apiTarget + "api/user/get_Avatar/" + localStorage.getItem('UID');

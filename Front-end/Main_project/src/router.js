@@ -39,7 +39,7 @@ import watchfolder from '@/components/watchfolder.vue';
 import folder_attribute_dialog from '@/components/folders/folder_attribute_dialog.vue';
 import chat_channel_demo from '@/components/chat_channel/demo.vue';
 import train from '@/components/train_module/train.vue';
-
+import modify_info from '@/Portal/User/modify_info.vue';
 
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
@@ -290,6 +290,12 @@ const routes = [
     name: 'train',
     component: train,
     meta: { title: 'train' }
+  },
+  {
+    path: '/local_api/modify_info',
+    name: 'modify_info',
+    component: modify_info,
+    meta: { title: 'modify_info' }
   }
 
 

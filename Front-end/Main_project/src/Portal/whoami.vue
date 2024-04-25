@@ -26,12 +26,12 @@
                       <el-col :span="2">
                         <div class="grid-content ep-bg-purple-light" />
                         <div class="flex">
-                          <el-button type="primary" :icon="Position">编辑个人信息 username</el-button>
+                          <el-button type="primary" :icon="Position" @click="navigate_to_modify_info">编辑个人信息 username</el-button>
                         </div>
                       </el-col>
                     </el-row>
                     <el-row>
-                      <el-col :span="2">
+                      <el-col :span="2" @click="sendEmail">
                         <!-- 发送邮件给 (将来改为悬浮窗口) -->
                         <el-icon size="25px">
                           <Promotion />
@@ -99,6 +99,7 @@
 <script setup>
 // don't move !!!
 import { Position, Link } from "@element-plus/icons-vue";
+
 </script>
 
 <script>
@@ -124,13 +125,27 @@ export default {
       //go back to dashboard
       router.push({ name: "dashboard" });
     },
+    navigate_to_modify_info() {
+      //navigate to the page
+      router.push({ name: "modify_info" });
+    },
     loadAvatar() {
       this.url=localStorage.getItem("avatarUrl");
       let data= localStorage.getItem("basic_info");
       let basic_info=JSON.parse(data);
       this.username=basic_info.username;
       
-    }
+    },
+    sendEmail() {
+            this.$message({
+                showClose: true,
+                center: true,
+                message: '正在打开邮箱 ...',
+                type: 'success'
+            });
+            let emails = 'mailto:' + this.email;
+            window.open(emails);
+        }
   },
 };
 

@@ -7,19 +7,19 @@
       <p>DiskName: {{ chartData.diskName }}</p>
     </el-text>
     <el-text class="mx-4">
-      <p>Path: {{ chartData.mountPoint }}</p>
+      <p>Mount directory: {{ chartData.mountPoint }}</p>
     </el-text>
     <el-text class="mx-4">
       <p>FileSystem Type: {{ chartData.fstype }}</p>
     </el-text>
     <el-text class="mx-4">
-      <p>TotalSize: {{ chartData.totalSize }}</p>
+      <p>TotalSize: {{ chartData.totalSize }} GB</p>
     </el-text>
     <el-text class="mx-4">
-      <p>freeSize: {{ chartData.freeSize }}</p>
+      <p>freeSize: {{ chartData.freeSize }} GB</p>
     </el-text>
     <el-text class="mx-4">
-      <p>usedSize: {{ chartData.usedSize }}</p>
+      <p>usedSize: {{ chartData.usedSize }} GB</p>
     </el-text>
 
 

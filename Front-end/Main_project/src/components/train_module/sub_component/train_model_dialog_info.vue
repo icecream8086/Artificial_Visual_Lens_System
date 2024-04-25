@@ -5,7 +5,7 @@
         </el-button>
     </div>
 
-    <el-dialog v-model="outerVisible" title="文件夹档案" :width="550">
+    <el-dialog v-model="outerVisible" title="训练参数" :width="550">
         <el-row>
             <el-col :span="2"></el-col>
             <el-col :span="20">

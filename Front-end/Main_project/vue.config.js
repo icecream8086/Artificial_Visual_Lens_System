@@ -12,6 +12,10 @@ const config = require('./config');
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
+    client: {
+      overlay: false
+  },
+
     proxy: {
       '/api': {
         target: config.apiTarget,

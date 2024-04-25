@@ -54,9 +54,13 @@
                         <div>
                             <el-row>
                                 <el-col :span="8"></el-col>
-                                <el-col :span="8">
+                                <el-col :span="4">
                                     <el-button type="primary" plain @click="train">训练</el-button>
                                 </el-col>
+                                <el-col :span="4">
+                                    <el-button type="primary" plain @click="tests">测试</el-button>
+                                </el-col>
+                                <test_model_dialog :visitables="test_model_dialog_visible"></test_model_dialog>
                                 <el-col :span="8"></el-col>
                                 <el-col :span="8"></el-col>
                                 <el-col :span="8">
@@ -67,7 +71,9 @@
                                 <el-col :span="8">
                                     <div style="border: 1px solid #00ffd5;">{{ result_code }}</div>
                                 </el-col>
-                                <el-col :span="8"><p>请保存好结果码，丢失了结果码将永远失去查找功能</p></el-col>
+                                <el-col :span="8">
+                                    <p>请保存好结果码，丢失了结果码将永远失去查找功能</p>
+                                </el-col>
 
                             </el-row>
                         </div>
@@ -132,35 +138,35 @@
                                 <el-row>
                                     <div>
                                         <p>数据集名</p>
-                                    <p><el-input v-model="datapath"></el-input></p>
+                                        <p><el-input v-model="datapath"></el-input></p>
                                     </div>
                                     <div>
                                         <p>模型名称</p>
-                                    <p><el-input v-model="module_name"></el-input></p>
+                                        <p><el-input v-model="module_name"></el-input></p>
                                     </div>
                                     <div>
                                         <p>训练百分比</p>
-                                    <p><el-input v-model="train_rate"></el-input></p>
+                                        <p><el-input v-model="train_rate"></el-input></p>
                                     </div>
                                     <div>
                                         <p>测试百分比</p>
-                                    <p><el-input v-model="test_rate"></el-input></p>
+                                        <p><el-input v-model="test_rate"></el-input></p>
                                     </div>
                                     <div>
                                         <p>学习率</p>
-                                    <p><el-input v-model="lr"></el-input></p>
+                                        <p><el-input v-model="lr"></el-input></p>
                                     </div>
                                     <div>
                                         <p>步长</p>
-                                    <p><el-input v-model="step_size"></el-input></p>
+                                        <p><el-input v-model="step_size"></el-input></p>
                                     </div>
                                     <div>
                                         <p>gamma</p>
-                                    <p><el-input v-model="gamma"></el-input></p>
+                                        <p><el-input v-model="gamma"></el-input></p>
                                     </div>
                                     <div>
                                         <p>训练轮数</p>
-                                    <p><el-input v-model="epochs"></el-input></p>
+                                        <p><el-input v-model="epochs"></el-input></p>
                                     </div>
                                 </el-row>
                             </div>
@@ -173,9 +179,12 @@
         <el-col :span="8">
             <p>模型列表，下载上传</p>
             <p>模型列表(输入后下载上传)</p>
-            <el-input ></el-input>
-            <el-button>下载</el-button>
-            <el-button>上传</el-button>
+            <el-input v-model="want_download"></el-input>
+            <el-button @click="download">下载</el-button>
+            <input type="file" ref="fileInput" @change="handleFileUpload" style="display: none" />
+
+            <el-button @click="triggerFileUpload">上传</el-button>
+            <el-button @click="del_model">删除模型</el-button>
             <el-scrollbar height="320px">
                 <div>
                     <el-row>
@@ -207,6 +216,7 @@ import { ElNotification } from 'element-plus';
 import train_model_dialog_info from './sub_component/train_model_dialog_info.vue';
 import DataTransfer from './sub_component/Transfer.vue'
 import qs from 'qs';
+import test_model_dialog from './sub_component/test_model_dialog.vue';
 const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
 const localStorageJSON = new LocalStorageJSON();
 
@@ -235,15 +245,18 @@ export default {
             train_model_dialog_info_visible: false,
             download_name: '',
             download_nam2e: '',
+            file: null,  
 
-
+            test_model_dialog_visible: false,
             myData: [
                 { key: 1, label: 'Option 1' },
                 { key: 2, label: 'Option 2' },
                 { key: 3, label: 'Option 3' },
                 // 更多数据...
             ],
-            selectedData: []
+            selectedData: [],
+
+            want_download: '',
         };
     },
     props: {
@@ -272,6 +285,7 @@ export default {
         folderkard,
         train_model_dialog_info,
         DataTransfer,
+        test_model_dialog,
     },
     methods: {
         // 选择数据集
@@ -305,6 +319,9 @@ export default {
             }).catch(err => {
                 console.log(err);
             });
+        },
+        tests() {
+            this.test_model_dialog_visible = !this.test_model_dialog_visible;
         },
         request_effective_data_set() {
             // 请求有效数据区域
@@ -484,37 +501,58 @@ export default {
             });
         },
         download() {
-            // 下载模型
-            axios.get('/api' + '/api/file/load_model/' + this.download_name ).then((res) => {
-                if (res.status == 200) {
-                    ElNotification({
-                        title: 'Success',
-                        message: '下载模型成功',
-                        type: 'success',
-                    })
-                } else {
-                    ElNotification({
-                        title: 'Error',
-                        message: '下载模型失败',
-                        type: 'error',
-                    })
-                }
-            }).catch((err) => {
-                console.log(err);
+            ElNotification({
+                title: 'Info',
+                message: '开始下载模型',
+                type: 'info',
+            });
+
+            axios({
+                url: '/api' + '/api/file/load_model/' + this.want_download,
+                method: 'GET',
+                responseType: 'blob', // important
+            }).then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', this.want_download);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                ElNotification({
+                    title: 'Success',
+                    message: '下载模型成功',
+                    type: 'success',
+                });
+            }).catch((error) => {
+                console.log(error);
+
+                ElNotification({
+                    title: 'Error',
+                    message: '下载模型失败,请检查模型名',
+                    type: 'error',
+                });
             });
         },
+        // 触发文件上传框
+        triggerFileUpload() {
+            this.$refs.fileInput.click();
+        },
+        // 处理文件上传
+        handleFileUpload(event) {
+            this.file = event.target.files[0];
+            this.upload();
+        },
+        // 上传文件
         upload() {
-            // 上传模型
-            // curl --location --request POST 'http://10.21.78.154:3000/api/file/store_model' \
-            // --header 'User-Agent: Apifox/1.0.0 (https://apifox.com)' \
-            // --form 'file=@"C:\\Users\\zzbsn\\Downloads\\ResNet-0602.pth"'
-            axios.post('/api' + '/api/file/store_model', {
+            let formData = new FormData();
+            formData.append('file', this.file);
+
+            axios.post('/api' + '/api/file/store_model', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
-                data: qs.stringify({
-                    file: this.download_nam2e,
-                })
             }).then((res) => {
                 if (res.status == 200) {
                     ElNotification({
@@ -534,35 +572,31 @@ export default {
             });
         },
         del_model() {
-            // 删除模型
-            // curl --location --request POST 'http://10.21.78.154:3000/api/file/del_model' \
-            // --header 'User-Agent: Apifox/1.0.0 (https://apifox.com)' \
-            // --data-urlencode 'model=modw'
-            axios.post('/api' + '/api/file/del_model', {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                data: qs.stringify({
-                    model: this.download_name,
-                })
-            }).then((res) => {
-                if (res.status == 200) {
-                    ElNotification({
-                        title: 'Success',
-                        message: '删除模型成功',
-                        type: 'success',
-                    })
-                } else {
-                    ElNotification({
-                        title: 'Error',
-                        message: '删除模型失败',
-                        type: 'error',
-                    })
-                }
-            }).catch((err) => {
-                console.log(err);
-            });
+    // 删除模型
+    axios.post('/api' + '/api/file/del_model', qs.stringify({
+        model: this.want_download,
+    }), {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
+    }).then((res) => {
+        if (res.status == 200) {
+            ElNotification({
+                title: 'Success',
+                message: '删除模型成功',
+                type: 'success',
+            })
+            this.request_effective_model();
+        }
+    }).catch((err) => {
+        console.log(err);
+        ElNotification({
+                title: 'Error',
+                message: '删除模型失败,请检查模型名',
+                type: 'error',
+            })
+    });
+},
     }
 }
 // function success() {
