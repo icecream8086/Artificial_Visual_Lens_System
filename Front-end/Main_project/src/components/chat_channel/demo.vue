@@ -47,7 +47,7 @@ export default {
       groupIds: 'catia'
     }
   },
-  // ws://192.168.143.246:3000/?token=&uid=3
+  // ws:// 10.21.78.154:3000/?token=&uid=3
   created() {
 
     let tokens = localStorageJSON.read('token');
