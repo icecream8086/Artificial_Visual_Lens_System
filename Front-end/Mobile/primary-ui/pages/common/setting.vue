@@ -15,19 +15,19 @@
       <!-- 个人门户 -->
       <u-button text="个人信息设置" @click="goAbout"></u-button>
       <!-- 用户组 -->
-      <u-button text="个人权限设置" @click="permissions"></u-button>
+      <!-- <u-button text="个人权限设置" @click="permissions"></u-button> -->
       <!-- 如果登录用户是狗管理的话，显示组成员的CRUD功能 -->
-      <u-button text="用户组成员管理"></u-button>
-      <u-button text="用户组管理"></u-button>
+      <!-- <u-button text="用户组成员管理"></u-button> -->
+      <!-- <u-button text="用户组管理"></u-button> -->
     </div>
   </u-collapse-item>
 
   <u-collapse-item title="权限设置" name="permission settings">
     <text >包含Android操作系统相关的权限设置</text>
     <div>
-      <u-button text="检查读写权限"></u-button>
+      <!-- <u-button text="检查读写权限"></u-button> -->
       <u-button text="检查摄像头权限"></u-button>
-      <u-button text="检查定位权限"></u-button>
+      <!-- <u-button text="检查定位权限"></u-button> -->
       <u-button text="关于此设备" @click="aboutdevice"></u-button>
     </div>
   </u-collapse-item>
@@ -35,8 +35,8 @@
   <u-collapse-item title="服务器设置" name="server">
     <text >包括杂七杂八的调试功能</text>
     <u-button text="服务器地址"></u-button>
-    <u-button text="服务器负载状态"></u-button>
-    <u-button text="服务器健康状况测试"></u-button>
+    <!-- <u-button text="服务器负载状态"></u-button>
+    <u-button text="服务器健康状况测试"></u-button> -->
   </u-collapse-item>
 
   <u-collapse-item title="关于" name="other">

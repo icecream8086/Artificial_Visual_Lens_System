@@ -29,7 +29,7 @@
 				<navigator class="buttons"><button type="primary">上传</button></navigator>
 			</div>
 			<div>
-				<u-textarea placeholder="请输入文件夹路径" :style="{ width: canvasSiz.width + 'px', height: canvasSiz.height/4 + 'px', transform: 'translateY(50px)' }"/>
+				<u-textarea placeholder="请输入自定义模型名称，为空则默认使用res-net" :style="{ width: canvasSiz.width + 'px', height: canvasSiz.height/4 + 'px', transform: 'translateY(50px)' }"/>
 			</div>
 			<p>&nbsp;</p>
 			<p>&nbsp;</p>

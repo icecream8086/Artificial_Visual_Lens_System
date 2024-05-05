@@ -22,7 +22,6 @@
         "modules" : {
             "VideoPlayer" : {},
             "LivePusher" : {},
-            "Geolocation" : {},
             "SQLite" : {}
         },
         /* 应用发布信息 */

@@ -188,24 +188,19 @@
 				"navigationBarTitleText": "播放",
 				"text": "首页"
 			},
-			{
-				"pagePath": "pages/common/result_manage",
-				"iconPath": "static/result_manage.png",
-				"selectedIconPath": "static/result_manage_clicked.png",
-				"text": "归档"
-			},
+			// {
+			// 	"pagePath": "pages/common/result_manage",
+			// 	"iconPath": "static/result_manage.png",
+			// 	"selectedIconPath": "static/result_manage_clicked.png",
+			// 	"text": "归档"
+			// },
 			{
 				"iconPath": "static/scan.png",
 				"selectedIconPath": "static/scan_clicked.png",
 				"pagePath": "pages/common/scan",
-				"text": "扫描"
+				"text": "拍摄"
 			},
-			{
-				"iconPath": "static/whoami.png",
-				"pagePath": "pages/common/woami",
-				"selectedIconPath": "static/whoami_clicked.png",
-				"text": "(可能会改成记录功能)"
-			},
+
 			{
 				"iconPath": "static/more.png",
 				"pagePath": "pages/common/setting",

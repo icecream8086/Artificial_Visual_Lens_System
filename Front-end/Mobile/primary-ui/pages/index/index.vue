@@ -8,30 +8,38 @@
           <p class="text-area-title">hello ? 2 ?..</p>
 
           <view class="text-area">
-            
+
             <view class="main_button_normal">
               <image class="logo" src="../../static/sunshine.png"></image>
-              <p class="logo_context"> 天气状态(vue组件，基于定位)</p>
-            </view>  
-            
+              <view>
+                <button @click="uploadImage">上传图片(Res-Net 分类器)</button>
+
+              </view>
+            </view>
+
           </view>
 
           <view class="text-area">
-            
+
             <view class="main_button_normal">
               <image class="logo" src="../../static/sunshine.png"></image>
-              <p class="logo_context"> 查看日志</p>
-            </view>  
-            
+              <view>
+                <button @click="uploadImage">上传图片(自定义分类器)</button>
+                				<u-textarea placeholder="请输入文件夹路径" />
+
+              </view>
+              
+            </view>
+
           </view>
 
           <view class="text-area">
-            
+
             <view class="main_button_normal">
               <image class="logo" src="../../static/sunshine.png"></image>
-              <p class="logo_context"> 服务器负载</p>
-            </view>  
-            
+              <p class="logo_context"> 分析结果</p>
+            </view>
+
           </view>
         </view>
       </div>
@@ -121,6 +129,7 @@ export default {
   align-items: center;
   justify-content: center;
 }
+
 .main_button_clicked {
   /* 按钮主体 */
   position: relative;
@@ -154,6 +163,7 @@ export default {
   overflow: visible;
   z-index: 1;
 }
+
 .logo {
   /* Logo部分 */
   height: 50px;
@@ -183,11 +193,13 @@ export default {
   justify-content: center;
   color: white;
 }
+
 .button_icon {
   position: absolute;
 
   z-index: 2;
 }
+
 .text-area {
   display: flex;
   justify-content: center;
