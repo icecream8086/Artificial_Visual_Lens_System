@@ -5,6 +5,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 from lib.CNN_lib.dataset_normal import transform
 from lib.CNN_lib.net_model import ResNet_50_Customize
+import torchvision
 from lib.CNN_lib.data_split import data_split
 from tqdm import tqdm
 import json
@@ -12,10 +13,10 @@ import concurrent.futures
 import time
 from threading import Timer
 
-# val_loader, train_loader = data_split(path='dataset', transform=transform, train_rate=0.6, test_rate=0.2)
+val_loader, train_loader = data_split(path='dataset', transform=transform, train_rate=0.6, test_rate=0.2)
 
-# train_bar = tqdm(train_loader)  # 使用tqdm包装train_loader
-# val_bar = tqdm(val_loader)  # 使用tqdm包装val_loader
+train_bar = tqdm(train_loader)  # 使用tqdm包装train_loader
+val_bar = tqdm(val_loader)  # 使用tqdm包装val_loader
 class TrainAndTestModel:
     def __init__(self):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
@@ -71,6 +72,7 @@ class TrainAndTestModel:
         self.cancel()
         return json.dumps({"status": "success", "message": "Task completed.", "result": result})
 
+
     def cancel(self):
         if self.future:
             self.cancelled = True  # 设置取消任务的信号
@@ -80,9 +82,16 @@ class TrainAndTestModel:
 
 
     def train_and_test_model(self, dataset_path, module_name, train_rate, test_rate, lr, step_size, gamma, epochs):
-        val_loader, train_loader = data_split(path=dataset_path, transform=transform, train_rate=train_rate, test_rate=test_rate)
-        train_bar = tqdm(train_loader)  # 使用tqdm包装train_loader
-        val_bar = tqdm(val_loader)  # 使用tqdm包装val_loader
+        train_dataset = torchvision.datasets.ImageFolder(dataset_path, transform=transform)
+        val_dataset = torchvision.datasets.ImageFolder(dataset_path, transform=transform)
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64)
+        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=64)
+
+        # 保存 label_map
+        dataset = torchvision.datasets.ImageFolder(dataset_path, transform=transform)
+        print("dataset.class_to_idx",dataset.class_to_idx)
+        label_map = {v: k for k, v in dataset.class_to_idx.items()}
+        print("label_map",label_map)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         model = ResNet_50_Customize(num_classes=10)
@@ -109,7 +118,10 @@ class TrainAndTestModel:
             train_bar.close()  # 停止和清除进度条
             val_bar.close()
             if not self.future.cancelled(): # type: ignore
-                torch.save(model.state_dict(), f"./model/{module_name}")
+                torch.save({
+                    'model_state_dict': model.state_dict(),
+                    'label_map': label_map
+                }, f'./model/{module_name}.pth')
         if self.cancelled:
             self.cancelled = False  # 重置取消任务的信号
             return json.dumps({"status": "cancelled", "message": "Task was cancelled."})

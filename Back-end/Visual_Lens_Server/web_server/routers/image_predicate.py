@@ -36,16 +36,25 @@ def customized_resnet():
             return jsonify({'error': 'No image part in the request'}), 400
         file = request.files['image']
         label_names = request.form['label_names']
-        label_names = label_names.split(',')
+        if file.filename != '':
+            label_names = label_names.split(',')
+            
+        print("label_names",label_names)
         model_path = request.form['model_path']
-        print(label_names)
         if file.filename == '':
             return jsonify({'error': 'No selected image'}), 400
         if file and allowed_file(file.filename):
             result_json = predict_images(model_path,label_names,file)
             return result_json, 200
+    except ValueError as e:
+        if str(e) == "Either label_map or label_names must be provided.":
+            return jsonify({'error': str(e)}), 405
+        else:
+            return jsonify({'error': str(e)}), 500
     except Exception as e:
+        print("error",e)
         return jsonify({'error': str(e)}), 500
+    
 
 @image_predicate.route('/clip_predicate', methods=['POST']) # type: ignore
 def clip_predicate():
