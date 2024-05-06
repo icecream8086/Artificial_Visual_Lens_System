@@ -367,9 +367,15 @@ export default {
                         message: '任务正在进行中',
                         type: 'info',
                     })
-                } else if (this.train_result.state == "SUCCESS") {
+                } else if (this.train_result.state == "SUCCESS" & this.train_result.result!="{\"status\": \"error\", \"message\": \"Another task is running.\"}" ) {
                     this.train_model_dialog_info_visible = !this.train_model_dialog_info_visible;
-                } else {
+                }else if(this.train_result.result=="{\"status\": \"error\", \"message\": \"Another task is running.\"}"){
+                    ElNotification({
+                        title: 'Error',
+                        message: '任务失败,另一个任务正在进行',
+                        type: 'FAILURE',
+                    })                } 
+                else {
                     ElNotification({
                         title: 'Error',
                         message: '任务失败,参数错误',
