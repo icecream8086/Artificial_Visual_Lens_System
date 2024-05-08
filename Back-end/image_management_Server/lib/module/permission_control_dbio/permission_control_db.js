@@ -123,7 +123,7 @@ class DAG {
         // 更新内存中的权限组
         this.graph[nodeName] = node;
     }
-    async checkUserPermissions(userName, permissionsToCheck,debug = false) {
+    async checkUserPermissions(userName, permissionsToCheck,debug = true) {
         // 从数据库中获取用户
         let sql = 'SELECT roles FROM dag_users WHERE name = ?';
         let result = await query(sql, [userName]);

@@ -62,7 +62,7 @@ router.post('/uploadFile', async (req, res, next) => {
     const UID = req.headers.uid;
     const token = req.headers.token;
 
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     const upload = multer({ storage: storage_demo }).single('files');
     upload(req, res, async function (err) {
       if (err instanceof multer.MulterError) {
@@ -79,7 +79,7 @@ router.post('/uploadFile', async (req, res, next) => {
         fs.unlink(req.file.path, (err) => {
           if (err) throw err;
         });
-        return res.status(401).json({ message: 'File type is not supported.' });
+        return res.status(402).json({ message: 'File type is not supported.' });
       }
       let originalname = req.file?.originalname;
       let path = req.file?.path;
@@ -121,7 +121,7 @@ router.post('/uploadFile_backup_door', upload.single('files'), async (req, res, 
   // let token = req.headers.token;
   sql = '';
   try {
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
 
     let type_isimage = true;
 
@@ -161,7 +161,7 @@ router.post('/downloadFile/:filename', async (req, res, next) => {
     const filename = req.params.filename;
     let UID = req.headers.uid;
     let token = req.headers.token;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     let extend_path = req.body.extend_path;
     if (filename == undefined) {
       reject('file is undefined');
@@ -179,7 +179,7 @@ router.post('/downloadFile/:filename', async (req, res, next) => {
     });
 
   } catch (err) {
-    throw err;
+    // throw err;
     error_control(err, res, req);
 
   }
@@ -244,7 +244,7 @@ router.post('/deleteFile', async (req, res, next) => {
     let token = req.headers.token;
     let filename = req.body.file_name;
     let extend_path = req.body.path;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     if (filename == undefined) {
       return res.status(400).json({ message: 'Filename is undefined.' });
     }
@@ -280,7 +280,7 @@ router.get('/listFiles', async (req, res, next) => {
     if (extend_path == undefined) {
       extend_path = '';
     }
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     let fileDir = path.join('File_Stream', 'File_Block', UID, extend_path);
 
     let entries = fs.readdirSync(fileDir);
@@ -313,7 +313,7 @@ router.get('/listfolder', async (req, res, next) => {
   try {
     let UID = req.headers.uid;
     let token = req.headers.token;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
 
     let result = await get_effective_folder(UID);
     result = result.map(folder => {
@@ -326,8 +326,8 @@ router.get('/listfolder', async (req, res, next) => {
 
     return res.status(200).json({ "result": result });
   } catch (err) {
-    // error_control(err, res, req);
-    throw err;
+    error_control(err, res, req);
+    // throw err;
   }
 });
 
@@ -346,7 +346,7 @@ router.get('/watchfile/*/:filename' ,async (req, res, next) => {
     let filename = req.params.filename;
     console.log("path:" + path + `\n`);
     console.log("filename" + filename);
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     let permission = await check_visitor_permission(path, UID);
     let permission_flag = await folder_read(permission);
     if (permission_flag == false) {
@@ -367,7 +367,7 @@ router.get('/watchfolders', async (req, res, next) => {
     let token = req.headers.token;
     let path = req.headers.path;
     let permission_flag = false;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     file_name = await list_file_name(path);
     let permission = await check_visitor_permission(path, UID);
     permission_flag = await folder_read(permission);
@@ -392,7 +392,7 @@ router.post('/get_folder_info', async (req, res, next) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     let path = req.body.path;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     sha256 = await get_folder_psha(path);
     sha256 = sha256[0].sha256;
     let sql = `select * from documents_folder where sha256=?`;
@@ -420,7 +420,7 @@ router.post('/modify_folder_info', async (req, res, next) => {
     let classification = req.body.classification;
     let label = req.body.label;
     let remarks = req.body.remarks;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     let sha256 = await get_folder_psha(path);
     sha256 = sha256[0].sha256;
     let sql = `
@@ -446,7 +446,7 @@ router.post('/sync_folder', async (req, res, next) => {
     }
 
     let path = req.body.path;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     if (path == undefined) {
       return res.status(400).json({ message: 'Path is undefined.' });
     }
@@ -491,7 +491,7 @@ router.post('/sync_folder', async (req, res, next) => {
     WebSocketServer.sendMessage(`/publish/${queueName}`, messageObj);
 
   } catch (err) {
-    throw err;
+    //throw err;
     error_control(err, res, req);
   }
 });
@@ -501,7 +501,7 @@ router.post('/watchfolder_permission', async (req, res, next) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     let path = req.body.path;
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     let sha256 = await get_folder_psha(path);
     sha256 = sha256[0].sha256;
     let permission = await select_all_owner(sha256);
@@ -523,7 +523,7 @@ router.post('/modify_folder_permission', async (req, res, next) => {
     let flag_type = req.body.flag_type; // user ? group ?
     let ID_target = req.body.ID_target;
     let permission = req.body.permission; // r rw rwd
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
     let sha256 = await get_folder_psha(path);
     sha256 = sha256[0].sha256;
     if (flag_type == "user" || flag_type == "group") {
@@ -579,7 +579,7 @@ router.post('/delete_folder', async (req, res, next) => {
     let path = req.body.path;
     console.log(path);
 
-    // await validateToken(token, UID);
+    await validateToken(token, UID);
 
     // check permission
 
@@ -748,11 +748,11 @@ router.get('/list_dir', async (req, res, next) => {
 router.post('/test_models', async (req, res, next) => {
   try {
     let uid = req.headers.uid;
-    let token = req.headers.token;
-    // await validateToken(token, uid);
-    if (uid == undefined||token==undefined) {
-      return res.status(400).json({ message: 'UID or token is undefined.' });
-    }
+    // let token = req.headers.token;
+    // await validateToken(token, UID);
+    // if (uid == undefined||token==undefined) {
+    //   return res.status(400).json({ message: 'UID or token is undefined.' });
+    // }
     const data = {
       data_set_path: req.body.data_set_path,
       model_path: req.body.model_path,
@@ -793,7 +793,7 @@ router.post('/train_models', async (req, res, next) => {
   try {
     let uid = req.headers.uid;
     let token = req.headers.token;
-    // await validateToken(token, uid);
+    // await validateToken(token, UID);
     const data = {
       data_path: req.body.data_path,
       module_name: req.body.module_name,

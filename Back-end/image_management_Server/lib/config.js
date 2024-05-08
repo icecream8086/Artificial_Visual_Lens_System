@@ -8,5 +8,5 @@ module.exports = {
      * The target API for the project.
      * @type {string}
      */
-    apiTarget: 'http://10.21.78.154:5000',
+    apiTarget: 'http://localhost:5000',
 };

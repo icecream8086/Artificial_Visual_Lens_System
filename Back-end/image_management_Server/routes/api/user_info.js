@@ -7,7 +7,7 @@ const {validateToken} = require('../../lib/logic_module/check_user');
 const {validateInput_booleam} = require('../../lib/logic_module/checkBoolean');
 const {validate_authority_admin,validate_authority_root,validate_authority_modify,validate_authority_write,validate_authority_Read} = require('../../lib/logic_module/check_authority'); // authority check
 const { error_control } = require('../../lib/life_cycle/error_control');
-
+const {checkPermissionUser}=require('../../lib/module/permission_control_dbio/permission_user');
 const fs = require('fs');
 const multer = require('multer');
 
@@ -333,7 +333,6 @@ router.post('/Modify_banned_users', async (req, res, next) => {
     }
     try {
         await validateToken(token, UID);
-        await checkBoolean(is_banned);
         //UPDATE banned_users SET is_banned = your_is_banned WHERE UID = your_uid;
         let sql = `UPDATE banned_users SET`;
         if (is_banned!=undefined) {
@@ -415,6 +414,34 @@ router.post('/delete_account', async (req, res, next) => {
     } catch (err) {
         error_control(err, res, req);
 
+    }
+});
+router.get('/list_users', async (req, res, next) => {
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    try {
+        let permission_unit = '{"modify_user_info": 1}';    
+        let userName = "user_"+UID;
+        let judgement = await checkPermissionUser(userName, permission_unit);
+        if(judgement==false)
+        {
+          return res.status(401).json({ message: 'permission denied ...' });
+        }
+        await validateToken(token, UID);
+        sql = `
+            SELECT users.UID, users.username, users.email, banned_users.is_banned 
+            FROM users 
+            LEFT JOIN banned_users ON users.UID = banned_users.UID;
+        `;
+        /**
+         * Queries the database for a list of all users.
+         * @returns {Promise<any>} - A Promise that resolves with the result of the query.
+         */
+        const result = await query(sql);
+        
+        return res.status(200).json({ result });
+    } catch (err) {
+        error_control(err, res, req);
     }
 });
 module.exports = router;

@@ -64,6 +64,7 @@ async function removeUser(name) {
 }
 async function checkPermissionUser(userName,permission) {
     const permissions = JSON.parse(permission);
+    console.log(typeof permissions);
     let result= await dag.checkUserPermissions(userName,permissions);
     return result;
 }

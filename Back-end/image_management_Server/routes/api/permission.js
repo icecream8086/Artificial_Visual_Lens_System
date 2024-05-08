@@ -21,9 +21,7 @@ router.post('/createPermissionGroup', async (req, res) => {
     const token = req.headers.token;
     const UID = req.headers.uid;
     try {
-        await validateToken(token, UID).catch((err) => {
-            error_control(err, res, req);
-        });
+        await validateToken(token, UID);
         //检查permission是否为json格式
         let permission = JSON.parse(permissions);
 
@@ -193,7 +191,7 @@ router.post('/checkPermissionUser', async (req, res) => {
     const UID = req.headers.uid;
     const { userName, permission } = req.body;
     try {
-        // await validateToken(token, UID);
+        await validateToken(token, UID);
         let result = await checkPermissionUser(userName, permission);
         res.status(200).send(JSON.stringify({ result: result }));
     } catch (err) {
