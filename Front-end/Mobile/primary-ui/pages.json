@@ -1,10 +1,9 @@
 {
-
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-
 			"path": "pages/index/index",
 			"style": {
+				"navigationStyle": "custom",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -17,12 +16,14 @@
 		{
 			"path": "pages/common/setting",
 			"style": {
+				"navigationStyle": "custom",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
 		{
 			"path": "pages/common/scan",
 			"style": {
+				"navigationBarBackgroundColor": "#171717",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -35,6 +36,9 @@
 		{
 			"path": "pages/user/about",
 			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"navigationBarTextStyle": "white",
+				"backgroundTextStyle": "light",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -53,6 +57,20 @@
 		{
 			"path": "pages/woami/login_portal",
 			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/woami/forget_password",
+			"style": {
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/woami/login_token",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
 				"backgroundColor": "#F8F8F8"
 			}
 		},
@@ -63,99 +81,173 @@
 			}
 		},
 		{
-            "path" : "pages/camera/camera",
-            "style" :                                                                                    
-            {
-				"navigationStyle":"custom",
-				"backgroundColor":"#000000"
-            }
-        },
+			"path": "pages/camera/camera",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#000000"
+			}
+		},
 		{
-            "path" : "pages/camera/portrait/portrait",
-            "style" :                                                                                    
-            {
-				"navigationStyle":"custom",
-				"backgroundColor":"#000000"
-            }
-        }
-	    ,{
-            "path" : "pages/camera/idcard/idcard",
-            "style" :                                                                                    
-            {
-                "navigationStyle":"custom",
-                "backgroundColor":"#000000"
-            }
-            
-        }
-		,{
-            "path" : "pages/camera/idphoto/idphoto",
-            "style" :                                                                                    
-            {
-                "navigationStyle":"custom",
-                "backgroundColor":"#000000"
-            }
-            
-        }
-        ,{
-            "path" : "pages/camera/watermark/watermark",
-            "style" :                                                                                    
-            {
-               "navigationStyle":"custom",
-               "backgroundColor":"#000000"
-            }
-            
-        }
-		
+			"path": "pages/camera/portrait/portrait",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#000000"
+			}
+		},
+		{
+			"path": "pages/camera/idcard/idcard",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#000000"
+			}
+		},
+		{
+			"path": "pages/camera/idphoto/idphoto",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#000000"
+			}
+		},
+		{
+			"path": "pages/camera/watermark/watermark",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#000000"
+			}
+		}
+		,
+		{
+			"path": "pages/user/modify_presonal_info",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/control_panel/control_panel",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/test/A",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/test/B",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/test/C",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			//进度卡功能
+			"path": "pages/component/Progress_card",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			//图片详细信息
+			"path": "pages/control_panel/image_advanced_info",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		},
+		{
+			"path": "pages/test/chart",
+			"style": {
+				"navigationBarBackgroundColor": "#171717",
+				"backgroundColor": "#F8F8F8"
+			}
+		}
 	],
-	"tabBar": {		
+	"tabBar": {
 		"color": "#c0c4cc",
 		"selectedColor": "#65bbe8",
 		"borderStyle": "black",
-		"backgroundColor": "#ffffff",
+		"backgroundColor": "#171717",
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"iconPath": "static/index.png",
-				"selectedIconPath":"static/index_clicked.png",
+				"iconPath": "static/home.png",
+				"selectedIconPath": "static/home_clicked.png",
 				"navigationBarTitleText": "播放",
 				"text": "首页"
 			},
 			{
-				
 				"pagePath": "pages/common/result_manage",
 				"iconPath": "static/result_manage.png",
-				"selectedIconPath":"static/result_manage_clicked.png",
+				"selectedIconPath": "static/result_manage_clicked.png",
 				"text": "归档"
 			},
 			{
 				"iconPath": "static/scan.png",
-				"selectedIconPath":"static/scan_clicked.png",
+				"selectedIconPath": "static/scan_clicked.png",
 				"pagePath": "pages/common/scan",
 				"text": "扫描"
 			},
 			{
 				"iconPath": "static/whoami.png",
 				"pagePath": "pages/common/woami",
-				"selectedIconPath":"static/whoami_clicked.png",
+				"selectedIconPath": "static/whoami_clicked.png",
 				"text": "(可能会改成记录功能)"
 			},
-
 			{
-				"iconPath": "static/setting.png",
+				"iconPath": "static/more.png",
 				"pagePath": "pages/common/setting",
-				"selectedIconPath":"static/setting_clicked.png",
-
+				"selectedIconPath": "static/more_clicked.png",
 				"text": "设置"
 			}
-
-			
 		]
-		},
+	},
+	// "globalStyle": {
+	// 	"navigationBarBackgroundColor": "@navBgColor",
+	// 	"navigationBarTextStyle": "@navTxtStyle",
+	// 	"backgroundColor": "@bgColor",
+	// 	"backgroundTextStyle": "@bgTxtStyle",
+	// 	"backgroundColorTop": "@bgColorTop",
+	// 	"backgroundColorBottom": "@bgColorBottom"
+	// },
+	// "tabBar": {
+	// 	"color": "@tabFontColor",
+	// 	"selectedColor": "@tabSelectedColor",
+	// 	"backgroundColor": "@tabBgColor",
+	// 	"borderStyle": "@tabBorderStyle",
+	// 	"list": [
+	// 		{
+	// 			"iconPath": "@iconPath1",
+	// 			"selectedIconPath": "@selectedIconPath1"
+	// 		},
+	// 		{
+	// 			"iconPath": "@iconPath2",
+	// 			"selectedIconPath": "@selectedIconPath2"
+	// 		}
+	// 	]
+	// },
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
-//		"navigationBarTitleText": "",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarTextStyle": "@navTxtStyle",
+		//		"navigationBarTitleText": "",
+		"navigationBarTextStyle": "@navTxtStyle",
+		"navigationBarBackgroundColor": "@navBgColor",
+		"navigationBarTextStyle": "@navTxtStyle",
+		"backgroundColor": "@bgColor",
+		"backgroundTextStyle": "@bgTxtStyle",
+		"backgroundColorTop": "@bgColorTop",
+		"backgroundColorBottom": "@bgColorBottom"
 	},
 	"uniIdRouter": {}
 }

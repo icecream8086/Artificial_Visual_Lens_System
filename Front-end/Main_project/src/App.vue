@@ -38,5 +38,7 @@ export default {
 
 </script>
 <style>
-
+.box-card—blue {
+    border: 1px solid #00e5ff;
+}
 </style>

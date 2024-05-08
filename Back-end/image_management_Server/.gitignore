@@ -2,8 +2,7 @@
 node_modules
 /dist
 
-File_Stream/Avatar
-
+File_Stream
 # local env files
 .env.local
 .env.*.local

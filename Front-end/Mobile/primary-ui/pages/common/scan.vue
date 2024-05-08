@@ -1,5 +1,6 @@
 <template>
-	<view class="page">
+	<view class="login_bg_containe">
+		<view class="page">
 		<view style="height: 80rpx;"></view>
 		<navigator class="buttons" url="../camera/camera"><button type="primary">打开自定义相机</button></navigator>
 		<!-- <view style="height: 20rpx;"></view>
@@ -15,9 +16,14 @@
 		<view style="height: 80rpx;"></view>
 		
 		<view>拍摄结果预览</view>
-		<image  class="preview" :src="imagesrc" mode="aspectFit" style="width:710rpx:height:710rpx;margin: 20rpx;"></image>
+		<image  class="preview" :src="imagesrc" mode="aspectFit" style="     background-image: url('../../static/24gl-pictures.png');     background-size: auto; background-repeat: no-repeat; background-position: center;
+
+ width:710rpx:height:710rpx;margin: 20rpx;     border: 1px solid #1999ef;
+    padding: 1px color #1999ef;     background-color: #171717;
+ "></image>
 		
 		<canvas id="canvas-clipper" canvas-id="canvas-clipper" type="2d" :style="{width: canvasSiz.width+'px',height: canvasSiz.height+'px',position: 'absolute',left:'-500000px',top: '-500000px'}" />
+	</view>
 	</view>
 </template>
 
@@ -188,6 +194,27 @@ export default {
 };
 </script>
 
+<style lang="css">
+
+.login_bg_containe {
+  background-image: url("../../static/bokeh-hex.jpg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover; /* 或者 contain */
+  background-position: center;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: blue;
+}
+
+
+</style>
 <style lang="scss">
 .page {
 	width: 750rpx; 

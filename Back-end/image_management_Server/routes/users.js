@@ -60,6 +60,7 @@ router.get('/image_test', function(req, res, next) {
 
 
 
+
 // 配置multer
 const storage_demo = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -114,5 +115,35 @@ router.get('/search', function(req, res, next) {
   
 });
 
+router.post('/test_py', (req, res) => {
+  const options = {
+    hostname: 'localhost',
+    port: 5000,
+    path: '/api/data',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+
+  const req2 = http.request(options, (res2) => {
+    console.log(`statusCode: ${res2.statusCode}`);
+
+    res2.on('data', (data) => {
+      console.log(data.toString());
+      res.send(data.toString());
+    });
+  });
+
+  req2.on('error', (error) => {
+    console.error(error);
+    res.status(500).send('Internal server error');
+  });
+
+  const data = JSON.stringify(req.body);
+
+  req2.write(data);
+  req2.end();
+});
 
 module.exports = router;

@@ -7,20 +7,30 @@
 // // vue.config.js
 
 const { defineConfig } = require('@vue/cli-service')
+const config = require('./config');
 
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://192.168.1.100:3000',
+        target: config.apiTarget,
         changeOrigin: true,
-        ws: true,                       //是否代理 websockets
-        secure: true,                   //是否https接口
-        pathRewrite: {                  //路径重置
+        ws: true,
+        secure: true,
+        pathRewrite: {
           '^/api': ''
         }
       }
     }
-  }
+  },
+  configureWebpack: {
+    resolve: {
+      fallback: {
+        stream: require.resolve("stream-browserify"),
+         "crypto": require.resolve("crypto-browserify") 
+      },
+      
+    },
+  },
 })
