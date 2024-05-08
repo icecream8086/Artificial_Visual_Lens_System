@@ -36,6 +36,9 @@ def evaluate_model(model_path, test_loader, val_loader):
     # 将模型设置为评估模式
     model.eval()
 
+    # 准备输出的 JSON 数据
+    output_data = {}
+
     # 在验证集上评估模型
     with torch.no_grad():
         val_loss = 0.0
@@ -51,14 +54,10 @@ def evaluate_model(model_path, test_loader, val_loader):
             val_acc += (predicted == labels).sum().item()
             val_bar.set_postfix({'Loss': val_loss / len(val_loader), 'Accuracy': val_acc / len(val_loader)})
 
-            # 准备输出的 JSON 数据
-            output_data = {
-                'type': 'validation',
-                'validation_loss': val_loss / len(val_loader.dataset),
-                'validation_accuracy': val_acc / len(val_loader.dataset),
-            }
-
-            # 打印输出的 JSON 数据
+        output_data['validation'] = {
+            'validation_loss': val_loss / len(val_loader.dataset),
+            'validation_accuracy': val_acc / len(val_loader.dataset),
+        }
 
     # 在测试集上评估模型
     with torch.no_grad():
@@ -74,14 +73,12 @@ def evaluate_model(model_path, test_loader, val_loader):
             test_acc += (predicted == labels).sum().item()
             test_bar.set_postfix({'Loss': test_loss / len(test_loader), 'Accuracy': test_acc / len(test_loader)})
 
-            # 准备输出的 JSON 数据
-            output_data = {
-                'type': 'test',
-                'test_loss': test_loss / len(test_loader.dataset),
-                'test_accuracy': test_acc / len(test_loader.dataset)
-            }
-            return output_data
+        output_data['test'] = {
+            'test_loss': test_loss / len(test_loader.dataset),
+            'test_accuracy': test_acc / len(test_loader.dataset)
+        }
 
+    return output_data
 
 # # 加载数据集
 # # (path: str = 'dataset', transform: Compose = transform, train_rate: float = 0.6, test_rate: float = 0.2) -> tuple[Unknown, Unknown]

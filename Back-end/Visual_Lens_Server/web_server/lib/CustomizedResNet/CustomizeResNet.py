@@ -1,14 +1,19 @@
 from ..CNN_lib.sdk.access import ImageClassifier
 
-def predict_images(model_path,label_names, image_path):
-    classifier = ImageClassifier(model_path)
-    preds, idxs, label_names=classifier.predict_images(image_path, top_k=3, return_probs=True, label_names=label_names) # type: ignore
-    json = {
-        "predictions": preds,
-        "idxs": idxs,
-        "label_names": label_names
-    }
-    return json
+def predict_images(model_path, label_names, image_path):
+    try:
+        classifier = ImageClassifier(model_path)
+        preds, idxs, label_names = classifier.predict_images(image_path, top_k=3, return_probs=True, label_names=label_names)  # type: ignore
+        result = {
+            "predictions": preds,
+            "idxs": idxs,
+            "label_names": label_names
+        }
+    except Exception as e:
+        result = {
+            "error": str(e)
+        }
+    return result
 
 # #demo
 # model_path = './ResNet-0602.pth'
