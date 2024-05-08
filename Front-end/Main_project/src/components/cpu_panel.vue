@@ -105,25 +105,6 @@ export default {
     startInterval() {
       this.pausableInterval = new PausableInterval(() => {
         axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
-          // {
-          //   "cpuPercent": "2.22",
-          //     "memoryPercent": "21.18",
-          //       "coresPercent": "12.14, 12.08, 11.80, 12.12, 11.70, 11.71, 11.94, 11.63, 11.66, 11.21, 11.64, 11.62",
-          //         "cpuFreq": 3.7,
-          //           "cpuTemp": "25.00",
-          //             "cpuBrand": "Core™ i7-8700K",
-          //               "gpu_info": [
-          //                 {
-          //                   "name": "NVIDIA GeForce RTX 2070 SUPER",
-          //                   "gpu_id": 0,
-          //                   "total_memory": 8589934592,
-          //                   "free_memory": 8287289344,
-          //                   "used_memory": 302645248,
-          //                   "temperature": 19,
-          //                   "utilization": 0
-          //                 }
-          //               ]
-          // }
           this.percentages = parseFloat(res.data.memoryPercent);
           this.gpu_info = res.data.gpu_info;
           // console.log(this.gpu_info[0].used_memory);

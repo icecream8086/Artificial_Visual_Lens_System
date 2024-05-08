@@ -65,6 +65,8 @@
 </template>
 
 <script>
+const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
+            const localStorageJSON = new LocalStorageJSON();
 import axios from 'axios';
 import { ElNotification } from 'element-plus';
 
@@ -189,8 +191,8 @@ export default {
     try {
         const response = await axios.get('/api'+'/api/file/task_info/'+this.result_key_word3, {
             headers: {
-                'uid': '3',
-                'token': '', // Add your token here
+                'uid': localStorageJSON.read('UID'),
+                'token': localStorageJSON.read('token'), // Add your token here
             }
         });
         // Handle the response here

@@ -88,13 +88,14 @@ let task_id = ref("");
 let test_info = ref({});
 let validation_info = ref({});
 
-
+const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
+const localStorageJSON = new LocalStorageJSON();
 async function select_test_info() {
     try {
         const response = await axios.get('/api' + `/api/file/task_info/${task_id.value}`, {
             headers: {
-                'uid': 3,
-                'token': '', // 这里需要填写正确的token
+                'uid': localStorageJSON.read('UID'),
+                'token': localStorageJSON.read('token'), // 这里需要填写正确的token
             }
         });
 
@@ -160,8 +161,8 @@ async function test_model() {
             std: std.value
         }, {
             headers: {
-                'uid': 3,
-                'token': '',
+                'uid': localStorageJSON.read('UID'),
+                'token': localStorageJSON.read('token'),
             }
         });
 

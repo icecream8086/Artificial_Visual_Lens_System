@@ -121,10 +121,14 @@ function getFolderAttribute() {
 
 
 function modifyFolderAttribute() {
+  const localStorageJSON = new LocalStorageJSON();
+      let tokens = localStorageJSON.read('token');
+      let UID = localStorageJSON.read('UID');
   axios.post('/api'+'/api/file/modify_folder_info', {
+
       headers: {
-        'uid': "3",
-        'token': "",
+        'uid': UID,
+        'token': tokens,
       },
       path: requestPath.value,
       title: frolderName_modify.value,

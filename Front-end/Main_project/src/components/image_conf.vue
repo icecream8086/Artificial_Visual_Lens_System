@@ -44,11 +44,13 @@ export default {
     uploadFile() {
       let formData = new FormData();
       formData.append('files', this.selectedFile);
-
+      const localStorageJSON = new LocalStorageJSON();
+      let tokens = localStorageJSON.read('token');
+      let UID = localStorageJSON.read('UID');
       axios.post('/api'+'/api/file/uploadFile', formData, {
         headers: {
-          'uid': '3',
-          'token': '123',
+          'uid': UID,
+          'token':tokens,
           'path': '/'+this.path,
           'flag': '',
           'Content-Type': 'multipart/form-data'
