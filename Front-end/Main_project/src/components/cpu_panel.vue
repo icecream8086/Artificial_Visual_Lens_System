@@ -1,149 +1,149 @@
 <template>
-  <el-card class="box-card">
-    <div class="chart-container">
-      <div ref="chart" class="chart"></div>
+  <!-- doc: 内存状态面板 -->
+  <el-card class="box-card chart-container">
+    <div class="chart-container box-card ">
+      <el-scrollbar :height="400">
+        <div> 
+        <!-- 主界面 -->
+        <el-row>
+        <el-col :span="12">
+          <el-row>
+            <el-col :span="3"></el-col>
+            <el-col :span="9">
+              <p>主机内存消耗状态</p>
+            </el-col>
+            <el-col :span="12">
+            </el-col>
+            <el-col :span="24">
+              <el-progress type="dashboard" :percentage="percentages" :color="colors" :width="255" />
+            </el-col>
+          </el-row>
+        </el-col>
+        <el-col :span="12">
+          <el-row>
+            <el-col :span="3"></el-col>
+            <el-col :span="9">
+              <p>GPU 内存消耗状态</p>
+            </el-col>
+            <el-col :span="12">
+            </el-col>
+            <el-col :span="24">
+              <el-progress type="dashboard" :percentage="vram_useage" :color="colors" :width="255" />
+            </el-col>
+          </el-row>
+        </el-col>
+      </el-row>
+      </div>
+      <el-divider></el-divider>
+        <el-row>
+          <el-col :span="4">
+            <div>
+              gpu_id {{ gpu_id }}
+            </div>
+          </el-col>
+          <el-col :span="12">
+            <div> {{ name }}
+            </div>
+          </el-col>
+          <el-col :span="8">
+              <div>
+                GPU Temp {{ temperature }}°C
+              </div>
+          </el-col>
+        </el-row>
+      </el-scrollbar>
     </div>
   </el-card>
 </template>
 
+<script setup>
+
+
+const colors = [
+  { color: '#f56c6c', percentage: 20 },
+  { color: '#e6a23c', percentage: 40 },
+  { color: '#5cb87a', percentage: 60 },
+  { color: '#1989fa', percentage: 80 },
+  { color: '#6f7ad3', percentage: 100 },
+]
+
+
+
+</script>
+
 <script>
-import * as echarts from 'echarts';
+import { PausableInterval } from '@/lib/Interval2.js';
 import axios from 'axios';
 
 export default {
+  name: 'Memory_panel',
   data() {
     return {
-      chartData: {
-        cpuPercent: 'N/A',
-        memoryPercent: '24.94',
-        coresPercent: '1.36, 1.20, 1.06, 0.99, 1.06, 1.10, 0.84, 1.03, 1.01, 1.02, 1.06, 0.97',
-        cpuFreq: 3.7,
-        cpuTemp: '44.00'
-      },
-      chart: null,
-      timer: null,
-      xAxisData: [],
-      series1Data: [],
-      series2Data: []
-    };
+      pausableInterval: false,
+      percentages: 0,
+      gpu_infos:[],
+      vram_useage: 0,
+      utilization: 0,
+      gpu_id: 0,
+      name: '',
+      temperature: 0,
+    }
   },
-  mounted() {
-    this.chart = echarts.init(this.$refs.chart);
-    this.initChart();
-    this.startUpdatingData();
-    axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
-      this.chartData.cpuPercent = res.data.cpuPercent;
-      this.chartData.memoryPercent = res.data.memoryPercent;
-      this.chartData.coresPercent = res.data.coresPercent;
-      this.chartData.cpuFreq = res.data.cpuFreq;
-      this.chartData.cpuTemp = res.data.cpuTemp;
-      
-      console.log(this.chartData);
-
-    })
-      .catch(err => {
-        console.log(err);
-      })
-  },
-  beforeUnmount() {
-    clearInterval(this.timer);
+  watch: {
+    percentage: function (val) {
+      this.percentages = val;
+    },
+    paused: function (val) {
+      if (val) {
+        this.pauseInterval();
+      } else {
+        this.startInterval();
+      }
+    }
   },
   methods: {
-    initChart() {
-      const option = {
-        title: {
-          text: 'System Monitoring',
-          left: 'center',
-          textStyle: {
-            color: '#409EFF' // 设置文本颜色为白色
-          },
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          data: ['CPU Percent', 'Memory Percent'],
-          top: 'bottom',
-          textStyle: {
-            color: 'aqua' // 设置文本颜色为白色
-          },
-        },
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: this.xAxisData
-        },
-        yAxis: {
-          type: 'value',
-          boundaryGap: [0, '100%'],
-          min: 0,
-          max: 100,
-          axisLabel: {
-            formatter: '{value}%'
-          }
-        },
-        series: [
-          {
-            name: 'CPU Percent',
-            type: 'line',
-            data: this.series1Data,
-            smooth: true
-          },
-          {
-            name: 'Memory Percent',
-            type: 'line',
-            data: this.series2Data,
-            smooth: true
-          }
-        ]
-      };
+    startInterval() {
+      this.pausableInterval = new PausableInterval(() => {
+        axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
+          this.percentages = parseFloat(res.data.memoryPercent);
+          this.gpu_info = res.data.gpu_info;
+          // console.log(this.gpu_info[0].used_memory);
+          this.vram_useage = this.gpu_info[0].used_memory/this.gpu_info[0].total_memory*100;
+          this.vram_useage = parseFloat(this.vram_useage.toFixed(2));
+          this.utilization = this.gpu_info[0].utilization;
+          this.gpu_id = this.gpu_info[0].gpu_id;
+          this.name = this.gpu_info[0].name;
+          this.temperature = this.gpu_info[0].temperature;
 
-      this.chart.setOption(option);
-    },
-    startUpdatingData() {
-      this.timer = setInterval(() => {
-        this.updateChartData();
+        }).catch(err => {
+          console.log(err);
+        });
+        // console.log('interval loop...');
       }, 1000);
     },
-    updateChartData() {
-      // const cpuPercent = Math.random() * 100;
-      // const memoryPercent = Math.random() * 100;
-
-      // this.chartData.cpuPercent = cpuPercent.toFixed(2);
-      // this.chartData.memoryPercent = memoryPercent.toFixed(2);
-
-      const xAxisData = new Date().toLocaleTimeString();
-      const series1Data = parseFloat(this.chartData.cpuPercent);
-      const series2Data = parseFloat(this.chartData.memoryPercent);
-
-      this.xAxisData.push(xAxisData);
-      this.series1Data.push(series1Data);
-      this.series2Data.push(series2Data);
-
-      if (this.xAxisData.length > 10) {
-        this.xAxisData.shift();
-        this.series1Data.shift();
-        this.series2Data.shift();
+    pauseInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.pause();
       }
+    },
+    clearInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.clear();
+      }
+    },
+  },
+  mounted() {
+    this.startInterval();
+  },
+  props: {
+    paused: {
+      type: Boolean,
+      default: true,
+    },
+  },
 
-      this.chart.setOption({
-        xAxis: {
-          data: this.xAxisData
-        },
-        series: [
-          {
-            data: this.series1Data
-          },
-          {
-            data: this.series2Data
-          }
-        ]
-      });
-    }
-  }
-};
+}
 </script>
-
 <style scoped>
 .chart-container {
   width: 600px;
@@ -169,5 +169,6 @@ export default {
 
 .box-card {
   width: auto;
+  height: fit-content;
 }
 </style>

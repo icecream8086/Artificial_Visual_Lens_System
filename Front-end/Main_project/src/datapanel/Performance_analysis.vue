@@ -1,11 +1,11 @@
 <template>
-
-    <el-row>
+    <el-scrollbar :height="600">
+        <el-row>
         <el-col :span="12" >
-            <cpu_panel class="box-card—blue"></cpu_panel>
+            <cpu_panel class="box-card—blue" :paused="Movable"></cpu_panel>
         </el-col>
         <el-col :span="12">
-            <coresPercent_panel  class="box-card—blue" ref="coresPercentPanel" ></coresPercent_panel>
+            <coresPercent_panel  class="box-card—blue" :paused="Movable"></coresPercent_panel>
         </el-col>
         <el-col :span="12">
             <health_card  :healthy="true" :title="'CPU performance'"></health_card>
@@ -20,6 +20,7 @@
             <health_card :healthy="true" :title="'Memory performance'"></health_card>
         </el-col>
     </el-row>
+    </el-scrollbar>
 </template>
   
   
@@ -32,16 +33,22 @@ export default {
     name: 'Performance_analysis', // 修改为多个单词的组件名
     data() {
         return {
+            Movable: true,
         }
     },
     methods: {
-        reRenderComponent() {
-      // 在模板中添加一个空格
-      this.width += ' ';
-    },
+
+  },
+  watch: {
+    movable: function (val) {
+      this.Movable = val;
+    }
   },
   props: {
-    focce_refersh: Boolean,
+    movable: {
+      type: Boolean,
+      default: true,
+    },
     },
     components: {
         cpu_panel,
@@ -49,10 +56,6 @@ export default {
         health_card,
     },
     mounted() {
-    this.$nextTick(() => {
-      const coresPercentPanel = this.$refs.coresPercentPanel.$el;
-      coresPercentPanel.setAttribute('style', 'width: auto;');
-    });
     
   },
 }

@@ -9,7 +9,7 @@
       <el-main>
         <div class="common-layout">
           <el-container>
-            <el-header height="160px">
+            <el-header height="80px">
               <!-- <el-image style="position: relative; width: 100%; height: 100%" :src="url" :fit="bg_layout" /> -->
               <!-- <span
                 >I sit at my window this morning where the world like a
@@ -26,12 +26,12 @@
                       <el-col :span="2">
                         <div class="grid-content ep-bg-purple-light" />
                         <div class="flex">
-                          <el-button type="primary" :icon="Position">编辑个人信息 username</el-button>
+                          <el-button type="primary" :icon="Position" @click="navigate_to_modify_info">编辑个人信息 username</el-button>
                         </div>
                       </el-col>
                     </el-row>
                     <el-row>
-                      <el-col :span="2">
+                      <el-col :span="2" @click="sendEmail">
                         <!-- 发送邮件给 (将来改为悬浮窗口) -->
                         <el-icon size="25px">
                           <Promotion />
@@ -55,12 +55,10 @@
                     <div class="">
                       <el-avatar :size="120" :src=url @error="errorHandler">
                       </el-avatar>
-                      <p><el-text class="mx-1"> {{ username }}</el-text></p>
-
-
                     </div>
-                    <p>{{ "Organizations info" }}</p>
-                    <p>{{ "Individuals info" }}</p>
+                    <div>
+                      <info_dashboard></info_dashboard>
+                    </div>
                     <template>
                       <el-skeleton :rows="5" animated />
                     </template>
@@ -101,10 +99,12 @@
 <script setup>
 // don't move !!!
 import { Position, Link } from "@element-plus/icons-vue";
+
 </script>
 
 <script>
 import router from "@/router";
+import info_dashboard from "@/datapanel/info_dashboard.vue";
 export default {
   name: "AboutMyself",
   data() {
@@ -117,11 +117,17 @@ export default {
   mounted() {
     this.loadAvatar();
   },
+  components: {
+    info_dashboard,
+  },
   methods: {
     goBack() {
-      console.log("go back");
       //go back to dashboard
       router.push({ name: "dashboard" });
+    },
+    navigate_to_modify_info() {
+      //navigate to the page
+      router.push({ name: "modify_info" });
     },
     loadAvatar() {
       this.url=localStorage.getItem("avatarUrl");
@@ -129,7 +135,17 @@ export default {
       let basic_info=JSON.parse(data);
       this.username=basic_info.username;
       
-    }
+    },
+    sendEmail() {
+            this.$message({
+                showClose: true,
+                center: true,
+                message: '正在打开邮箱 ...',
+                type: 'success'
+            });
+            let emails = 'mailto:' + this.email;
+            window.open(emails);
+        }
   },
 };
 

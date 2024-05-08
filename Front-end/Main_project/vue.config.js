@@ -12,6 +12,10 @@ const config = require('./config');
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
+    client: {
+      overlay: false
+  },
+
     proxy: {
       '/api': {
         target: config.apiTarget,
@@ -21,6 +25,12 @@ module.exports = defineConfig({
         pathRewrite: {
           '^/api': ''
         }
+      },
+      '/server_ws': { 
+        target: config.wsTarget, 
+        changeOrigin: true,
+        ws: true, // 启用websocket
+        secure: true,
       }
     }
   },
@@ -28,7 +38,7 @@ module.exports = defineConfig({
     resolve: {
       fallback: {
         stream: require.resolve("stream-browserify"),
-         "crypto": require.resolve("crypto-browserify") 
+        "crypto": require.resolve("crypto-browserify") 
       },
       
     },

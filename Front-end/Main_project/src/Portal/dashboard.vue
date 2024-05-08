@@ -18,10 +18,10 @@
               <el-avatar :size="50" :src="circleUrl" />
             </div>
           </el-menu-item>
-          <el-menu-item><el-icon>
+          <el-menu-item @click="navigateTo_train"><el-icon>
               <MessageBox />
             </el-icon>
-            消息
+            训练
           </el-menu-item>
 
           <el-sub-menu index="3">
@@ -127,11 +127,11 @@
           <div v-if="booleanArray.at(1)">
             <host_info></host_info>
             <!-- this is body -->
-            <p>this is a demo page</p>
+            <!-- <p>this is a demo page</p>
             <p>主机信息页面-占位符</p>
             <p>将来配置局部刷新内容</p>
             <p>部分管理员专用组件可以隐藏</p>
-            <img src="../assets/test/ZxjqtA-q9Q9dCkSYapPkXOtD5MYaQxF4PXS2EHVG7Hc.png" alt="" srcset="" />
+            <img src="../assets/test/ZxjqtA-q9Q9dCkSYapPkXOtD5MYaQxF4PXS2EHVG7Hc.png" alt="" srcset="" /> -->
           </div>
         </el-main>
       </el-container>
@@ -143,6 +143,7 @@
 import {  ref } from "vue";
 import router from "@/router";
 import { useDark } from "@vueuse/core";
+const { LocalStorageJSON } = require('@/option/browser_IO/LocalStorage');
 
 import user_group from "@/Portal/User/user_group/user_group.vue";
 import Performance_analysis from "@/datapanel/Performance_analysis.vue";
@@ -151,7 +152,6 @@ import Analyze_Status from "@/datapanel/Analyze_Status.vue";
 import Step_recorder from "@/datapanel/Step_recorder.vue";
 import Host_Setting from "@/datapanel/Host_Setting.vue";
 import image_conf from "@/components/image_conf.vue";
-import Cookies from "js-cookie";
 import { apiTarget } from "../../config";
 import axios from 'axios';
 export default {
@@ -250,10 +250,11 @@ export default {
 
 /api/user/get_basic_info/{id}
       */
-      axios.get('/api' + '/api/user/get_basic_info/' + Cookies.get("UID"), {
+      const localStorageJSON = new LocalStorageJSON();
+      axios.get('/api' + '/api/user/get_basic_info/' + localStorageJSON.read('UID'), {
         headers: {
-          'UID': Cookies.get('UID'),
-          'token': Cookies.get('token'),
+          'UID': localStorageJSON.read('UID'),
+          'token': localStorageJSON.read('token'),
         }
       }).then(res => {
         this.whoami = res.data.results[0].full_name;
@@ -266,8 +267,13 @@ export default {
         })
 
     },
+    navigateTo_train() {
+      ///local_api/train
+      router.push({ name: "train" });
+    },
     loadAvatar() {
-      let url = apiTarget + "/api/user/get_Avatar/" + Cookies.get("UID");
+      let url = apiTarget + "api/user/get_Avatar/" + localStorage.getItem('UID');
+      console.log(url);
       localStorage.setItem('avatarUrl', url);
       this.circleUrl = url;
       this.loadUserBasicInfo();

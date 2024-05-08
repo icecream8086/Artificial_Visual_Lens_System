@@ -1,135 +1,162 @@
 <template>
+  <!-- doc: cpu核心状态面板 -->
   <el-card class="box-card">
-    <el-row>
-      <el-col :span="16">
-        <div ref="chart" style="height: 400px"></div>
-      </el-col>
-      <el-col :span="8" style="height: auto; width: auto;">
-        <p><el-text class="mx-3">CPU Core percentage: </el-text></p>
-        <div class="text-container">
-          <el-text class="mx-2 wda" v-for="(item, index) in arrs" :key="index" style="overflow: hidden;">
-            {{ item.name }}
-          </el-text>
+    <div class="chart-container">
+      <div ref="chart" class="chart">
+        <div class="chart-container">
+          <el-row>
+            <el-col :span="2"></el-col>
+            <el-col :span="12">
+              <div>
+                <el-progress type="dashboard" :percentage="Cpu_Percent" :width="250">
+                  <template #default="{ percentage }">
+                    <span class="percentage-value">{{ percentage }}%</span>
+                    <span class="percentage-label"></span>
+                  </template>
+                </el-progress>
+              </div>
+            </el-col>
+            <el-col :span="10">
+              <el-scrollbar :height="255">
+                <el-divider></el-divider>
+                <!-- cpu 每个核心的使用率 -->
+                <!-- <div>
+                  <cpu_progressbar :core_id="0" :percentages="1.2"></cpu_progressbar>
+                </div> -->
+                <div v-for="(item, index) in coresPercent" :key="index">
+                  <cpu_progressbar :core_id="index" :percentages="item"></cpu_progressbar>
+                </div>
+                <el-divider></el-divider>
+              </el-scrollbar>
+            </el-col>
+          </el-row>
+          <el-divider></el-divider>
+          <el-row>
+            <el-col :span="8">
+              <div>
+                CPU Temp {{ Cpu_Temp }}°C
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div>
+                CPU Freq {{ Cpu_Freq }}GHz
+              </div>
+            </el-col>
+            <el-col :span="8">
+              <div>
+                 {{ Cpu_Name }}
+              </div>
+            </el-col>
+          </el-row>
+          <p>&nbsp;</p>
         </div>
-
-      </el-col>
-    </el-row>
+      </div>
+    </div>
   </el-card>
 </template>
-  
+
 <script>
-import * as echarts from 'echarts';
+
+import { PausableInterval } from '@/lib/Interval2.js';
 import axios from 'axios';
+import cpu_progressbar from '@/components/sub_components/coresPercent_panel/cpu_progressbar.vue';
 export default {
+  name: 'coresPercent_panel', // 修改为多个单词的组件名
   data() {
     return {
-      // coresPercent: '1.36, 1.20, 1.06, 0.99, 1.06, 1.10, 0.84, 1.03, 1.01, 1.02, 1.06, 0.97',
-      coresPercent: '1, 1, 1, 1, 1, 1',
-      arrs: [],
-
-    };
+      pausableInterval: false,
+      Cpu_Temp: 0.0,
+      Cpu_Freq: 0.0,
+      Cpu_Name: 'cpu',
+      Cpu_Percent: 0.0,
+      coresPercent: [],
+    }
   },
   methods: {
-    convertToDictionary(str) {
-      const arr = str.split(',').map(item => item.trim());
-      const dictionary = arr.reduce((result, item, index) => {
-        result[index] = { index: index, name: item };
-        return result;
-      }, {});
-      return dictionary;
+    startInterval() {
+      this.pausableInterval = new PausableInterval(() => {
+        axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
+          // console.log(res);
+          // {
+          //     "cpuPercent": "0.25",
+          //     "memoryPercent": "8.01",
+          //     "coresPercent": "3.44, 3.83, 3.18, 3.27, 3.12, 2.96, 2.90, 3.01, 3.10, 3.28, 3.56, 2.94",
+          //     "cpuFreq": 3.7,
+          //     "cpuTemp": "24.00"
+          // }
+          this.Cpu_Temp = parseFloat(res.data.cpuTemp);
+          this.Cpu_Freq = parseFloat(res.data.cpuFreq);
+          this.Cpu_Percent = parseFloat(res.data.cpuPercent);
+          this.Cpu_Name = res.data.cpuBrand;
+          this.coresPercent = res.data.coresPercent.split(',').map(item => {
+            return parseFloat(item);
+          });
+        }).catch(err => {
+          console.log(err);
+        });
+        // console.log('interval loop...');
+      }, 1000);
     },
+    pauseInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.pause();
+      }
+    },
+    clearInterval() {
+      if (this.pausableInterval) {
+        this.pausableInterval.clear();
+      }
+    },
+  },
+  props: {
+    paused: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  watch: {
+    paused: function (val) {
+      if (val) {
+        this.pauseInterval();
+      } else {
+        this.startInterval();
+      }
+    }
+  },
 
-
+  components: {
+    cpu_progressbar
   },
   mounted() {
-    const chart = echarts.init(this.$refs.chart);
-    const option = {
-      radar: {
-        indicator: this.coresPercent.split(',').map((_, i) => ({
-          name: `Core ${i + 1}`,
-          max: 2,
-        })),
-        axisLine: {
-          lineStyle: {
-            color: 'green',
-            width: 2,
-            type: 'dashed',
-          },
-        },
-        splitLine: {
-          lineStyle: {
-            color: 'red',
-          },
-        },
-        name: {
-          textStyle: {
-            color: 'pink',
-          },
-        },
-        splitArea: {
-          areaStyle: {
-            color: ['yellow', 'gray'],
-          },
-        },
-      },
-      series: [{
-        type: 'radar',
-        itemStyle: {
-          color: 'aqua',
-          type: 'dashed',
-        },
-        symbol: 'none',
-        data: [{ value: this.coresPercent.split(',').map(Number) }],
-        //get number of cores from the coresPercent string
-      }],
-    };
-
-    chart.setOption(option);
-
-    setInterval(() => {
-      axios.get('/api' + '/api/host/cpu_statu_info').then(res => {
-        this.coresPercent = res.data.coresPercent;
-      })
-        .catch(err => {
-          console.log(err);
-        })
-
-      console.log(this.coresPercent);
-      this.arrs = this.convertToDictionary(this.coresPercent);
-      console.log(this.arrs);
-      const data = this.coresPercent.split(',').map(num => (parseFloat(num) / 100).toFixed(2)).join(',');
-      this.coresPercent = data;
-      chart.setOption({
-        radar: {
-          indicator: data.split(',').map((_, i) => ({
-            name: `Core ${i + 1}`,
-            max: 2,
-          })),
-        },
-        series: [{
-          type: 'radar',
-          data: [{ value: data.split(',').map(Number) }],
-        }],
-      });
-    }, 1000);
-
-
+    this.startInterval();
   },
-};
+}
 </script>
-<style>
-.wda {
-  color: aqua;
+
+<style scoped>
+.chart-container {
+  width: 600px;
+  height: 400px;
+  margin: 0 auto;
 }
 
-.text-container {
-  display: flex;
-  flex-wrap: wrap;
+.chart {
+  width: 100%;
+  height: 100%;
+}
+</style>
+
+
+<style scoped>
+.text {
+  font-size: 14px;
 }
 
-.text-container .mx-2 {
-  flex-basis: calc(33.33% - 4px);
-  /* 计算每个元素的宽度，减去margin的宽度 */
-  margin: 2px;
+.item {
+  padding: 18px 0;
+}
+
+.box-card {
+  width: auto;
 }
 </style>

@@ -3,12 +3,24 @@
     <div class="chart-container">
       <div ref="chart" class="chart"></div>
     </div>
-    <el-text class="mx-4"><p>DiskName: {{ chartData.diskName }}</p></el-text>
-    <el-text class="mx-4"><p>Path: {{ chartData.mountPoint }}</p></el-text>
-    <el-text class="mx-4"><p>FileSystem Type: {{ chartData.fstype }}</p></el-text>
-    <el-text class="mx-4"><p>TotalSize: {{ chartData.totalSize }}</p></el-text>
-    <el-text class="mx-4"><p>freeSize: {{ chartData.freeSize }}</p></el-text>
-    <el-text class="mx-4"><p>usedSize: {{ chartData.usedSize }}</p></el-text>
+    <el-text class="mx-4">
+      <p>DiskName: {{ chartData.diskName }}</p>
+    </el-text>
+    <el-text class="mx-4">
+      <p>Mount directory: {{ chartData.mountPoint }}</p>
+    </el-text>
+    <el-text class="mx-4">
+      <p>FileSystem Type: {{ chartData.fstype }}</p>
+    </el-text>
+    <el-text class="mx-4">
+      <p>TotalSize: {{ chartData.totalSize }} GB</p>
+    </el-text>
+    <el-text class="mx-4">
+      <p>freeSize: {{ chartData.freeSize }} GB</p>
+    </el-text>
+    <el-text class="mx-4">
+      <p>usedSize: {{ chartData.usedSize }} GB</p>
+    </el-text>
 
 
   </el-card>
@@ -17,8 +29,23 @@
 <script>
 import * as echarts from "echarts";
 import axios from 'axios';
+import {  ref,onBeforeUnmount } from 'vue';
 
 export default {
+  setup() {
+    const intervalId = ref(null);
+
+    onBeforeUnmount(() => {
+      if (intervalId.value) {
+        clearInterval(intervalId.value);
+        intervalId.value = null;
+      }
+    });
+
+    return {
+      intervalId,
+    };
+  },
   data() {
     return {
       chartData: {
@@ -30,31 +57,79 @@ export default {
         usedSize: 1,
       },
       chart: null,
+      Movable: false,
     };
   },
+
   mounted() {
     this.chart = echarts.init(this.$refs.chart);
     this.initChart();
-
-    setInterval(() => {
-      axios.get('/api' + '/api/host/diskInfo').then(res => {
-        this.diskName=res.data.diskName;
-        this.mountPoint=res.data.mountPoint;
-        this.fstype=res.data.fstype;
-        this.totalSize=res.data.totalSize;
-        this.freeSize=res.data.freeSize;
-        this.usedSize=res.data.usedSize;
-
-        this.chartData = res.data;
-        this.initChart();
-      })
-        .catch(err => {
-          console.log(err);
-
-        })
-    }, 100);
+    this.Movable = this.movable;
+    this.getdata();
   },
+  props: {
+    movable: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  watch: {
+  chartData: {
+    handler() {
+      this.initChart();
+    },
+    deep: true,
+  },
+  movable: {
+    handler(newVal) {
+      this.Movable = newVal;
+      console.log('movable changed', this.Movable);
+      this.getdata(); // 当 movable 改变时，调用 getdata
+    },
+    deep: true,
+  },
+},
   methods: {
+    getdata() {
+    // 如果已经有一个 interval 在运行，先停止它
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+
+    if (this.Movable) {
+      console.log('getdata called, Movable is', this.Movable);
+
+      this.intervalId = setInterval(() => {
+        // 如果 Movable 不为 true，立即停止定时器
+        if (!this.Movable) {
+          clearInterval(this.intervalId);
+          this.intervalId = null;
+          return;
+        }
+        /*
+        reques data ...
+        */
+        axios.get('/api' + '/api/host/diskInfo')
+          .then(res => {
+            this.diskName = res.data.diskName;
+            this.mountPoint = res.data.mountPoint;
+            this.fstype = res.data.fstype;
+            this.totalSize = res.data.totalSize;
+            this.freeSize = res.data.freeSize;
+            this.usedSize = res.data.usedSize;
+            this.chartData = res.data;
+            this.initChart();
+          })
+          .catch(err => {
+            console.log(err);
+          })
+       //
+      }, 1000);
+    }
+  },
+
     initChart() {
       const option = {
         title: {

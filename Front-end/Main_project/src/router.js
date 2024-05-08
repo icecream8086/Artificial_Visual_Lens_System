@@ -34,6 +34,13 @@ import add_image from '@/components/sub_components/add_image.vue';
 import image_preview from '@/components/sub_components/image_preview.vue';
 import manual from '@/Portal/manual.vue';
 import manual_page from '@/components/manual_page.vue'
+import MessageBox from '@/components/MessageBox.vue';
+import watchfolder from '@/components/watchfolder.vue';
+import folder_attribute_dialog from '@/components/folders/folder_attribute_dialog.vue';
+import chat_channel_demo from '@/components/chat_channel/demo.vue';
+import train from '@/components/train_module/train.vue';
+import modify_info from '@/Portal/User/modify_info.vue';
+
 //--------------Test----------------
 import Test_page from '@/test/card.vue';
 
@@ -253,7 +260,44 @@ const routes = [
     component:manual_page,
     name:'manual_page',
     meta :{title:'manual_page'}
+  },
+  {
+    path:'/local_api/MessageBox',
+    component:MessageBox,
+    name:'MessageBox',
+    meta :{title:'MessageBox'}
+  },
+  {
+    path: '/watchfolder/:message',
+    name: 'watchfolder',
+    component: watchfolder,
+    meta: { title: 'watchfolder' }
+  },
+  {
+    path: '/local_api/folder_attribute_dialog',
+    name: 'folder_attribute_dialog',
+    component: folder_attribute_dialog,
+    meta: { title: 'folder_attribute_dialog' }
+  },
+  {
+    path: '/local_api/chat_channel_demo',
+    name: 'folder_attribute_dialog',
+    component: chat_channel_demo,
+    meta: { title: 'folder_attribute_dialog' }
+  },
+  {
+    path: '/local_api/train',
+    name: 'train',
+    component: train,
+    meta: { title: 'train' }
+  },
+  {
+    path: '/local_api/modify_info',
+    name: 'modify_info',
+    component: modify_info,
+    meta: { title: 'modify_info' }
   }
+
 
 ];
 

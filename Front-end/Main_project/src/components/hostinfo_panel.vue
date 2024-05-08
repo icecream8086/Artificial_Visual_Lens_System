@@ -11,9 +11,24 @@
     
 <script>
 import axios from 'axios';
+import {  ref,onBeforeUnmount } from 'vue';
 
 export default {
   name: 'Hostinfo_panel',
+  setup() {
+    const intervalId = ref(null);
+
+    onBeforeUnmount(() => {
+      if (intervalId.value) {
+        clearInterval(intervalId.value);
+        intervalId.value = null;
+      }
+    });
+
+    return {
+      intervalId,
+    };
+  },
   data() {
     return {
       Default: 'Onload ...',
@@ -22,10 +37,46 @@ export default {
       osRelease: 'Onload ...',
       currentTime: 'Onload ...',
       runTime: 'Onload ...',
+      Movable: true,
+    }
+  },
+  watch: {
+    movable: function (val) {
+      this.Movable = val;
     }
   },
   mounted() {
-      setInterval(() => {
+    console.log("mounted");
+    this.Movable = this.movable;
+    this.getdata();
+  },
+  props: {
+    movable: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  methods: {
+    getdata() {
+    // 如果已经有一个 interval 在运行，先停止它
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+
+    if (this.Movable) {
+      console.log('getdata called, Movable is', this.Movable);
+
+      this.intervalId = setInterval(() => {
+        // 如果 Movable 不为 true，立即停止定时器
+        if (!this.Movable) {
+          clearInterval(this.intervalId);
+          this.intervalId = null;
+          return;
+        }
+        /*
+        reques data ...
+        */
         axios.get('/api' + '/api/host/monitorOsInfo').then(res => {
           this.Default = res.data.hostname;
           this.osName = res.data.osName;
@@ -37,9 +88,11 @@ export default {
         })
           .catch(err => {
             console.log(err);
-
           })
-      }, 1000)
+       //
+      }, 1000);
+    }
+  },
   },
 };
 </script>
