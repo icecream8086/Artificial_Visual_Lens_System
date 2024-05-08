@@ -31,9 +31,27 @@ class DAG {
     constructor() {
         this.graph = {};
         this.users = {};
+        this.loadNodesFromDB();
+        this.loadUsersFromDB();
     }
-
+    async loadNodesFromDB() {
+        let sql = 'SELECT * FROM nodes';
+        let result = await query(sql);
+        for (let row of result) {
+            let node = new Nodes(row.name, JSON.parse(row.permissions), row.priority);
+            this.graph[node.name] = node;
+        }
+    }
+    async loadUsersFromDB() {
+        let sql = 'SELECT * FROM dag_users';
+        let result = await query(sql);
+        for (let row of result) {
+            let user = new User(row.name, JSON.parse(row.roles));
+            this.users[user.name] = user;
+        }
+    }
     async addNode(node) {
+        try {
         // 检查是否已经存在具有相同名称的节点
         if (this.graph.hasOwnProperty(node.name)) {
             throw new Error(`A node with the name "${node.name}" already exists.`);
@@ -41,11 +59,29 @@ class DAG {
     
         await node.saveToDB();
         this.graph[node.name] = node;
+        
+        }
+        catch (error) {
+            // ER_DUP_ENTRY: Duplicate entry 'user_group5' for key 'nodes.nodes_UN'
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new Error(`A node with the name "${node.name}" already exists.`);
+            }
+        }
     }
 
     async addUser(user) {
         await user.saveToDB();
         this.users[user.name] = user;
+    }
+    async removeUser(userName) {
+        // 从数据库中移除用户
+        let sql = 'DELETE FROM dag_users WHERE name = ?';
+        await query(sql, [userName]);
+
+        // 从内存中移除用户
+        if (userName in this.users) {
+            delete this.users[userName];
+        }
     }
 
     async removeNode(nodeName) {
@@ -87,7 +123,53 @@ class DAG {
         // 更新内存中的权限组
         this.graph[nodeName] = node;
     }
+    async checkUserPermissions(userName, permissionsToCheck,debug = true) {
+        // 从数据库中获取用户
+        let sql = 'SELECT roles FROM dag_users WHERE name = ?';
+        let result = await query(sql, [userName]);
+        if (result.length === 0) {
+            throw new Error(`User "${userName}" does not exist.`);
+        }
+        // 获取用户的权限组
+        let userRoles = JSON.parse(result[0].roles);
+        // 合并用户的所有权限
+        let userPermissions = {};
+        if (debug) {
+            console.log('User roles:', userRoles);
+        }
+        for (let roleName of userRoles) {
+            // 从数据库中获取角色
+            sql = 'SELECT * FROM nodes WHERE name = ?';
+            let roleResult = await query(sql, [roleName]);
+            if (roleResult.length === 0) {
+                throw new Error(`Role "${roleName}" does not exist.`);
+            }
+            
+            let role = new Nodes(roleResult[0].name, JSON.parse(roleResult[0].permissions), roleResult[0].priority);
+            let rolePermissions = await this.getPermissions(role.name);
+            for (let key in rolePermissions) {
+                if (!userPermissions.hasOwnProperty(key) || rolePermissions[key] > userPermissions[key]) {
+                    userPermissions[key] = rolePermissions[key];
+                }
+            }
+        }
+        if (debug) {
+            console.log('User permissions:', userPermissions);
+        }
+    // 检查用户是否拥有所有要检查的权限
+    if(debug){
+        console.log('Permissions to check:', permissionsToCheck);
+        console.log(typeof permissionsToCheck);
+        console.log(typeof userPermissions);
+    }
+    for (let permission in permissionsToCheck) {
+        if (!userPermissions.hasOwnProperty(permission) || userPermissions[permission] < permissionsToCheck[permission]) {
+            return false;
+        }
+    }
 
+    return true;
+    }
     async addEdge(nodeName1, nodeName2) {
         let sql="";
 
@@ -158,9 +240,11 @@ class DAG {
 
     async mergeUserRoles(userName1, userName2) {
         // 从数据库中获取两个用户
+        console.log(userName1, userName2);
         let sql = 'SELECT * FROM dag_users WHERE name = ?';
         let result1 = await query(sql, [userName1]);
         let result2 = await query(sql, [userName2]);
+        console.log(result1);
         if (result1.length === 0 || result2.length === 0) {
             throw new Error(`One or both users do not exist.`);
         }
@@ -253,6 +337,9 @@ class DAG {
         let sql = 'SELECT permissions FROM nodes WHERE name = ?';
         let result = await query(sql, [nodeName]);
         let permissions = JSON.parse(result[0].permissions);
+        if (!this.graph.hasOwnProperty(nodeName)) {
+            throw new Error(`Node "${nodeName}" does not exist.`);
+        }
         for (let key in permissions) {
             if (permissions[key] < this.graph[nodeName].priority) {
                 permissions[key] = this.graph[nodeName].priority;

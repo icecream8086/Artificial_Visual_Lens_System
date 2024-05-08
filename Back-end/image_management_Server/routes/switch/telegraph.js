@@ -1,70 +1,54 @@
+// @ts-nocheck
 //通知功能
 const express = require('express');
 const router = express.Router();
-const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
-const redis = require('../../lib/datasource/redis_connection_promise');
+const query = require('../../lib/datasource/mysql_connection_promise');  // Database connection
+require('../../lib/logic_module/check_authority'); // authority check
+const {validateToken} = require('../../lib/logic_module/check_user');
+const { error_control } = require('../../lib/life_cycle/error_control');
 const { MessageQueue } = require('../../lib/logic_module/message_service');
-import { validateInput_is_null_or_empty } from '../../lib/logic_module/checkBoolean';
-const validateToken = require('../../lib/logic_module/check_user');
-
+const { validateInput_is_null_or_empty } = require('../../lib/logic_module/checkBoolean');
 const messageQueue = new MessageQueue();
+const WebSocketServer = require('../ws');
 //table my_frequency
-router.post('/telegraph/publish', async (req, res, next) => {
+router.post('/publish', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
+    let user = 'SELECT username FROM users WHERE UID = ?;';
+
     /**
      * Handles the request to switch to a new queue.
      * @param {Object} req - The request object.
      * @param {string} req.body.queueName - The name of the new queue.
      */
-    // CREATE TABLE `Silenced_user` (
-    //     `UID` int NOT NULL,
-    //     `shutup` tinyint(1) DEFAULT '0',
-    //     PRIMARY KEY (`UID`),
-    //     KEY `idx_uid` (`UID`) USING BTREE,
-    //     CONSTRAINT `banned_users_ibfk_1_copy_copy` FOREIGN KEY (`UID`) REFERENCES `users` (`UID`) ON DELETE CASCADE ON UPDATE CASCADE
-    //   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Redis广播功能黑名单';
     let queueName = req.body.queueName;
     let group_id = req.body.group_id;
     let message = req.body.message;
     let sql='select shutup from Silenced_user where UID=?';
     try {
         await validateInput_is_null_or_empty(UID, token);
-        await validateToken(UID, token);
+        await validateToken(token,UID );
+
         await query(sql, [UID]).then((result) => {
-            if (result[0].shutup == 1) {
+            if(result.length==0){
+                return;
+            }
+            else if 
+            (result[0].shutup == 1) {
                 throw new Error('you are in the blacklist');
             }
         }
-        );
-        await messageQueue.publish(queueName, message, UID?.toString(), group_id);
+    );
+        let name=await query(user,[UID]);
+        name=name[0].username;
+        await messageQueue.publish(queueName, message, name, group_id);
         res.json({ status: 'publish success' });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
+        error_control(err, res, req);
     }
 });
-router.get('/telegraph/consume', async (req, res, next) => {
-    let UID = req.headers.uid;
-    let token = req.headers.token;
-    /**
-     * Handles the request to switch to a new queue.
-     * @param {Object} req - The request object.
-     * @param {string} req.body.queueName - The name of the new queue.
-     */
-    let queueName = req.body.queueName;
-    let group_id = req.query.group_id;
-    try {
-        await validateInput_is_null_or_empty(UID, token);
-        await validateToken(UID, token);
-        messageQueue.consume(queueName, UID?.toString(), group_id?.toString(), (message) => {
-            res.json({ status: 'success', message: message });
-        });
-    } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
-    }
-});
-router.post('/telegraph/set_timeout', async (req, res, next) => {
+
+router.post('/set_timeout', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     /**
@@ -83,12 +67,14 @@ router.post('/telegraph/set_timeout', async (req, res, next) => {
         }, timeout);
         res.json({ status: 'success' });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
-router.get('/telegraph/get_frequency', async (req, res, next) => {
+
+
+router.get('/get_frequency', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     let group_id = req.body.group_id;
@@ -110,12 +96,12 @@ router.get('/telegraph/get_frequency', async (req, res, next) => {
         }
         res.json({ status: 'success', frequency: result[0].frequency });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
+        error_control(err, res, req);
+
     }
 });
 
-router.post('/telegraph/set_frequency', async (req, res, next) => {
+router.post('/telegraph/set_frequency', async (req, res) => {
     let UID = req.headers.uid;
     let token = req.headers.token;
     let group_id = req.body.group_id;
@@ -135,9 +121,8 @@ router.post('/telegraph/set_frequency', async (req, res, next) => {
         await query(sql, [UID, group_id, frequency]);
         res.json({ status: 'success' });
     } catch (err) {
-        return res.json({ status: 'error', message: err.message });
-        next(err);
+        error_control(err, res, req);
+
     }
 });
-
 module.exports = router;

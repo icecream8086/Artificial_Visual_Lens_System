@@ -11,9 +11,11 @@ const query = require('../../lib/datasource/mysql_connection_promise');  // Data
 const redis = require('../../lib/datasource/redis_connection_promise'); // Redis connection
 require('../../lib/logic_module/check_authority'); // authority check
 const { Store_token } = require('../../lib/logic_module/Load_Store_token'); // token load and store
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 const { validate_authority_root, validate_authority_admin } = require('../../lib/logic_module/check_authority');
 const { decrypt }=require('../../lib/hash/rsa_pwd');
+const { error_control } = require('../../lib/life_cycle/error_control');
+const { checkPermissionUser } = require('../../lib/module/permission_control_dbio/permission_user');
 /**
  * POST request to sign up a new user.
  * @name POST/api/auth/signup
@@ -134,8 +136,7 @@ router.post('/login', async (req, res, next) => {
     }
   } catch (err) {
     // return res.status(401).json({ message: err.message });
-    console.error('Error during login:', err);
-    next(err);
+    error_control(err, res, req);
   }
 });
 
@@ -191,9 +192,7 @@ router.post('/change_password', async (req, res, next) => {
     return res.json({ message: 'Password changed successfully.', result: updateResult });
 
   } catch (err) {
-    return res.status(401).json({ message: err.message });
-    console.error('Error during change password:', err);
-    next(err);
+    error_control(err, res, req);
   }
 });
 
@@ -226,8 +225,8 @@ router.post('/reset_password', async (req, res, next) => {
     return res.json({ message: 'Password reset successfully.' });
 
   } catch (err) {
-    console.error('Error during reset password:', err);
-    next(err);
+    error_control(err, res, req);
+
   }
 
 });
@@ -261,9 +260,8 @@ router.post('/flush_token', async (req, res, next) => {
     return res.json({ message: 'flush token successfully.' ,token:tokens});
   }
   catch (err) {
-    return res.status(401).json({ message: err.message });
-    console.error('Error during flush token:', err);
-    next(err);
+    error_control(err, res, req);
+
   }
 });
 
@@ -282,10 +280,60 @@ router.post('/create_token', async (req, res, next) => {
     
     return res.json({ user_uid:user_uid, user_token: tokens,effective_time:effective_time, message: 'create token successfully.' });
   } catch (err) {
-    return res.status(401).json({ message: err.message });
-    console.error('Error during get token:', err);
-    return next(err);
+    error_control(err, res, req);
+
   }
 });
+router.post('/create_user', async (req, res, next) => {
+  try {
+    const { username, email, password } = req.body;
+    let UID = req.headers.uid;
+    let token = req.headers.token;
+    let passwords = password.toString();
+    let userName = "user_"+UID;
 
+    let permission_unit = '{"add_user": 3}';    
+    let judgement = await checkPermissionUser(userName, permission_unit);
+    if(judgement==false)
+    {
+      return res.status(401).json({ message: 'permission denied ...' });
+    }
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: 'Username, email and password are required.' });
+    }
+
+    // Check if email or UID already exists
+    const existingUser = await query({
+      sql: `
+        SELECT * FROM users WHERE email = ? OR username = ?;
+      `,
+      values: [email, userName],
+    });
+
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: 'Email or UID already exists.' });
+    }
+
+    const result = await query({
+      sql: `
+        INSERT INTO users (username, email, password)
+        VALUES (?, ?, ?);
+      `,
+      values: [username, email, passwords],
+    });
+
+    if (result.affectedRows === 0) {
+      return res.status(500).json({ message: 'User creation failed.' });
+    } else {
+      const uidResult = await query('SELECT LAST_INSERT_ID() as uid;');
+      const uid = uidResult[0].uid;
+      return res.json({ message: 'User created successfully.', uid });
+    }
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ message: 'Username or email already exists.' });
+    }
+    error_control(err, res, req);
+  }
+});
 module.exports = router;

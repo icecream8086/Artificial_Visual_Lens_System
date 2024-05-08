@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const query = require('../../lib/datasource/mysql_connection_promise');  // 引用数据库连接
 const redis = require('../../lib/datasource/redis_connection_promise');
+import { get_group_id,get_group_info } from '../../lib/file_system/users';
 import { validateInput_is_null_or_empty } from '../../lib/logic_module/checkBoolean';
-const validateToken = require('../../lib/logic_module/check_user');
+const {validateToken} = require('../../lib/logic_module/check_user');
 import {
     validate_authority_admin,
     validate_authority_root,
@@ -13,7 +14,7 @@ import {
     validate_authority_IO,
 } from '../../lib/logic_module/check_authority';
 
-router.get('/get_group_info', async (req, res, next) => {
+router.get('/get_group_id', async (req, res, next) => {
     // list group menber
     let UID = req.headers.uid;
     let token = req.headers.token;
@@ -137,11 +138,12 @@ router.get('/get_group', async (req, res, next) => {
      *
      * @type {string}
      */
-    let sql = 'SELECT group_name,group_id FROM user_group ;';
     try {
         await validateInput_is_null_or_empty(UID, token);
-        await validateToken(token, UID);
-        let result = await query(sql);
+        await validateToken(UID);
+        let gid= await get_group_id(UID);
+        
+        let result = await get_group_info(gid);
         return res.status(200).json({ message: result });
     } catch (error) {
         return res.status(401).json({ message: error.message });

@@ -3,13 +3,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const {generateKeyPair} = require('./lib/hash/rsa_pwd');
+const { generateKeyPair } = require('./lib/hash/rsa_pwd');
 //require the users.js file in the API server
 var indexRouter = require('./routes/index');
 
 var usersRouter = require('./routes/users');
 var authRouter = require('./routes/api/auth');
 var permissionRouter = require('./routes/api/permission');
+var telegraph_router = require('./routes/switch/telegraph');
 var user_info_Router = require('./routes/api/user_info');
 var host_info_Router = require('./routes/api/host');
 var file_stream_router = require('./routes/FileStream/LocalFile');
@@ -17,6 +18,8 @@ var file_stream_router = require('./routes/FileStream/LocalFile');
 var app = express();
 const { publicKey, privateKey } = generateKeyPair();
 global.keyPair = { publicKey, privateKey };
+
+global.syncid = 0;
 // console.log(publicKey+'\n'+privateKey+'\n');
 // view engine setup
 const publicPath = './File_Stream/File_Block';
@@ -41,13 +44,14 @@ app.use('/api/user', user_info_Router);
 app.use('/api/host', host_info_Router);
 app.use('/api/file', file_stream_router);
 app.use('/api/permission', permissionRouter);
+app.use('/telegraph', telegraph_router);
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

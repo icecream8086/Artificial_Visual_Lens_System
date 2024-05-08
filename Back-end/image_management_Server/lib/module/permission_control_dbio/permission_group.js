@@ -26,8 +26,14 @@ async function setDependency(child, parent) {
 }
 
 // 获取权限组
-async function getPermissionGroup(name) {
-    return await dag.printPermissions(name,true);
+async function getPermissionGroup(name,mode="select") {
+    if (mode === "select") {
+        return await dag.printPermissions(name,true);
+    }else if (mode === "list") {
+        let sql="SELECT name,permissions,priority FROM nodes";
+        let result = await query(sql);
+        return result;
+    }
 }
 
 // 删除权限组
